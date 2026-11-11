@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+<meta name="robots" content="noindex,nofollow">
+<title>노트 쓰기 | 보라다방</title>
+<link rel="icon" type="image/png" sizes="32x32" href="../../img/icon/icon-32.png">
+<link rel="apple-touch-icon" href="../../img/icon/icon-180.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../../assets/notes.css?v=1">
+<script>try{if(localStorage.getItem('bora_theme')==='paper')document.documentElement.dataset.theme='paper'}catch(e){}</script>
+<style>
+.w .wrap{padding-bottom:120px}
+.w h1.lt{margin-top:24px}
+.btn{appearance:none;border:1px solid var(--line);background:none;border-radius:999px;padding:10px 18px;font-size:14px;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;color:var(--ink)}
+.btn.pri{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600}
+.btn.lamp{background:var(--lamp);color:#1b1208;border-color:var(--lamp);font-weight:600}
+.btn.warn{color:#e59a9a;border-color:rgba(229,154,154,.4)}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.card{background:var(--surf);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
+.help{font-size:13.5px;color:var(--mut);line-height:1.75}
+.help ol{padding-left:1.2em;margin:.6em 0}
+input[type=text],input[type=password],input[type=date],textarea,select{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px}
+label.f{display:block;font-size:12.5px;letter-spacing:.08em;color:var(--mut);margin:22px 0 8px}
+/* 목록 */
+.mine{list-style:none;margin:16px 0 0;padding:0}
+.mine li{border-bottom:1px solid var(--line)}
+.mine button{width:100%;text-align:left;background:none;border:0;padding:16px 0;cursor:pointer;display:flex;gap:12px;align-items:center}
+.mine b{display:block;font:600 16.5px/1.45 var(--serif)}
+.mine small{color:var(--mut);font-size:12.5px}
+.tag{flex:none;font-size:11px;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--mut)}
+.tag.d{color:var(--lamp);border-color:var(--lamp)}
+/* 편집 */
+.ebar{position:sticky;top:0;z-index:6;display:flex;align-items:center;gap:8px;justify-content:space-between;padding:10px 0;background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.ebar .st{font-size:12px;color:var(--mut);flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.chips button{border:1px solid var(--line);background:none;border-radius:999px;padding:8px 14px;font-size:13.5px;cursor:pointer;color:var(--mut);min-height:38px}
+.chips button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+#eTitle{border:0;background:none;padding:18px 0 6px;font:600 clamp(24px,6.4vw,34px)/1.38 var(--serif);resize:none;overflow:hidden;border-radius:0}
+#eTitle:focus{outline:none}
+.ed{min-height:46vh;margin-top:14px;padding:4px 0 24px;outline:none}
+.ed:empty::before,.ed>p:only-child:has(br:only-child)::before{content:attr(data-ph);color:var(--mut);opacity:.7;pointer-events:none}
+.ed figure{position:relative}
+.ed figcaption:empty::before{content:"사진 설명 (적지 않아도 돼요)";color:var(--mut);opacity:.6}
+.ed img.sel{outline:2px solid var(--lamp);outline-offset:2px}
+.imgx{position:absolute;top:8px;right:8px;z-index:2;border:0;border-radius:999px;background:rgba(0,0,0,.66);color:#fff;font-size:13px;padding:8px 12px;cursor:pointer}
+.ed .lyric:empty::before{content:"가사를 적어요";color:var(--mut)}
+.tools{position:fixed;left:0;right:0;bottom:0;z-index:8;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;
+  padding:8px max(12px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 8px) max(12px,env(safe-area-inset-left,0px));
+  background:color-mix(in srgb,var(--surf) 94%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-top:1px solid var(--line)}
+.tools::-webkit-scrollbar{display:none}
+.tools button{flex:none;border:0;background:none;border-radius:10px;min-width:52px;height:46px;padding:0 10px;font-size:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--ink)}
+.tools button b{font:600 15px/1 var(--serif)}
+.tools button:active{background:var(--surf2)}
+.tools .sep{width:1px;background:var(--line);margin:8px 4px;flex:none}
+.meta2{margin-top:36px;padding-top:8px;border-top:1px solid var(--line)}
+.covers{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.covers button{flex:none;width:72px;height:72px;border-radius:8px;border:2px solid transparent;padding:0;overflow:hidden;cursor:pointer;background:var(--surf)}
+.covers button[aria-pressed=true]{border-color:var(--lamp)}
+.covers img{width:100%;height:100%;object-fit:cover;display:block}
+.serp{background:var(--surf);border-radius:12px;padding:14px 16px}
+.serp .u{font-size:12px;color:var(--mut)}
+.serp .t{font:600 17px/1.4 var(--ui);color:#8ab4f8;margin:4px 0}
+:root[data-theme=paper] .serp .t{color:#1a0dab}
+.serp .d{font-size:13.5px;color:var(--mut);line-height:1.6}
+.warnline{font-size:12.5px;color:var(--lamp);margin-top:6px}
+.count{font-size:12px;color:var(--mut);text-align:right;margin-top:4px}
+.chk{display:flex;gap:10px;align-items:center;font-size:14px;margin-top:10px}
+.chk input{width:20px;height:20px}
+.sheet{position:fixed;inset:0;z-index:30;background:rgba(5,3,8,.6);display:flex;align-items:flex-end;justify-content:center}
+.sheet[hidden]{display:none}
+.sheet .in{width:100%;max-width:560px;background:var(--surf);border-radius:18px 18px 0 0;padding:22px 20px calc(env(safe-area-inset-bottom,0px) + 22px);max-height:88vh;overflow:auto}
+.sheet h2{font:600 20px/1.4 var(--serif);margin:0 0 8px}
+.pv{position:fixed;inset:0;z-index:40;background:var(--bg);display:flex;flex-direction:column}
+.pv[hidden]{display:none}
+.pv .pb{display:flex;justify-content:space-between;align-items:center;padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 10px;border-bottom:1px solid var(--line);font-size:13px;color:var(--mut)}
+.pv iframe{flex:1;border:0;width:100%;background:var(--bg)}
+.busy{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:rgba(5,3,8,.55);color:#fff;font-size:15px}
+.busy[hidden]{display:none}
+</style>
+</head>
+<body class="w">
+<header class="bar"><a class="logo" href="../../">보라다방</a><nav><a href="../">노트</a><button class="theme" type="button" aria-label="밤·종이 화면 바꾸기"><i></i></button></nav></header>
+<main class="wrap" id="app"></main>
+<div class="sheet" id="sheet" hidden><div class="in" id="sheetIn"></div></div>
+<div class="pv" id="pv" hidden><div class="pb"><span>미리보기 · 아직 올라가지 않았어요</span><button class="btn" id="pvX" type="button">닫기</button></div><iframe id="pvF" title="미리보기"></iframe></div>
+<div class="busy" id="busy" hidden><span id="busyT">올리는 중…</span></div>
+<script type="module">
+import { SITE, CATS, catName, renderPost, renderList, renderSitemap, renderRss, autoSummary, plain } from '../../assets/notes-render.js';
+
+const REPO = 'ysangyn/bora_hp', BRANCH = 'main';
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const LS = { get(k, d = null) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }, del(k) { try { localStorage.removeItem(k); } catch (e) {} } };
+const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+let KEY = (() => { try { return localStorage.getItem('bora_wkey') || ''; } catch (e) { return ''; } })();
+let tt = 0;
+const toast = m => { let t = $('.toast'); if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); } t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 2600); };
+const busy = (on, t) => { $('#busy').hidden = !on; if (t) $('#busyT').textContent = t; };
+$('.theme').onclick = () => { const r = document.documentElement, p = r.dataset.theme !== 'paper'; if (p) r.dataset.theme = 'paper'; else delete r.dataset.theme; try { localStorage.setItem('bora_theme', p ? 'paper' : 'night'); } catch (e) {} };
+
+/* ── GitHub: 저장소에 바로 쓰기 ── */
+async function gh(path, opt = {}) {
+  const r = await fetch('https://api.github.com' + path, { ...opt, cache: 'no-store', headers: { Authorization: 'Bearer ' + KEY, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', ...(opt.body ? { 'Content-Type': 'application/json' } : {}) } });
+  if (!r.ok) { const t = await r.text(); const e = new Error(r.status + ' ' + t.slice(0, 160)); e.status = r.status; throw e; }
+  return r.status === 204 ? null : r.json();
+}
+const encPath = p => p.split('/').map(encodeURIComponent).join('/');
+const b64dec = b => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\n/g, '')), c => c.charCodeAt(0)));
+const utf8b64 = s => { const u = new TextEncoder().encode(s); let bin = ''; for (let i = 0; i < u.length; i += 0x8000) bin += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(bin); };
+const blobB64 = b => new Promise((res, rej) => { const f = new FileReader(); f.onload = () => res(String(f.result).split(',')[1]); f.onerror = rej; f.readAsDataURL(b); });
+async function getText(path) { try { const j = await gh(`/repos/${REPO}/contents/${encPath(path)}?ref=${BRANCH}`); return b64dec(j.content); } catch (e) { if (e.status === 404) return null; throw e; } }
+async function getJSON(path, d) { const t = await getText(path); return t == null ? d : JSON.parse(t); }
+async function commit(files, msg) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const ref = await gh(`/repos/${REPO}/git/ref/heads/${BRANCH}`), base = ref.object.sha, bc = await gh(`/repos/${REPO}/git/commits/${base}`), tree = [];
+    for (const f of files) {
+      if (f.del) { tree.push({ path: f.path, mode: '100644', type: 'blob', sha: null }); continue; }
+      const content = f.blob ? await blobB64(f.blob) : utf8b64(f.text);
+      const b = await gh(`/repos/${REPO}/git/blobs`, { method: 'POST', body: JSON.stringify({ content, encoding: 'base64' }) });
+      tree.push({ path: f.path, mode: '100644', type: 'blob', sha: b.sha });
+    }
+    const t = await gh(`/repos/${REPO}/git/trees`, { method: 'POST', body: JSON.stringify({ base_tree: bc.tree.sha, tree }) });
+    const c = await gh(`/repos/${REPO}/git/commits`, { method: 'POST', body: JSON.stringify({ message: msg, tree: t.sha, parents: [base] }) });
+    try { await gh(`/repos/${REPO}/git/refs/heads/${BRANCH}`, { method: 'PATCH', body: JSON.stringify({ sha: c.sha }) }); return c.sha; }
+    catch (e) { if (e.status !== 422 || attempt === 2) throw e; }          // 그 사이 다른 변경이 들어왔으면 다시
+  }
+}
+
+/* ── 사진: 이 기기 안에서 줄이고(최대 1600px) 위치 정보 없이 다시 저장 ── */
+const IDB = (() => { let dbp = null; const db = () => dbp || (dbp = new Promise((res, rej) => { const r = indexedDB.open('bora_write', 1); r.onupgradeneeded = () => r.result.createObjectStore('img'); r.onsuccess = () => res(r.result); r.onerror = rej; }));
+  const tx = async (m, f) => { const d = await db(); return new Promise((res, rej) => { const t = d.transaction('img', m), s = t.objectStore('img'), q = f(s); t.oncomplete = () => res(q && q.result); t.onerror = rej; }); };
+  return { put: (k, v) => tx('readwrite', s => s.put(v, k)).catch(() => {}), get: k => tx('readonly', s => s.get(k)).catch(() => null), del: k => tx('readwrite', s => s.delete(k)).catch(() => {}) }; })();
+async function shrink(file) {
+  let bmp; try { bmp = await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch (e) { bmp = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(file); }); }
+  const w0 = bmp.width, h0 = bmp.height, k = Math.min(1, 1600 / Math.max(w0, h0)), w = Math.round(w0 * k), h = Math.round(h0 * k);
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const g = cv.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(bmp, 0, 0, w, h);
+  let blob = await new Promise(r => cv.toBlob(r, 'image/webp', .84)); let ext = 'webp';
+  if (!blob || blob.type !== 'image/webp') { blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', .86)); ext = 'jpg'; }
+  return { blob, ext, w, h };
+}
+const PEND = new Map();      // 'img/notes/…' → blob (아직 올리지 않은 사진)
+
+/* ── 상태 ── */
+let INDEX = null, TRACKS = [], cur = null, saveT = 0;
+const rid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+const pad = n => String(n).padStart(2, '0');
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+const ROOT = '../../';
+const toView = html => String(html || '').replace(/(<img\b[^>]*?\bsrc=")(img\/)/g, `$1${ROOT}$2`);
+
+async function loadIndex() { INDEX = await getJSON('data/notes.json', []); return INDEX; }
+async function loadTracks() { try { TRACKS = await (await fetch(ROOT + 'data/tracks.json', { cache: 'no-store' })).json(); } catch (e) { TRACKS = []; } }
+
+/* ── 화면 1: 쓰기 열쇠 ── */
+function viewKey(err) {
+  $('#app').innerHTML = `<h1 class="lt">노트 쓰기</h1>
+  <p class="ls">이 기기에서 처음 한 번만 '쓰기 열쇠'를 넣으면 돼요.</p>
+  <div class="card" style="margin-top:24px">
+    <label class="f" for="kIn" style="margin-top:0">쓰기 열쇠</label>
+    <input type="password" id="kIn" autocomplete="off" placeholder="github_pat_…" value="">
+    ${err ? `<p class="warnline">${esc(err)}</p>` : ''}
+    <div class="row" style="margin-top:14px"><button class="btn pri" id="kOk" type="button">열쇠 넣기</button></div>
+    <div class="help" style="margin-top:18px">열쇠는 이 휴대폰(브라우저)에만 저장돼요. 휴대폰을 잃어버리면 GitHub에서 그 열쇠를 지우면 돼요.
+      <details style="margin-top:10px"><summary>열쇠 만드는 법 (영상이가 한 번 만들어 주면 돼요)</summary>
+      <ol><li>GitHub 로그인 → 오른쪽 위 사진 → Settings → 맨 아래 Developer settings</li>
+      <li>Personal access tokens → <b>Fine-grained tokens</b> → Generate new token</li>
+      <li>이름: 보라다방 노트 · 만료일: 가장 길게</li>
+      <li>Repository access: <b>Only select repositories</b> → <b>bora_hp</b></li>
+      <li>Permissions → Repository permissions → <b>Contents: Read and write</b></li>
+      <li>Generate token → 나온 글자(github_pat_로 시작)를 복사해 위 칸에 붙여 넣기</li></ol></details></div>
+  </div>`;
+  $('#kOk').onclick = async () => {
+    const k = $('#kIn').value.trim(); if (!k) return;
+    KEY = k; busy(true, '열쇠를 확인하는 중…');
+    try { const j = await gh(`/repos/${REPO}`); if (!(j.permissions && j.permissions.push)) throw new Error('이 열쇠로는 글을 올릴 수 없어요. Contents 권한을 Read and write로 해 주세요.');
+      try { localStorage.setItem('bora_wkey', k); } catch (e) {} busy(false); toast('열쇠를 넣었어요'); route();
+    } catch (e) { busy(false); KEY = ''; viewKey(e.status === 401 ? '열쇠가 맞지 않아요. 다시 복사해 주세요.' : (e.message || '확인하지 못했어요')); }
+  };
+}
+
+/* ── 화면 2: 내 노트 목록 ── */
+async function viewList() {
+  $('#app').innerHTML = `<h1 class="lt">노트 쓰기</h1><p class="ls">불러오는 중…</p>`;
+  let idx; try { idx = await loadIndex(); } catch (e) { if (e.status === 401) { forgetKey(); return; } $('#app').innerHTML = `<h1 class="lt">노트 쓰기</h1><p class="ls">목록을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.</p>`; return; }
+  const drafts = Object.keys(localStorage).filter(k => k.startsWith('bora_draft_')).map(k => LS.get(k)).filter(Boolean).sort((a, b) => (b.saved || 0) - (a.saved || 0));
+  const dIds = new Set(drafts.map(d => d.id));
+  $('#app').innerHTML = `<h1 class="lt">노트 쓰기</h1>
+  <p class="ls">글 ${idx.length}편${drafts.length ? ` · 이 기기에 쓰다 만 글 ${drafts.length}편` : ''}</p>
+  <div class="row" style="margin-top:22px"><button class="btn lamp" id="nNew" type="button">＋ 새 노트 쓰기</button><a class="btn" href="../">노트 보러 가기</a></div>
+  <ul class="mine">${drafts.map(d => `<li><button type="button" data-d="${esc(d.id)}"><span class="tag d">쓰는 중</span><span><b>${esc(d.title || '(제목 없음)')}</b><small>${new Date(d.saved).toLocaleString('ko-KR')} 저장</small></span></button></li>`).join('')}
+  ${idx.filter(p => !dIds.has(p.id)).map(p => `<li><button type="button" data-p="${esc(p.id)}"><span class="tag">${esc(catName(p.cat))}</span><span><b>${esc(p.title)}</b><small>${p.date.slice(0, 10).replace(/-/g, '.')}</small></span></button></li>`).join('')}</ul>
+  <div class="help" style="margin-top:40px">쓰다 만 글은 이 기기에만 남아요. 올린 글을 고치려면 목록에서 누르세요.<br><button class="btn" id="kOut" type="button" style="margin-top:12px">이 기기에서 열쇠 빼기</button></div>`;
+  $('#nNew').onclick = () => openEditor(null);
+  $$('[data-d]').forEach(b => b.onclick = () => openEditor(LS.get('bora_draft_' + b.dataset.d), true));
+  $$('[data-p]').forEach(b => b.onclick = async () => { busy(true, '불러오는 중…'); try { const p = await getJSON(`data/notes/${b.dataset.p}.json`, null); busy(false); if (p) openEditor(p); else toast('글을 찾지 못했어요'); } catch (e) { busy(false); toast('불러오지 못했어요'); } });
+  $('#kOut').onclick = () => { forgetKey(); };
+}
+function forgetKey() { try { localStorage.removeItem('bora_wkey'); } catch (e) {} KEY = ''; viewKey(); }
+
+/* ── 화면 3: 쓰기 ── */
+async function openEditor(p, isDraft) {
+  if (!INDEX) { try { await loadIndex(); } catch (e) { INDEX = []; } }
+  const published = p && INDEX.some(x => x.id === p.id);
+  cur = p ? { ...p } : { id: rid(), title: '', cat: 'day', body: '', song: '', summary: '', cover: '', date: today(), keepPlace: true };
+  cur.published = published; cur.manualSum = !!(p && p.summary && p.summary !== autoSummary(p.body));
+  if (isDraft) for (const im of (cur.body.match(/data-path="[^"]+"/g) || [])) { const k = im.slice(11, -1); const b = await IDB.get(k); if (b) PEND.set(k, b); }
+  const placeName = (LS.get('place6', null) || {}).name || '';
+  $('#app').innerHTML = `
+  <div class="ebar"><button class="btn" id="eBack" type="button">← 목록</button><span class="st" id="eSt">${published ? '올라간 글 고치는 중' : '새 노트'}</span><button class="btn" id="ePv" type="button">미리보기</button></div>
+  <div class="chips" role="radiogroup" aria-label="분류">${CATS.map(([k, n]) => `<button type="button" data-cat="${k}" aria-pressed="${cur.cat === k}">${n}</button>`).join('')}</div>
+  <textarea id="eTitle" rows="1" placeholder="제목" aria-label="제목">${esc(cur.title)}</textarea>
+  <div id="eBody" class="body ed" contenteditable="true" data-ph="오늘의 이야기를 적어 주세요. 아래 막대로 사진·소제목·인용·가사를 넣을 수 있어요." aria-label="본문"></div>
+  <section class="meta2" aria-label="글 정보">
+    <label class="f" for="eSong">이 글과 함께 들을 곡</label>
+    <select id="eSong"><option value="">없음</option>${TRACKS.map(t => `<option value="${esc(t.f)}"${cur.song === t.f ? ' selected' : ''}>${esc(t.t)}</option>`).join('')}</select>
+    <label class="f">대표 사진 (목록과 링크 미리보기에 쓰여요)</label>
+    <div class="covers" id="eCov"></div>
+    <label class="f" for="eSum">검색에 보이는 설명</label>
+    <textarea id="eSum" rows="3" placeholder="비워 두면 본문 앞부분으로 자동으로 채워져요">${esc(cur.manualSum ? cur.summary : '')}</textarea>
+    <div class="count" id="eSumN"></div>
+    <label class="f">검색 결과 미리보기</label>
+    <div class="serp"><div class="u">보라다방 › 노트</div><div class="t" id="sT"></div><div class="d" id="sD"></div></div>
+    <div class="warnline" id="sW"></div>
+    <label class="f" for="eDate">날짜</label>
+    <input type="date" id="eDate" value="${esc((cur.date || today()).slice(0, 10))}">
+    ${placeName ? `<label class="chk"><input type="checkbox" id="ePlace" ${cur.keepPlace !== false ? 'checked' : ''}> 그날 창밖 남기기 · 지금 창밖: ${esc(placeName)}</label>` : ''}
+    <div class="row" style="margin-top:32px"><button class="btn lamp" id="ePub" type="button">${published ? '고친 내용 올리기' : '노트 올리기'}</button>${published ? '<button class="btn warn" id="eDel" type="button">글 지우기</button>' : ''}</div>
+    <p class="help">올리면 1~2분 뒤 노트에 보여요. 쓰는 동안 이 기기에 자동으로 저장돼요.</p>
+  </section>
+  <div class="tools" id="tools" role="toolbar" aria-label="본문 꾸미기">
+    <button type="button" data-t="photo"><b>▣</b>사진</button>
+    <button type="button" data-t="h2"><b>T</b>소제목</button>
+    <button type="button" data-t="quote"><b>“</b>인용</button>
+    <button type="button" data-t="lyric"><b>♪</b>가사</button>
+    <button type="button" data-t="bold"><b>굵</b>굵게</button>
+    <button type="button" data-t="hr"><b>···</b>구분선</button>
+    <button type="button" data-t="link"><b>↗</b>링크</button>
+    <span class="sep"></span>
+    <button type="button" data-t="p"><b>¶</b>보통 글</button>
+    <button type="button" data-t="undo"><b>↶</b>되돌리기</button>
+  </div>
+  <input type="file" id="ePick" accept="image/*" multiple hidden>`;
+  const body = $('#eBody'); body.innerHTML = toView(cur.body) || '<p><br></p>';
+  for (const im of body.querySelectorAll('img[data-path]')) { const b = PEND.get(im.dataset.path); if (b) im.src = URL.createObjectURL(b); }
+  try { document.execCommand('defaultParagraphSeparator', false, 'p'); } catch (e) {}
+  const title = $('#eTitle'); const fit = () => { title.style.height = 'auto'; title.style.height = title.scrollHeight + 'px'; }; fit();
+  title.addEventListener('input', () => { fit(); changed(); });
+  title.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); body.focus(); } });
+  body.addEventListener('input', changed);
+  $$('[data-cat]').forEach(b => b.onclick = () => { cur.cat = b.dataset.cat; $$('[data-cat]').forEach(x => x.setAttribute('aria-pressed', x === b)); changed(); });
+  $('#eSong').onchange = changed; $('#eSum').oninput = changed; $('#eDate').onchange = changed; if ($('#ePlace')) $('#ePlace').onchange = changed;
+  $('#eBack').onclick = () => { saveLocal(); route('list'); };
+  $('#ePv').onclick = preview; $('#ePub').onclick = publish; if ($('#eDel')) $('#eDel').onclick = askDelete;
+  $('#ePick').onchange = e => { addPhotos([...e.target.files]); e.target.value = ''; };
+  wireTools(body); wireImages(body); wirePaste(body); keyboardBar();
+  refreshMeta();
+  if (!p) title.focus();
+}
+
+let lastRange = null;
+document.addEventListener('selectionchange', () => { const b = $('#eBody'), s = getSelection(); if (b && s.rangeCount && b.contains(s.anchorNode)) lastRange = s.getRangeAt(0).cloneRange(); });
+function restoreSel(body) { body.focus(); if (lastRange && body.contains(lastRange.startContainer)) { const s = getSelection(); s.removeAllRanges(); s.addRange(lastRange); } }
+function blockOf(n, body) { while (n && n.parentNode !== body) n = n.parentNode; return n; }
+function insertBlock(el, body) {
+  restoreSel(body); const s = getSelection(); let b = s.rangeCount ? blockOf(s.anchorNode, body) : null;
+  if (b && b.nodeName === 'P' && !b.textContent.trim() && !b.querySelector('img')) b.replaceWith(el); else if (b) b.after(el); else body.appendChild(el);
+  const p = document.createElement('p'); p.innerHTML = '<br>'; if (!el.nextSibling || el.nextSibling.nodeName !== 'P') el.after(p);
+  return el;
+}
+function caretInto(el) { const r = document.createRange(); r.selectNodeContents(el); r.collapse(false); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+function wireTools(body) {
+  $$('#tools button').forEach(b => { b.addEventListener('pointerdown', e => e.preventDefault());
+    b.onclick = () => { const t = b.dataset.t; restoreSel(body);
+      if (t === 'photo') return $('#ePick').click();
+      if (t === 'h2') document.execCommand('formatBlock', false, 'h2');
+      if (t === 'p') document.execCommand('formatBlock', false, 'p');
+      if (t === 'quote') document.execCommand('formatBlock', false, 'blockquote');
+      if (t === 'bold') document.execCommand('bold');
+      if (t === 'undo') document.execCommand('undo');
+      if (t === 'hr') { insertBlock(document.createElement('hr'), body); }
+      if (t === 'lyric') { const d = document.createElement('div'); d.className = 'lyric'; insertBlock(d, body); caretInto(d); }
+      if (t === 'link') { const s = getSelection(), txt = s.toString(); askLink(txt, url => { restoreSel(body); if (txt) document.execCommand('createLink', false, url); else document.execCommand('insertHTML', false, `<a href="${esc(url)}">${esc(url)}</a>`); changed(); }); return; }
+      changed(); }; });
+}
+function askLink(txt, done) {
+  sheet(`<h2>링크 넣기</h2><p class="help">${txt ? `'${esc(txt.slice(0, 30))}'에 링크를 걸어요.` : '링크 주소가 그대로 본문에 들어가요.'}</p><input type="text" id="lkIn" placeholder="https://" inputmode="url"><div class="row" style="margin-top:14px"><button class="btn pri" id="lkOk" type="button">넣기</button><button class="btn" id="lkX" type="button">취소</button></div>`);
+  $('#lkIn').focus(); $('#lkX').onclick = closeSheet;
+  $('#lkOk').onclick = () => { let u = $('#lkIn').value.trim(); if (!u) return; if (!/^https?:\/\//.test(u)) u = 'https://' + u; closeSheet(); done(u); };
+}
+async function addPhotos(files) {
+  if (!files.length) return; busy(true, '사진을 다듬는 중…'); const body = $('#eBody'), figs = [];
+  try { for (const f of files.slice(0, 12)) { const r = await shrink(f), path = `img/notes/${cur.id}/${rid()}.${r.ext}`; PEND.set(path, r.blob); IDB.put(path, r.blob);
+      const fig = document.createElement('figure'); const im = document.createElement('img'); im.src = URL.createObjectURL(r.blob); im.dataset.path = path; im.alt = ''; im.width = r.w; im.height = r.h; const cap = document.createElement('figcaption'); fig.append(im, cap); figs.push(fig); } }
+  catch (e) { toast('사진을 읽지 못했어요'); }
+  busy(false); if (!figs.length) return;
+  if (figs.length === 1) insertBlock(figs[0], body);
+  else { let i = 0; let last = null; while (i < figs.length) { const n = figs.length - i === 4 ? 2 : Math.min(3, figs.length - i); const g = document.createElement('div'); g.className = 'gal n' + n; figs.slice(i, i + n).forEach(f => g.appendChild(f)); if (last) { last.after(g); } else insertBlock(g, body); last = g; i += n; }
+    const p = document.createElement('p'); p.innerHTML = '<br>'; if (!last.nextSibling) last.after(p); }
+  changed();
+}
+function wireImages(body) {
+  body.addEventListener('click', e => { $$('.imgx').forEach(x => x.remove()); $$('.ed img.sel').forEach(x => x.classList.remove('sel'));
+    const im = e.target.closest('img'); if (!im) return; im.classList.add('sel'); const fig = im.closest('figure'); const x = document.createElement('button'); x.type = 'button'; x.className = 'imgx'; x.contentEditable = 'false'; x.textContent = '이 사진 빼기';
+    x.onclick = ev => { ev.stopPropagation(); const g = fig.parentNode; fig.remove(); if (g.classList && g.classList.contains('gal')) { const n = g.querySelectorAll('figure').length; if (!n) g.remove(); else if (n === 1) g.replaceWith(g.firstElementChild); else g.className = 'gal n' + n; } changed(); };
+    fig.appendChild(x); });
+}
+function wirePaste(body) {
+  body.addEventListener('paste', e => { const cd = e.clipboardData; if (!cd) return; const files = [...cd.files].filter(f => f.type.startsWith('image/'));
+    e.preventDefault(); if (files.length) { addPhotos(files); return; }
+    const t = cd.getData('text/plain'); if (!t) return; const html = t.split(/\r?\n\s*\r?\n/).map(par => `<p>${esc(par).replace(/\r?\n/g, '<br>')}</p>`).join('');
+    document.execCommand('insertHTML', false, html); changed(); });
+}
+function keyboardBar() { const vv = window.visualViewport, tb = $('#tools'); if (!vv || !tb) return; const f = () => { const off = Math.max(0, innerHeight - vv.height - vv.offsetTop); tb.style.transform = off > 40 ? `translateY(${-off}px)` : ''; }; vv.addEventListener('resize', f); vv.addEventListener('scroll', f); }
+
+/* 본문 정리: 허용한 태그만 남기고, 사진 주소는 저장용으로 */
+function cleanBody(root) {
+  const out = document.createElement('div');
+  const walk = (n, into) => { for (const c of [...n.childNodes]) {
+    if (c.nodeType === 3) { into.appendChild(document.createTextNode(c.textContent)); continue; }
+    if (c.nodeType !== 1 || c.classList.contains('imgx')) continue;
+    const tag = c.nodeName; let el = null;
+    if (tag === 'IMG') { const src = c.dataset.path || (c.getAttribute('src') || '').replace(/^(\.\.\/)+/, ''); if (!/^(img\/|https:)/.test(src)) continue; el = document.createElement('img'); el.setAttribute('src', src); el.setAttribute('alt', c.getAttribute('alt') || ''); if (c.getAttribute('width')) { el.setAttribute('width', c.getAttribute('width')); el.setAttribute('height', c.getAttribute('height')); } el.setAttribute('loading', 'lazy'); into.appendChild(el); continue; }
+    if ((tag === 'DIV' || tag === 'P') && into.classList && into.classList.contains('lyric')) { if (into.childNodes.length && into.lastChild.nodeName !== 'BR') into.appendChild(document.createElement('br')); walk(c, into); continue; }
+    if (['P', 'H2', 'H3', 'BLOCKQUOTE', 'UL', 'OL', 'LI', 'FIGURE', 'FIGCAPTION', 'BR', 'HR'].includes(tag)) el = document.createElement(tag);
+    else if (tag === 'B' || tag === 'STRONG') el = document.createElement('strong');
+    else if (tag === 'I' || tag === 'EM') el = document.createElement('em');
+    else if (tag === 'A') { const h = c.getAttribute('href') || ''; if (/^https?:\/\//.test(h)) { el = document.createElement('a'); el.href = h; el.rel = 'noopener'; } }
+    else if (tag === 'DIV' && c.classList.contains('lyric')) { el = document.createElement('div'); el.className = 'lyric'; }
+    else if (tag === 'DIV' && c.classList.contains('gal')) { el = document.createElement('div'); el.className = 'gal n' + c.querySelectorAll('img').length; }
+    else if (tag === 'DIV' && n === root) el = document.createElement('p');
+    if (el) { into.appendChild(el); if (tag !== 'BR' && tag !== 'HR') walk(c, el); } else walk(c, into);
+  } };
+  walk(root, out);
+  // 맨 위에 떠도는 글자는 문단으로, 빈 문단은 끝에서 정리
+  const fixed = document.createElement('div'); let para = null;
+  for (const c of [...out.childNodes]) { const inline = c.nodeType === 3 || ['STRONG', 'EM', 'A', 'BR'].includes(c.nodeName);
+    if (inline) { if (!para) { para = document.createElement('p'); fixed.appendChild(para); } para.appendChild(c); } else { para = null; fixed.appendChild(c); } }
+  [...fixed.querySelectorAll('div.lyric')].forEach(d => { while (d.nextElementSibling && d.nextElementSibling.matches('div.lyric')) { const n = d.nextElementSibling; d.appendChild(document.createElement('br')); while (n.firstChild) d.appendChild(n.firstChild); n.remove(); } });
+  [...fixed.querySelectorAll('figcaption')].forEach(f => { if (!f.textContent.trim()) f.remove(); });
+  [...fixed.querySelectorAll('p,h2,h3,blockquote')].forEach(x => { if (!x.textContent.trim() && !x.querySelector('img')) { if (x.parentNode === fixed && (x === fixed.lastChild || x === fixed.firstChild)) x.remove(); else if (x.nodeName !== 'P') x.remove(); else x.innerHTML = ''; } });
+  while (fixed.lastChild && fixed.lastChild.nodeName === 'P' && !fixed.lastChild.textContent.trim()) fixed.lastChild.remove();
+  return fixed.innerHTML.replace(/<p><\/p>/g, '<p><br></p>');
+}
+function gather() {
+  const body = $('#eBody'); cur.title = $('#eTitle').value.trim(); cur.body = cleanBody(body);
+  cur.song = $('#eSong').value; const sm = $('#eSum').value.trim(); cur.manualSum = !!sm; cur.summary = sm || autoSummary(cur.body);
+  cur.date = $('#eDate').value || today(); cur.keepPlace = $('#ePlace') ? $('#ePlace').checked : false;
+  const imgs = [...body.querySelectorAll('img')].map(i => i.dataset.path || (i.getAttribute('src') || '').replace(/^(\.\.\/)+/, '')).filter(x => /^img\//.test(x));
+  if (!imgs.includes(cur.cover)) cur.cover = imgs[0] || '';
+  return imgs;
+}
+function refreshMeta() {
+  const imgs = gather(), body = $('#eBody');
+  $('#eCov').innerHTML = imgs.length ? imgs.map(p => { const im = body.querySelector(`img[data-path="${CSS.escape(p)}"]`) || [...body.querySelectorAll('img')].find(i => (i.getAttribute('src') || '').endsWith(p)); return `<button type="button" data-cov="${esc(p)}" aria-pressed="${p === cur.cover}"><img src="${esc(im ? im.src : ROOT + p)}" alt=""></button>`; }).join('') : '<p class="help" style="margin:0">본문에 사진을 넣으면 여기서 고를 수 있어요.</p>';
+  $$('[data-cov]').forEach(b => b.onclick = () => { cur.cover = b.dataset.cov; $$('[data-cov]').forEach(x => x.setAttribute('aria-pressed', x === b)); saveLocal(); });
+  $('#sT').textContent = (cur.title || '제목') + ' — 어른아이의 노트'; $('#sD').textContent = cur.summary || '본문을 쓰면 앞부분이 설명으로 보여요.';
+  $('#eSumN').textContent = `${cur.summary.length}자 · 80~120자가 알맞아요`;
+  const w = []; if ([...cur.title].length > 32) w.push('제목이 길면 검색 결과에서 잘려요 (32자 안쪽 권장).'); if (cur.title && !/[가-힣]/.test(cur.title)) w.push('제목에 한글 낱말이 있으면 찾기 쉬워요.');
+  $('#sW').textContent = w.join(' ');
+}
+function changed() { $('#eSt').textContent = '쓰는 중…'; clearTimeout(saveT); saveT = setTimeout(() => { saveLocal(); refreshMeta(); }, 700); }
+function saveLocal() { if (!cur || !$('#eBody')) return; gather(); const body = $('#eBody').innerHTML.replace(/src="blob:[^"]*"/g, 'src=""');
+  if (!cur.title && !$('#eBody').textContent.trim() && !$('#eBody').querySelector('img')) return;
+  LS.set('bora_draft_' + cur.id, { ...cur, body: body.replace(/(<img\b[^>]*?\bsrc=")(\.\.\/\.\.\/)(img\/)/g, '$1$3'), saved: Date.now() }); $('#eSt').textContent = '이 기기에 저장됨'; }
+
+function preview() {
+  gather(); const body = $('#eBody').innerHTML.replace(/<button[^>]*class="imgx"[^>]*>.*?<\/button>/g, '');
+  const html = renderPost({ ...cur, body, date: dateIso(), slug: cur.slug || 'preview' }, { tracks: TRACKS }).replace(/<script src="[^"]*notes\.js[^"]*" defer><\/script>/, '');
+  const f = $('#pvF'); f.srcdoc = html.replace('<head>', `<head><base href="${location.href}">`); $('#pv').hidden = false;
+}
+$('#pvX').onclick = () => { $('#pv').hidden = true; $('#pvF').srcdoc = ''; };
+function dateIso() { const d = cur.date || today(); if (cur.published && cur.dateIso && cur.dateIso.slice(0, 10) === d) return cur.dateIso; const now = new Date(); return d === today() ? now.toISOString() : new Date(d + 'T21:00:00+09:00').toISOString(); }
+
+/* ── 올리기 ── */
+const WMAP = c => c == null ? '' : c === 0 ? '맑음' : c <= 2 ? '구름 조금' : c === 3 ? '흐림' : c <= 48 ? '안개' : c <= 67 || (c >= 80 && c <= 82) ? '비' : c <= 77 || c === 85 || c === 86 ? '눈' : c >= 95 ? '뇌우' : '';
+async function placeNow() { const pl = LS.get('place6', null); if (!pl || !pl.name) return null; let w = '';
+  try { const j = await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pl.lat}&longitude=${pl.lon}&current=weather_code`)).json(); w = WMAP(j.current && j.current.weather_code); } catch (e) {}
+  return { name: pl.name, w }; }
+function neighbors(list, i) { return { prev: list[i + 1] || null, next: list[i - 1] || null }; }   // 목록은 최신순: 이전 글 = 더 오래된 글
+async function pagesFor(list, ids, extra) {   // 이웃 글까지 다시 굽기
+  const files = [];
+  for (const id of ids) { const i = list.findIndex(x => x.id === id); if (i < 0) continue;
+    const full = extra && extra.id === id ? extra : await getJSON(`data/notes/${id}.json`, null); if (!full) continue;
+    files.push({ path: `notes/${full.slug}/index.html`, text: renderPost(full, { ...neighbors(list, i), tracks: TRACKS }) }); }
+  return files;
+}
+const commonFiles = list => [{ path: 'data/notes.json', text: JSON.stringify(list, null, 1) }, { path: 'notes/index.html', text: renderList(list) }, { path: 'sitemap.xml', text: renderSitemap(list) }, { path: 'rss.xml', text: renderRss(list) }];
+
+async function publish() {
+  const imgs = gather();
+  if (!cur.title) { toast('제목을 적어 주세요'); $('#eTitle').focus(); return; }
+  if (!plain(cur.body).trim() && !imgs.length) { toast('본문이 비어 있어요'); return; }
+  busy(true, '올리는 중…');
+  try {
+    const list = (await loadIndex()).filter(x => x.id !== cur.id), now = new Date().toISOString();
+    if (!cur.slug) { const base = cur.date; let s = base, n = 2; const used = new Set(list.map(x => x.slug)); while (used.has(s)) s = `${base}-${n++}`; cur.slug = s; }
+    const place = cur.keepPlace ? (cur.place && cur.published ? cur.place : await placeNow()) : null;
+    const post = { id: cur.id, slug: cur.slug, title: cur.title, cat: cur.cat, date: dateIso(), updated: now, summary: cur.summary, cover: cur.cover, song: cur.song, body: cur.body, place: place || null };
+    const entry = { id: post.id, slug: post.slug, title: post.title, cat: post.cat, date: post.date, updated: post.updated, summary: post.summary, cover: post.cover };
+    list.push(entry); list.sort((a, b) => b.date.localeCompare(a.date));
+    const i = list.findIndex(x => x.id === post.id), ids = [post.id, list[i - 1] && list[i - 1].id, list[i + 1] && list[i + 1].id].filter(Boolean);
+    const files = [{ path: `data/notes/${post.id}.json`, text: JSON.stringify(post, null, 1) }, ...(await pagesFor(list, ids, post)), ...commonFiles(list)];
+    for (const p of imgs) if (PEND.has(p)) files.push({ path: p, blob: PEND.get(p) });
+    await commit(files, `노트: ${post.title}`);
+    for (const p of imgs) { PEND.delete(p); IDB.del(p); }
+    LS.del('bora_draft_' + cur.id); INDEX = list; busy(false);
+    const url = `${SITE.base}/notes/${post.slug}/`;
+    sheet(`<h2>올렸어요</h2><p class="help">1~2분 뒤 이 주소에서 보여요.</p><p style="word-break:break-all;font-size:14px"><a href="${url}">${url}</a></p>
+      <div class="row" style="margin-top:14px"><a class="btn pri" href="${url}">노트 보기</a><button class="btn" id="dCopy" type="button">주소 복사</button></div>
+      <div class="help" style="margin-top:20px"><b>검색에 빨리 잡히게</b><br>네이버 서치어드바이저 → 요청 → 웹 페이지 수집에 위 주소를 넣어 주세요.<br><a href="https://searchadvisor.naver.com/console/board" target="_blank" rel="noopener">서치어드바이저 열기</a>
+      <br><br><b>네이버 블로그에도 올리려면</b><br>노트 페이지 아래 '주인장만 보이는 칸'에서 제목·본문을 복사해 붙여 넣으면 돼요. 보라다방 글이 네이버에 먼저 잡힌 뒤(며칠 뒤) 옮기는 게 좋아요.</div>
+      <div class="row" style="margin-top:18px"><button class="btn" id="dList" type="button">목록으로</button></div>`);
+    $('#dCopy').onclick = async () => { try { await navigator.clipboard.writeText(url); toast('주소를 복사했어요'); } catch (e) { toast(url); } };
+    $('#dList').onclick = () => { closeSheet(); route('list'); };
+  } catch (e) { busy(false); if (e.status === 401) { toast('열쇠가 맞지 않아요. 다시 넣어 주세요.'); forgetKey(); } else toast('올리지 못했어요. 잠시 뒤 다시 해 주세요. (' + (e.status || '연결') + ')'); console.warn(e); }
+}
+function askDelete() {
+  sheet(`<h2>이 글을 지울까요?</h2><p class="help">노트에서 사라지고 되돌릴 수 없어요. 이 기기에 쓰던 내용은 남아요.</p><div class="row" style="margin-top:14px"><button class="btn warn" id="xOk" type="button">지우기</button><button class="btn" id="xNo" type="button">그만두기</button></div>`);
+  $('#xNo').onclick = closeSheet;
+  $('#xOk').onclick = async () => { closeSheet(); busy(true, '지우는 중…');
+    try { const all = await loadIndex(), i = all.findIndex(x => x.id === cur.id), old = all[i]; const list = all.filter(x => x.id !== cur.id);
+      const ids = [all[i - 1] && all[i - 1].id, all[i + 1] && all[i + 1].id].filter(Boolean);
+      const files = [{ path: `data/notes/${cur.id}.json`, del: true }, ...(old ? [{ path: `notes/${old.slug}/index.html`, del: true }] : []), ...(await pagesFor(list, ids)), ...commonFiles(list)];
+      await commit(files, `노트 지움: ${cur.title}`); INDEX = list; busy(false); toast('지웠어요'); route('list');
+    } catch (e) { busy(false); toast('지우지 못했어요 (' + (e.status || '연결') + ')'); } };
+}
+function sheet(html) { $('#sheetIn').innerHTML = html; $('#sheet').hidden = false; }
+function closeSheet() { $('#sheet').hidden = true; }
+$('#sheet').addEventListener('click', e => { if (e.target.id === 'sheet') closeSheet(); });
+
+/* ── 길 찾기 ── */
+async function route(to) {
+  if (!KEY) return viewKey();
+  if (!TRACKS.length) await loadTracks();
+  const m = location.hash.match(/edit=([\w-]+)/);
+  if (!to && m) { history.replaceState(null, '', location.pathname); busy(true, '불러오는 중…'); try { const p = await getJSON(`data/notes/${m[1]}.json`, null); busy(false); if (p) return openEditor(p); } catch (e) { busy(false); } }
+  viewList();
+}
+window.addEventListener('beforeunload', () => saveLocal());
+document.addEventListener('visibilitychange', () => { if (document.hidden) saveLocal(); });
+route();
+</script>
+</body>
+</html>
