@@ -565,9 +565,7 @@ function humTrack(song,sro,from,to,R,PRE){ const V=BUF.bora.map(prepVoice).sort(
     let off, rel2; if(g.phraseEnd){ off=end; rel2=.32; } else if(g.contigNext){ off=end-Math.min(.1,(end-ts[ts.length-1])*.25); rel2=.07; } else { off=end-.02; rel2=.14; }
     const sc=(g.phrase?14:6)+R()*8, att=g.phrase?.09:.05, start=ts[0]-.05, stop=off+rel2;
     if(g.phrase&&ts[0]>.9) breaths.push(ts[0]);
-    // 낮은 음 녹음은 방 울림이 커서 굵기가 들쭉날쭉하다 → 고른 높은 음 녹음(라4 언저리)을 주로 쓰고 아래로 내려 부른다(음색은 그대로 유지)
-    const HI=V.map((v,i)=>i).filter(i=>V[i].m>=65), POOL=HI.length>=2?HI:V.map((v,i)=>i);
-    const near=m=>{ let best=POOL[0]; POOL.forEach(i=>{ if(Math.abs(V[i].m-m)<Math.abs(V[best].m-m)) best=i; }); return best; };
+    const near=m=>{ let best=0; V.forEach((v,i)=>{ if(Math.abs(v.m-m)<Math.abs(V[best].m-m)) best=i; }); return best; };
     // 한 숨에 부르는 음들은 녹음 한 개로 이어 부른다(음마다 녹음이 바뀌면 소리 색이 번갈아 바뀌어 '발음'이 달라진다)
     const ms=ns.map(n=>n.m).sort((p,q)=>p-q), mid=(ms[0]+ms[ms.length-1])/2, one=ms[ms.length-1]-ms[0]<=4, g1=near(mid);
     const vi=ns.map(n=>one&&Math.abs(V[g1].m-n.m)<=3?g1:near(n.m));
