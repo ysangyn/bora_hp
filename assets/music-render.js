@@ -22,9 +22,9 @@ const disc = '<span class="disc" aria-hidden="true"></span>';
 const sleeve = (a, root, big) => `<div class="sleeve${big ? ' big' : ''}">${disc}${a.cover ? `<img class="cover" src="${root}${esc(a.cover)}" alt="${esc(a.t)} 앨범 커버" width="1200" height="1200"${big ? '' : ' loading="lazy"'} decoding="async">` : `<span class="cover nocover"><b>${esc(a.t)}</b></span>`}</div>`;
 const yt = (id, title) => `<a class="yt" href="https://youtu.be/${esc(id)}" data-yt="${esc(id)}" target="_blank" rel="noopener" aria-label="${esc(title)} 영상 보기"><img src="${ytThumb(id)}" alt="" loading="lazy" decoding="async"><span class="ytp" aria-hidden="true"></span></a>`;
 
-export function renderMusic(albums, videos) {
-  const root = '../', url = `${SITE.base}/music/`, A = visibleAlbums(albums), V = theaterVideos(videos), first = A[0];
-  const data = { '@context': 'https://schema.org', '@type': 'CollectionPage', name: T, url, inLanguage: 'ko', about: artist,
+export function renderMusic(albums, videos, who) {
+  const root = '../', url = `${SITE.base}/music/`, A = visibleAlbums(albums), V = theaterVideos(videos), first = A[0], bio = who && who.bio && !who.draft ? who : null;
+  const data = { '@context': 'https://schema.org', '@type': 'CollectionPage', name: T, url, inLanguage: 'ko', about: bio ? { ...artist, description: bio.bio, ...(bio.photo ? { image: abs(bio.photo) } : {}) } : artist,
     hasPart: A.map(a => ({ '@type': 'MusicAlbum', name: a.t, url: `${SITE.base}/music/${a.slug}/`, datePublished: a.date || undefined, byArtist: artist })) };
   return head({ title: `${T} | ${SITE.name}`, desc: DESC, url, image: first && first.cover ? abs(first.cover) : '', type: 'website', root, extra: css(root) + ld(data) }) + `
 <body class="music">
@@ -33,6 +33,7 @@ ${bar(root, 'music')}
 <main class="wrap mwrap">
   <p class="mk">어른아이의 노래들</p>
   <h1 class="lt">음반장</h1>
+  ${bio ? `<section class="who">${bio.photo ? `<img src="${root}${esc(bio.photo)}" alt="어른아이" width="160" height="160">` : ''}<div>${paras(bio.bio)}</div></section>` : ''}
   ${first ? `<a class="newest" href="${esc(first.slug)}/">${sleeve(first, root, true)}<span class="nw"><small>가장 최근 음반</small><b>${esc(first.t)}</b><span>${kindName(first.kind)}${year(first) ? ` · <i>${year(first)}</i>` : ''}</span></span></a>` : ''}
   ${A.length ? `<ul class="shelf">${A.map(a => `<li><a href="${esc(a.slug)}/">${sleeve(a, root)}<b>${esc(a.t)}</b><span>${kindName(a.kind)}${year(a) ? ` · <i>${year(a)}</i>` : ''}</span></a></li>`).join('')}</ul>`
     : '<p class="empty">어른아이의 노래를 한 장씩 꽂는 중이에요.<br>그동안 방에서 턴테이블을 틀어 보세요.</p>'}
@@ -148,9 +149,9 @@ export function ensureSlugs(albums) {
 }
 
 // 음반장 전체 파일 목록: [{path, text}] (지울 앨범 페이지는 del)
-export function musicFiles(albums, videos, tracks, before = []) {
+export function musicFiles(albums, videos, tracks, before = [], who = null) {
   ensureSlugs(albums);
-  const A = visibleAlbums(albums), out = [{ path: 'music/index.html', text: renderMusic(albums, videos) }, { path: 'music/videos/index.html', text: renderTheater(videos) }, { path: 'sitemap-music.xml', text: renderMusicSitemap(albums, videos) }];
+  const A = visibleAlbums(albums), out = [{ path: 'music/index.html', text: renderMusic(albums, videos, who) }, { path: 'music/videos/index.html', text: renderTheater(videos) }, { path: 'sitemap-music.xml', text: renderMusicSitemap(albums, videos) }];
   A.forEach((a, i) => { out.push({ path: `music/${a.slug}/index.html`, text: renderAlbum(a, { prev: A[i + 1] || null, next: A[i - 1] || null, tracks }) });
     (a.tracks || []).forEach((t, k) => { if (hasSongPage(t)) out.push({ path: `music/${a.slug}/${k + 1}/index.html`, text: renderSong(a, k, { tracks }) }); }); });
   const keep = new Set(out.map(f => f.path));

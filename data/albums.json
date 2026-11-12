@@ -1,0 +1,232 @@
+[
+ {
+  "id": "btlbtl",
+  "slug": "b-tl-b-tl",
+  "kind": "album",
+  "t": "B TL B TL",
+  "date": "2006-11-27",
+  "cover": "",
+  "intro": "",
+  "story": "",
+  "links": {},
+  "credits": "파스텔뮤직",
+  "hide": true,
+  "draft": true,
+  "tracks": [
+   {
+    "id": "b01",
+    "t": "B TL B TL",
+    "f": "music/04.mp3",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   },
+   {
+    "id": "b02",
+    "t": "STAR",
+    "f": "",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   },
+   {
+    "id": "b03",
+    "t": "꿈의 계단 (The stair)",
+    "f": "",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   },
+   {
+    "id": "b04",
+    "t": "Make Up",
+    "f": "",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   },
+   {
+    "id": "b05",
+    "t": "아니다",
+    "f": "",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   },
+   {
+    "id": "b06",
+    "t": "Sad Thing",
+    "f": "music/02.mp3",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   },
+   {
+    "id": "b07",
+    "t": "가까우리? (Street)",
+    "f": "",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   },
+   {
+    "id": "b08",
+    "t": "상실",
+    "f": "",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   },
+   {
+    "id": "b09",
+    "t": "Lethe",
+    "f": "",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   },
+   {
+    "id": "b10",
+    "t": "It's Rain",
+    "f": "",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   },
+   {
+    "id": "b11",
+    "t": "B TL B TL (데모 버전)",
+    "f": "",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   }
+  ]
+ },
+ {
+  "id": "dandelion",
+  "slug": "dandelion",
+  "kind": "album",
+  "t": "Dandelion",
+  "date": "2009-05-27",
+  "cover": "",
+  "intro": "",
+  "story": "",
+  "links": {},
+  "credits": "",
+  "hide": true,
+  "draft": true,
+  "tracks": [
+   {
+    "id": "d01",
+    "t": "Annabel Lee",
+    "f": "music/03.mp3",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   },
+   {
+    "id": "d02",
+    "t": "행복에게",
+    "f": "",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   },
+   {
+    "id": "d03",
+    "t": "민들레 (Dandelion)",
+    "f": "",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   },
+   {
+    "id": "d04",
+    "t": "Fool",
+    "f": "",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   },
+   {
+    "id": "d05",
+    "t": "어쩔수 없다고 내게 말하지만, 어쩔수 없다면 내게 말하지마!",
+    "f": "",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   },
+   {
+    "id": "d06",
+    "t": "Miss",
+    "f": "",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   },
+   {
+    "id": "d07",
+    "t": "아주 아주 슬픈 꿈",
+    "f": "music/05.mp3",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   },
+   {
+    "id": "d08",
+    "t": "서성이네",
+    "f": "",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   },
+   {
+    "id": "d09",
+    "t": "You",
+    "f": "",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   },
+   {
+    "id": "d10",
+    "t": "I Wanna B",
+    "f": "",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   },
+   {
+    "id": "d11",
+    "t": "Annabel Lee (Single Ver.)",
+    "f": "",
+    "lyr": "",
+    "story": "",
+    "mv": "",
+    "credit": ""
+   }
+  ]
+ }
+]

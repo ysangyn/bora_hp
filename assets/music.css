@@ -103,3 +103,7 @@ a:hover .sleeve .disc,a:focus-visible .sleeve .disc{transform:translateX(4%) rot
 .vlist a:not(.yt){font-size:12.5px;color:var(--acc);text-decoration:none}
 @media (min-width:860px){.feat{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:0 32px;align-items:start}.feat .yt{grid-row:1/6}.feat>*:not(.yt){grid-column:2}}
 @media (prefers-reduced-motion:reduce){.sleeve .disc{transition:none}}
+.who{display:flex;gap:18px;align-items:flex-start;margin:22px 0 4px}
+.who img{width:84px;height:84px;border-radius:50%;object-fit:cover;flex:none;box-shadow:0 8px 20px rgba(0,0,0,.4)}
+.who p{margin:0 0 .7em;font:400 15px/1.9 var(--serif);color:var(--mut);word-break:keep-all}
+@media (min-width:760px){.who{max-width:720px}.who img{width:110px;height:110px}}
