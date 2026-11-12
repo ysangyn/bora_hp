@@ -194,15 +194,14 @@ function viewKey(err) {
     catch (e) { busy(false); KEY = ''; viewKey(e.status === 401 ? '열쇠가 맞지 않아요.' : e.message); } };
 }
 
-/* 손님 도장: 주인장만 본다. Firebase에 주인장 구글 계정으로 들어가 읽는다(쓰기 열쇠와는 따로) */
-let FB, fbToken = '', fbMail = '', stampRows = null, stampErr = '';
-const FBV = '10.12.2';
+/* 손님 도장: 손님은 도장을 넣기만 하고, 주인장 방에서 모아 본다(숫자는 손님 화면 어디에도 나오지 않는다) */
+let FB, stampRows = null, stampErr = '';
 function parseFbCfg(t) {   // Firebase 콘솔의 firebaseConfig(자바스크립트) 또는 JSON을 그대로 붙여 넣어도 된다
   const g = k => { const m = String(t).match(new RegExp(k + '["\']?\\s*:\\s*["\']([^"\']+)')); return m ? m[1].trim() : ''; };
   const c = { apiKey: g('apiKey'), authDomain: g('authDomain'), projectId: g('projectId'), appId: g('appId') };
   return c.apiKey && c.projectId ? c : null;
 }
-const stampRules = mail => `rules_version = '2';
+const STAMP_RULES = `rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /stamps/{id} {
@@ -210,8 +209,8 @@ service cloud.firestore {
         && request.resource.data.k is string && request.resource.data.k.size() <= 120
         && request.resource.data.t in ['more', 'comfort', 'read']
         && request.resource.data.at == request.time;
-      allow read, delete: if request.auth != null && request.auth.token.email_verified == true
-        && request.auth.token.email == '${mail || '주인장 구글 메일'}';
+      allow get: if true;
+      allow list: if request.query.limit <= 3000;
     }
   }
 }`;
@@ -223,59 +222,59 @@ async function stampTitles() {
   (D.books || []).forEach(b => T['book:' + b.id] = ['책장', b.t]);
   return T;
 }
-async function loadStamps() {
-  const db = `projects/${FB.projectId}/databases/(default)/documents`;
-  const r = await fetch(`https://firestore.googleapis.com/v1/${db}:runQuery`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + fbToken },
+async function loadStamps(cfg) {
+  const c = cfg || FB, db = `projects/${c.projectId}/databases/(default)/documents`;
+  const r = await fetch(`https://firestore.googleapis.com/v1/${db}:runQuery?key=${encodeURIComponent(c.apiKey)}`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ structuredQuery: { from: [{ collectionId: 'stamps' }], orderBy: [{ field: { fieldPath: 'at' }, direction: 'DESCENDING' }], limit: 3000 } }) });
-  if (!r.ok) throw new Error(r.status === 403 ? '이 계정으로는 도장을 볼 수 없어요. 규칙에 적은 메일과 같은 계정인지 확인해 주세요.' : '도장을 불러오지 못했어요 (' + r.status + ')');
+  if (!r.ok) throw new Error(r.status === 403 ? '도장을 읽을 수 없어요. Firestore 규칙 탭에 아래 규칙을 붙여 넣고 게시했는지 확인해 주세요.' : r.status === 404 ? 'Firestore 데이터베이스를 찾지 못했어요. 콘솔에서 Firestore를 만들었는지 확인해 주세요.' : '도장을 불러오지 못했어요 (' + r.status + ')');
   const j = await r.json(); return j.filter(x => x.document).map(x => { const f = x.document.fields || {}; return { k: (f.k || {}).stringValue || '', t: (f.t || {}).stringValue || '', at: Date.parse((f.at || {}).timestampValue || '') || 0 }; });
 }
-async function stampSignIn() {
-  busy(true, '구글 계정 확인 중…');
-  try {
-    const app = await import(`https://www.gstatic.com/firebasejs/${FBV}/firebase-app.js`), au = await import(`https://www.gstatic.com/firebasejs/${FBV}/firebase-auth.js`);
-    const A = au.getAuth(app.getApps().find(x => x.name === 'stamps') || app.initializeApp(FB, 'stamps'));
-    const r = await au.signInWithPopup(A, new au.GoogleAuthProvider()); fbToken = await r.user.getIdToken(); fbMail = r.user.email || '';
-    stampRows = await loadStamps(); stampErr = '';
-  } catch (e) { stampErr = e.code === 'auth/unauthorized-domain' ? 'Firebase 콘솔 → Authentication → 설정 → 승인된 도메인에 ysangyn.github.io를 넣어 주세요.' : (e.message || String(e)); }
-  busy(false); paneStamps();
-}
+const rulesBox = () => `<textarea rows="14" readonly id="fbRules" style="width:100%;box-sizing:border-box;font:12px/1.5 ui-monospace,Menlo,monospace;white-space:pre;overflow:auto">${esc(STAMP_RULES)}</textarea>
+  <div class="row" style="margin-top:8px"><button class="btn" type="button" id="fbCopy">규칙 복사</button></div>`;
+const rulesCopy = () => { const b = $('#fbCopy'); if (b) b.onclick = () => { const t = $('#fbRules'); (navigator.clipboard ? navigator.clipboard.writeText(t.value) : Promise.reject()).then(() => toast('규칙을 복사했어요.'), () => { t.focus(); t.select(); toast('규칙을 길게 눌러 복사해 주세요.'); }); }; };
 async function paneStamps() {
   if (FB === undefined) { $('#pane').innerHTML = '<p class="hint">불러오는 중…</p>'; try { FB = await getJSON('data/firebase.json', null); } catch (e) { FB = null; } if (tab === 'stamps') paneStamps(); return; }
   const P = $('#pane');
   if (!FB) {
     P.innerHTML = `<section class="card"><h2>손님 도장 켜기</h2>
-      <p class="hint">글·노래·책 끝에 '잘 읽었어요 · 위로가 됐어요 · 더 듣고 싶어요' 도장이 생겨요. 도장은 주인장에게만 오고, 숫자는 손님에게 보이지 않아요. Firebase(무료)를 한 번만 준비하면 돼요.</p>
+      <p class="hint">글·노래·책 끝에 '잘 읽었어요 · 위로가 됐어요 · 더 듣고 싶어요' 도장이 생겨요. 관리자에서 보는 좋아요 수예요. 손님 화면에는 숫자가 나오지 않아요. Firebase(무료)를 한 번만 준비하면 돼요.</p>
       <ol class="hint" style="line-height:1.9;padding-left:18px">
-        <li>Firebase 콘솔에서 프로젝트를 만들거나 고르고, 웹 앱을 추가해 <b>firebaseConfig</b>를 복사해요.</li>
-        <li><b>Firestore Database</b>를 만들어요(지역은 asia-northeast3 서울). 규칙 탭에 아래 규칙을 붙여 넣고, 메일 자리에 도장을 볼 구글 메일을 적어 게시해요.</li>
-        <li><b>Authentication</b> → 로그인 방법에서 Google을 켜고, 설정 → 승인된 도메인에 <b>ysangyn.github.io</b>를 넣어요.</li>
-        <li>복사한 firebaseConfig를 아래 칸에 붙여 넣고 저장해요.</li></ol>
-      <textarea id="fbIn" rows="7" style="width:100%;box-sizing:border-box;font:12px/1.5 ui-monospace,Menlo,monospace;white-space:pre;overflow:auto" placeholder="const firebaseConfig = { apiKey: …, authDomain: …, projectId: …, appId: … };"></textarea>
-      <div class="row" style="margin-top:10px"><button class="btn pri" type="button" id="fbSave">설정 저장</button></div>
-      <h3 class="gl">Firestore 규칙</h3><textarea rows="13" readonly id="fbRules" style="width:100%;box-sizing:border-box;font:12px/1.5 ui-monospace,Menlo,monospace;white-space:pre;overflow:auto">${esc(stampRules(''))}</textarea>
-      <div class="row" style="margin-top:8px"><button class="btn" type="button" id="fbCopy">규칙 복사</button></div></section>`;
-    $('#fbCopy').onclick = () => { navigator.clipboard && navigator.clipboard.writeText($('#fbRules').value).then(() => toast('규칙을 복사했어요.'), () => {}); };
+        <li><b>console.firebase.google.com</b>에서 프로젝트를 만들어요(애널리틱스는 꺼도 돼요).</li>
+        <li>프로젝트 첫 화면의 <b>&lt;/&gt;(웹)</b>으로 앱을 등록하고, 나오는 <b>firebaseConfig</b>를 통째로 복사해요.</li>
+        <li><b>Firestore</b>(Databases &amp; Storage 아래)에서 데이터베이스를 만들어요. 위치는 <b>asia-northeast3(서울)</b>, 규칙은 <b>프로덕션 모드</b>.</li>
+        <li>Firestore의 <b>규칙</b> 탭에 아래 규칙을 그대로 붙여 넣고 <b>게시</b>해요.</li>
+        <li>복사한 firebaseConfig를 아래 칸에 붙여 넣고 <b>연결 확인 후 저장</b>을 눌러요.</li></ol>
+      <h3 class="gl">Firestore 규칙</h3>${rulesBox()}
+      <h3 class="gl">firebaseConfig</h3><textarea id="fbIn" rows="7" style="width:100%;box-sizing:border-box;font:12px/1.5 ui-monospace,Menlo,monospace;white-space:pre;overflow:auto" placeholder="const firebaseConfig = { apiKey: …, authDomain: …, projectId: …, appId: … };"></textarea>
+      ${stampErr ? `<p class="warnline">${esc(stampErr)}</p>` : ''}
+      <div class="row" style="margin-top:10px"><button class="btn pri" type="button" id="fbSave">연결 확인 후 저장</button></div></section>`;
+    rulesCopy();
     $('#fbSave').onclick = async () => { const c = parseFbCfg($('#fbIn').value); if (!c) { toast('apiKey와 projectId를 찾지 못했어요. firebaseConfig를 통째로 붙여 넣어 주세요.'); return; }
-      busy(true, '설정 올리는 중…'); try { await commit([{ path: 'data/firebase.json', text: JSON.stringify(c, null, 1) + '\n' }], '손님 도장: Firebase 설정'); FB = c; toast('설정을 올렸어요. 1~2분 뒤 도장이 보이기 시작해요.'); } catch (e) { toast('올리지 못했어요: ' + (e.message || e)); } busy(false); paneStamps(); };
+      busy(true, '연결 확인 중…');
+      try { await loadStamps(c); } catch (e) { stampErr = e.message; busy(false); paneStamps(); $('#fbIn').value = JSON.stringify(c, null, 1); return; }
+      busy(true, '설정 올리는 중…'); try { await commit([{ path: 'data/firebase.json', text: JSON.stringify(c, null, 1) + '\n' }], '손님 도장: Firebase 설정'); FB = c; stampErr = ''; stampRows = null; toast('연결됐어요. 1~2분 뒤 손님 페이지에 도장이 보이기 시작해요.'); } catch (e) { toast('올리지 못했어요: ' + (e.message || e)); } busy(false); paneStamps(); };
     return;
   }
+  if (!stampRows && !stampErr) { P.innerHTML = '<p class="hint">도장을 불러오는 중…</p>'; try { stampRows = await loadStamps(); } catch (e) { stampErr = e.message; } if (tab === 'stamps') paneStamps(); return; }
   if (!stampRows) {
-    P.innerHTML = `<section class="card"><h2>손님 도장</h2><p class="hint">도장은 주인장 구글 계정으로만 볼 수 있어요. (프로젝트: ${esc(FB.projectId)})</p>${stampErr ? `<p class="warnline">${esc(stampErr)}</p>` : ''}
-      <div class="row" style="margin-top:10px"><button class="btn pri" type="button" id="fbIn">구글 계정으로 도장 보기</button></div>
-      <details style="margin-top:14px"><summary class="hint">Firestore 규칙 다시 보기 · 설정 바꾸기</summary><textarea rows="13" readonly style="width:100%;box-sizing:border-box;font:12px/1.5 ui-monospace,Menlo,monospace;white-space:pre;overflow:auto">${esc(stampRules(''))}</textarea><div class="row" style="margin-top:8px"><button class="btn sm" type="button" id="fbReset">설정 바꾸기</button></div></details></section>`;
-    $('#fbIn').onclick = stampSignIn; $('#fbReset').onclick = () => { FB = null; paneStamps(); };
+    P.innerHTML = `<section class="card"><h2>손님 도장</h2><p class="warnline">${esc(stampErr)}</p><p class="hint">프로젝트: ${esc(FB.projectId)}</p>
+      <h3 class="gl">Firestore 규칙</h3>${rulesBox()}
+      <div class="row" style="margin-top:10px"><button class="btn pri" type="button" id="fbRe">다시 불러오기</button><button class="btn sm" type="button" id="fbReset">설정 바꾸기</button></div></section>`;
+    rulesCopy(); $('#fbRe').onclick = () => { stampErr = ''; stampRows = null; paneStamps(); }; $('#fbReset').onclick = () => { FB = null; stampErr = ''; paneStamps(); };
     return;
   }
   const T = await stampTitles(), by = {}, now = Date.now(), month = stampRows.filter(r => now - r.at < 30 * 864e5).length;
   stampRows.forEach(r => { const o = by[r.k] = by[r.k] || { k: r.k, n: 0, t: {}, last: 0 }; o.n++; o.t[r.t] = (o.t[r.t] || 0) + 1; o.last = Math.max(o.last, r.at); });
   const ago = t => { const m = Math.round((now - t) / 6e4); return m < 60 ? `${Math.max(1, m)}분 전` : m < 1440 ? `${Math.round(m / 60)}시간 전` : `${Math.round(m / 1440)}일 전`; };
   const nm = k => T[k] ? `<small>${T[k][0]}</small> ${esc(T[k][1])}` : esc(k);
-  P.innerHTML = `<section class="card"><h2>손님 도장</h2><p class="hint">${esc(fbMail)} · 지난 30일 ${month}개 · 모두 ${stampRows.length}개 (손님에게는 숫자가 보이지 않아요)</p>
+  P.innerHTML = `<section class="card"><h2>손님 도장</h2><p class="hint">지난 30일 ${month}개 · 모두 ${stampRows.length}개 (손님 화면에는 숫자가 보이지 않아요)</p>
     <h3 class="gl">곳마다</h3>${Object.values(by).sort((a, b) => b.last - a.last).map(o => `<div class="trow" style="cursor:default"><span><b>${nm(o.k)}</b><small>${Object.entries(o.t).map(([t, n]) => `${ST_L[t] || t} ${n}`).join(' · ')}</small></span><em>${ago(o.last)}</em></div>`).join('') || '<p class="hint">아직 도장이 없어요.</p>'}
     <h3 class="gl">최근</h3>${stampRows.slice(0, 20).map(r => `<p class="hint" style="margin:4px 0">${ago(r.at)} · ${nm(r.k)} · ${ST_L[r.t] || r.t}</p>`).join('')}
-    <div class="row" style="margin-top:12px"><button class="btn" type="button" id="fbRe">새로 불러오기</button></div></section>`;
-  $('#fbRe').onclick = async () => { busy(true, '불러오는 중…'); try { stampRows = await loadStamps(); } catch (e) { stampErr = e.message; stampRows = null; } busy(false); paneStamps(); };
+    <div class="row" style="margin-top:12px"><button class="btn" type="button" id="fbRe">새로 불러오기</button></div>
+    <details style="margin-top:14px"><summary class="hint">Firestore 규칙 다시 보기 · 설정 바꾸기</summary>${rulesBox()}<div class="row" style="margin-top:8px"><button class="btn sm" type="button" id="fbReset">설정 바꾸기</button></div></details></section>`;
+  rulesCopy();
+  $('#fbRe').onclick = async () => { busy(true, '불러오는 중…'); try { stampRows = await loadStamps(); stampErr = ''; } catch (e) { stampErr = e.message; stampRows = null; } busy(false); paneStamps(); };
+  $('#fbReset').onclick = () => { FB = null; stampRows = null; stampErr = ''; paneStamps(); };
 }
 
 function render() {
