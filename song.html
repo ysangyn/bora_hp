@@ -561,7 +561,7 @@ function humTrack(song,sro,from,to,R,PRE){ const V=BUF.bora.map(prepVoice).sort(
   const len=Math.ceil((rel(N[N.length-1].abs+N[N.length-1].len)+1.2)*sro), out=new Float32Array(len), breaths=[];
   const vib=5.1+R()*.6, ph1=R()*6.28, ph2=R()*6.28;   // 떨림 빠르기·깊이는 어른아이의 실제 노래(Annabel Lee)에서 잰 값에 맞춘다: 초당 5.4번, ±9센트 안팎
   groups.forEach(g=>{ const ns=g.notes, lag=.006+R()*.018, ts=ns.map(n=>rel(n.abs)+lag), te=ns.map(n=>rel(n.abs+n.len)+lag), end=te[te.length-1];
-    const L=ns.map(n=>(n.quiet?.7:1)*(n.type==='chorus'||n.type==='post'?1:n.type==='outro'?.6:n.type==='bridge'?.82:.84)*(n.em?1.15:n.anchor?1:.9)*(.95+R()*.1));
+    const L=ns.map(n=>(n.m<60?Math.pow(10,-(60-n.m)*.6/20):1)*(n.quiet?.7:1)*(n.type==='chorus'||n.type==='post'?1:n.type==='outro'?.6:n.type==='bridge'?.82:.84)*(n.em?1.15:n.anchor?1:.9)*(.95+R()*.1));
     let off, rel2; if(g.phraseEnd){ off=end; rel2=.32; } else if(g.contigNext){ off=end-Math.min(.1,(end-ts[ts.length-1])*.25); rel2=.07; } else { off=end-.02; rel2=.14; }
     const sc=(g.phrase?14:6)+R()*8, att=g.phrase?.09:.05, start=ts[0]-.05, stop=off+rel2;
     if(g.phrase&&ts[0]>.9) breaths.push(ts[0]);
