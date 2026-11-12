@@ -85,6 +85,9 @@ textarea#feel:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 body[data-lv="0"] .lv1,body[data-lv="0"] .lv2,body[data-lv="1"] .lv2{display:none}
 body:not([data-lv="2"]) [data-a=fine]{display:none}
 #lyr{display:flex;flex-direction:column;gap:2px;font:19px/1.75 "Noto Serif KR","Nanum Myeongjo",serif;color:var(--dim)}
+/* 간단히 보기: 가사는 따라 부르는 자막이 아니라 이 곡이 나온 글로만 보여 준다 */
+body[data-lv="0"] #lyr div,body[data-lv="0"] #lyr div.now,body[data-lv="0"] #lyr div.done{color:var(--fg)} body[data-lv="0"] #lyr div.rep{display:none} body[data-lv="0"] #lyr div.gap+div.gap,body[data-lv="0"] #lyr div.gap:last-child{display:none}
+body[data-lv="0"] #lyr::after{content:"이 글에서 나온 멜로디예요. 따라 부르기보다 듣는 곡이에요.";font:12px/1.6 system-ui,sans-serif;color:var(--dim);margin-top:8px}
 #lyr div{transition:color .2s} #lyr div.now{color:var(--warm)} #lyr div.done{color:var(--fg)} #lyr div.gap{height:.6em}
 #kept .kc{font-size:13px;min-height:34px;padding:4px 12px;color:var(--dim)}
 [hidden]{display:none!important}
@@ -609,7 +612,7 @@ function humTrack(song,sro,from,to,R,PRE,NS){ const V=BUF.bora.map(prepVoice).so
       if(g.phraseEnd&&t>off-.1) c-=7*smooth((t-(off-.1))/.38);
       return c; };
     const ampAt=t=>{ const j=noteAt(t); let a=L[j];
-      if(j>0){ const x=smooth((t-(ts[j]-.04))/.08); a=L[j-1]+(L[j]-L[j-1])*x; a*=1-.38*Math.exp(-Math.pow((t-ts[j])/.03,2)); }
+      if(j>0){ const x=smooth((t-(ts[j]-.04))/.08); a=L[j-1]+(L[j]-L[j-1])*x; a*=1-.16*Math.exp(-Math.pow((t-ts[j])/.05,2)); }
       const dj=te[j]-ts[j], dt=t-ts[j]; if(dj>.6) a*=1+.07*Math.sin(Math.PI*Math.min(1,dt/dj));
       if(g.phraseEnd&&t>ts[ts.length-1]+.2) a*=1-.28*smooth((t-ts[ts.length-1]-.2)/Math.max(.1,off-ts[ts.length-1]-.2));
       a*=smooth((t-start)/(att+.05)); if(t>off) a*=1-smooth((t-off)/rel2); return a; };
@@ -856,7 +859,7 @@ function prepare(){ cpOpen=null; stop(); persist(); $('gsel').hidden=$('gselL').
   renderForm();
   if(!song){ $('info').textContent='가사를 한 줄만 적어도 바로 곡이 됩니다.'; $('tv').textContent='–'; $('lyr').innerHTML=''; checks(); draw(-1); return; }
   $('tv').textContent=song.bpm+' 박'; $('kv').textContent=(song.key?`카포 ${song.key}`:'카포 없음')+(state.keyAuto?' · 알아서':'');
-  const LY=$('lyr'); LY.innerHTML=''; song.secs.forEach((sec,si)=>{ if(!sec.lines.length) return; if(LY.children.length){ const gp=document.createElement('div'); gp.className='gap'; LY.appendChild(gp); } sec.lines.forEach(L=>{ if(!L.phrases.length) return; const d=document.createElement('div'); d.textContent=L.text; d.dataset.a=L.phrases[0].base-2; const lp=L.phrases[L.phrases.length-1]; d.dataset.b=lp.base+16; LY.appendChild(d); }); });
+  const LY=$('lyr'); LY.innerHTML=''; song.secs.forEach((sec,si)=>{ if(!sec.lines.length) return; if(LY.children.length){ const gp=document.createElement('div'); gp.className='gap'; LY.appendChild(gp); } sec.lines.forEach(L=>{ if(!L.phrases.length) return; const d=document.createElement('div'); d.textContent=L.text; if([...LY.children].some(x=>x.textContent===L.text)) d.className='rep'; d.dataset.a=L.phrases[0].base-2; const lp=L.phrases[L.phrases.length-1]; d.dataset.b=lp.base+16; LY.appendChild(d); }); });
   song.secs.forEach(sec=>{ const d=document.createElement('div'); d.className='sec'; d.innerHTML=`<h3>${sec.name}</h3>`; let ln=null;
     for(let b=sec.startBar;b<sec.startBar+sec.nBars;b++){ if((b-sec.startBar)%4===0){ ln=document.createElement('div'); ln.className='ln'; d.appendChild(ln); } const cell=document.createElement('div'); cell.className='bar'; cell.dataset.b=b; const B=song.bars[b]; cell.innerHTML=B.ok&&!B.fin?`<button class="cb${B.ov?' ov':''}" title="코드 바꾸기">${B.name}${B.name2?' · '+B.name2:''}</button>`:`<b>${B.name}</b>`; ln.appendChild(cell); const cbn=cell.querySelector('.cb'); if(cbn) cbn.onclick=()=>chordPanel(b,ln); }
     $('sheet').appendChild(d); });
