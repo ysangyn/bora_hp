@@ -14,3 +14,10 @@ const sets = rd('data/photos.json').filter(s => !s.hide && s.items && s.items.le
 sets.forEach((s, i) => wr(`photos/${s.slug}/index.html`, P.renderSet(s, { prev: sets[i + 1] || null, next: sets[i - 1] || null })));
 wr('photos/index.html', P.renderFeed(sets)); wr('sitemap-photos.xml', P.renderPhotoSitemap(sets));
 console.log('photo sets:', sets.length);
+// 음반장도 함께 (앨범이 없으면 '꽂는 중' 화면만)
+const M = await import(pathToFileURL(path.join(ROOT, 'assets/music-render.js')).href);
+const ex = p => fs.existsSync(path.join(ROOT, p)) ? rd(p) : [];
+const albums = ex('data/albums.json'), videos = ex('data/videos.json');
+for (const f of M.musicFiles(albums, videos, tracks)) if (!f.del) wr(f.path, f.text);
+if (albums.some(a => a.slug)) fs.writeFileSync(path.join(ROOT, 'data/albums.json'), JSON.stringify(albums, null, 1));
+console.log('albums:', albums.length);

@@ -74,6 +74,43 @@
 .bstat{margin:0;font-size:13px;color:var(--lamp)}
 .bkprev{position:fixed;inset:0;z-index:60;background:#0e0b13}
 .bkprev iframe{width:100%;height:100%;border:0;display:block}
+
+.todo{margin-top:18px;padding:6px 16px 6px;border-radius:16px;border:1px solid color-mix(in srgb,var(--lamp) 45%,transparent)}
+.todo h2{margin:12px 0 6px;font:500 12px/1 var(--ui);letter-spacing:.3em;color:var(--lamp)}
+.trow{width:100%;display:flex;align-items:center;gap:12px;min-height:58px;padding:8px 0;border:0;border-top:1px solid var(--line);background:none;text-align:left;cursor:pointer}
+.trow:first-of-type{border-top:0}
+.trow b{display:block;font-weight:500;font-size:14.5px}.trow small{display:block;font-size:12.5px;color:var(--mut);margin-top:2px}
+.trow em{margin-left:auto;font-style:normal;font-size:13px;color:var(--lamp);white-space:nowrap}
+.gl{margin:24px 0 10px;font:500 11.5px/1 var(--ui);letter-spacing:.3em;color:var(--acc)}
+.hgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hcard{display:flex;flex-direction:column;gap:5px;min-height:88px;padding:16px;border:0;border-radius:14px;background:var(--surf);text-align:left;text-decoration:none;cursor:pointer;color:var(--ink)}
+.hcard b{font:600 15.5px/1.3 var(--serif)}.hcard small{font-size:12.5px;color:var(--mut);line-height:1.5}
+.rbox{margin-top:18px;padding:18px;border-radius:16px;background:var(--surf);display:flex;flex-direction:column;gap:12px}
+.rbox h2{margin:0;font:600 17px/1.3 var(--serif)}
+.rbox textarea,.rbox input[type=text],.rbox select,.mood input,.mood select{width:100%;font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px}
+.rbox textarea{font:15px/1.7 var(--serif);resize:vertical}
+.rhead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.nlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.nlist li{display:grid;grid-template-columns:22px 1fr;gap:6px 8px;align-items:start}
+.nlist .nn{font-size:12px;color:var(--mut);padding-top:12px;text-align:center}
+.nlist li.now .nn{color:var(--lamp);font-weight:600}
+.nlist li.now textarea{border-color:color-mix(in srgb,var(--lamp) 60%,transparent)}
+.nlist .nb{grid-column:2;display:flex;gap:6px}
+.mood{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 0;border-top:1px solid var(--line)}
+.mood input[data-mood$=":msg"]{grid-column:1/-1}
+.mood .btn{justify-self:start}
+.cov{display:flex;gap:14px;align-items:flex-end}
+.covbtn{width:150px;height:150px;flex:none;border-radius:6px;border:1px dashed var(--line);background:var(--surf);color:var(--mut);font-size:13px;cursor:pointer;padding:0;overflow:hidden}
+.covbtn img{width:100%;height:100%;object-fit:cover;display:block}
+.tlist{list-style:none;margin:0;padding:0}
+.tlist li{border-top:1px solid var(--line)}
+.tlist li.open{display:flex;flex-direction:column;gap:12px;padding:14px 0}
+.tbar{width:100%;display:flex;align-items:center;gap:8px;min-height:52px;border:0;background:none;text-align:left;cursor:pointer;color:var(--ink)}
+.tbar .tt{flex:1;min-width:0;font:15px/1.4 var(--serif);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tn{width:20px;flex:none;font-size:12.5px;color:var(--mut);text-align:center}
+.trow2{display:flex;gap:8px;align-items:center}
+.trow2 input{flex:1}
+.it .thumb{background:var(--surf)}
 </style>
 </head>
 <body>
@@ -83,6 +120,7 @@
 <div class="busy" id="busy" hidden><span id="busyT">올리는 중…</span></div>
 <script type="module">
 import { renderFeed, renderSet, renderPhotoSitemap, PCATS, pcatName } from '../assets/photos-render.js';
+import { musicFiles, musicPaths } from '../assets/music-render.js';
 const REPO = 'ysangyn/bora_hp', BRANCH = 'main', ROOT = '../';
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -140,11 +178,13 @@ async function shrink(file, max = 2048) {
 }
 
 /* 상태 */
-const D = { tracks: null, videos: null, views: null, photos: null, books: null }, ORIG = {}, PEND = new Map();
-let tab = 'tracks', dirty = new Set();
-const FILES = { tracks: 'data/tracks.json', videos: 'data/videos.json', views: 'data/views.json', photos: 'data/photos.json', books: 'data/books.json' };
-const mark = k => { dirty.add(k); $('#saveBar').hidden = false; $('#saveT').textContent = `바뀐 내용이 있어요 (${[...dirty].map(x => ({ tracks: '노래', videos: '영상', views: '창밖', photos: '사진첩', books: '책장' })[x]).join('·')})`; };
-async function loadAll() { for (const k of Object.keys(FILES)) { D[k] = await getJSON(FILES[k], []); ORIG[k] = JSON.stringify(D[k]); } }
+const D = { tracks: null, videos: null, views: null, photos: null, books: null, albums: null, room: null }, ORIG = {}, PEND = new Map();
+let tab = 'home', dirty = new Set();
+const FILES = { tracks: 'data/tracks.json', videos: 'data/videos.json', views: 'data/views.json', photos: 'data/photos.json', books: 'data/books.json', albums: 'data/albums.json', room: 'data/room.json' };
+const mark = k => { dirty.add(k); $('#saveBar').hidden = false; $('#saveT').textContent = `바뀐 내용이 있어요 (${[...dirty].map(x => ({ tracks: '노래', videos: '영상', views: '창밖', photos: '사진첩', books: '책장', albums: '음반장', room: '방 소식' })[x]).join('·')})`; };
+const ROOM0 = () => ({ line: { t: '', d: '' }, notes: [], notesFrom: '', bc: { on: false, name: '어른아이의 밤 방송', intro: '', f: '', voice: '', vg: 1 }, moods: [] });
+async function loadAll() { const ks = Object.keys(FILES), got = await Promise.all(ks.map(k => getJSON(FILES[k], k === 'room' ? {} : [])));
+  ks.forEach((k, i) => { D[k] = got[i]; if (k === 'room') { const r0 = ROOM0(); D.room = { ...r0, ...(got[i] || {}), line: { ...r0.line, ...((got[i] || {}).line || {}) }, bc: { ...r0.bc, ...((got[i] || {}).bc || {}) } }; } ORIG[k] = JSON.stringify(D[k]); }); }
 
 function viewKey(err) {
   $('#app').innerHTML = `<h1 class="lt">주인장 방</h1><p class="ls">노트 쓰기에 넣은 것과 같은 '쓰기 열쇠'를 넣어 주세요.</p>
@@ -155,12 +195,12 @@ function viewKey(err) {
 }
 
 function render() {
-  const n = { tracks: D.tracks.length, videos: D.videos.length, views: D.views.length, photos: D.photos.length, books: D.books.length };
-  $('#app').innerHTML = `<h1 class="lt">주인장 방</h1><p class="ls">방의 노래, 프로젝터 영상, 창밖 풍경, 사진첩, 책장을 고쳐요. 고친 뒤 아래 '방에 올리기'를 누르면 1~2분 뒤 방에 반영돼요.</p>
-  <div class="tabs" role="tablist"><button type="button" data-tab="tracks" aria-pressed="${tab === 'tracks'}">노래 ${n.tracks}</button><button type="button" data-tab="videos" aria-pressed="${tab === 'videos'}">영상 ${n.videos}</button><button type="button" data-tab="views" aria-pressed="${tab === 'views'}">창밖 ${n.views}</button><button type="button" data-tab="photos" aria-pressed="${tab === 'photos'}">사진첩 ${n.photos}</button><button type="button" data-tab="books" aria-pressed="${tab === 'books'}">책장 ${n.books}</button></div>
+  const n = { tracks: D.tracks.length, videos: D.videos.length, views: D.views.length, photos: D.photos.length, books: D.books.length, albums: D.albums.length };
+  $('#app').innerHTML = `<h1 class="lt">주인장 방</h1><p class="ls">방과 페이지에 보이는 것들을 여기서 채우고 고쳐요. 고친 뒤 아래 '방에 올리기'를 누르면 1~2분 뒤 방에 반영돼요.</p>
+  <div class="tabs" role="tablist">${SECTIONS.map(([k, nm]) => `<button type="button" data-tab="${k}" aria-pressed="${tab === k}">${nm}${n[k] != null ? ' ' + n[k] : ''}</button>`).join('')}</div>
   <section id="pane"></section>`;
-  $$('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; editSet = null; editBook = null; render(); });
-  ({ tracks: paneTracks, videos: paneVideos, views: paneViews, photos: panePhotos, books: paneBooks })[tab]();
+  $$('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; editSet = null; editBook = null; editAlbum = null; render(); scrollTo(0, 0); });
+  ({ home: paneHome, tracks: paneTracks, videos: paneVideos, views: paneViews, room: paneRoom, albums: paneAlbums, photos: panePhotos, books: paneBooks })[tab]();
 }
 const moveBtns = (k, i) => `<button class="btn sm" type="button" data-up="${i}" aria-label="위로" ${i === 0 ? 'disabled' : ''}>↑</button><button class="btn sm" type="button" data-dn="${i}" aria-label="아래로" ${i === D[k].length - 1 ? 'disabled' : ''}>↓</button><button class="btn sm" type="button" data-hide="${i}">${D[k][i].hide ? '다시 보이기' : '숨기기'}</button><button class="btn sm" type="button" data-del="${i}">빼기</button>`;
 function wireList(k) {
@@ -197,11 +237,12 @@ const ytId = u => { const m = String(u).match(/(?:youtu\.be\/|v=|shorts\/|embed\
 function paneVideos() {
   $('#pane').innerHTML = `<ul class="list">${D.videos.map((v, i) => `<li class="it${v.hide ? ' off' : ''}"><img class="thumb" src="https://i.ytimg.com/vi/${esc(v.id)}/mqdefault.jpg" alt="" style="width:96px;height:54px"><div class="f">
     <input type="text" data-edit="${i}:t" value="${esc(v.t || '')}" placeholder="제목 (비우면 유튜브 제목)" aria-label="영상 제목">
-    <div class="row"><select data-edit="${i}:kind" aria-label="종류" style="width:auto"><option value="mood"${v.kind !== 'mv' ? ' selected' : ''}>분위기 영상</option><option value="mv"${v.kind === 'mv' ? ' selected' : ''}>뮤직비디오</option></select><a class="btn sm" href="https://youtu.be/${esc(v.id)}" target="_blank" rel="noopener">유튜브에서 보기</a></div>
+    <div class="row"><select data-edit="${i}:kind" aria-label="종류" style="width:auto"><option value="mood"${v.kind !== 'mv' ? ' selected' : ''}>분위기 영상</option><option value="mv"${v.kind === 'mv' ? ' selected' : ''}>뮤직비디오</option><option value="live"${v.kind === 'live' ? ' selected' : ''}>무대 영상</option></select><a class="btn sm" href="https://youtu.be/${esc(v.id)}" target="_blank" rel="noopener">유튜브에서 보기</a></div>
+    ${v.kind === 'mv' || v.kind === 'live' ? `<div class="two"><input type="text" data-edit="${i}:y" value="${esc(v.y || '')}" placeholder="연도 (예: 2026)" inputmode="numeric" aria-label="연도"><input type="text" data-edit="${i}:line" value="${esc(v.line || '')}" placeholder="상영관에 보일 한 줄" aria-label="한 줄"></div>` : ''}
     <div class="row">${moveBtns('videos', i)}</div></div></li>`).join('')}</ul>
-  <div class="add"><b>영상 넣기</b><p class="help" style="margin:0">유튜브 주소를 붙여 넣어요. 프로젝터에서 블라인드 위에 비춰요.</p>
+  <div class="add"><b>영상 넣기</b><p class="help" style="margin:0">유튜브 주소를 붙여 넣어요. 프로젝터에서 블라인드 위에 비춰요. 뮤직비디오와 무대 영상은 음반장의 상영관에도 걸려요.</p>
     <input type="text" id="vUrl" placeholder="https://youtu.be/…" inputmode="url"><div class="row"><button class="btn pri" type="button" id="vAdd">넣기</button></div></div>`;
-  wireList('videos');
+  wireList('videos'); $$('select[data-edit$=":kind"]').forEach(el => el.addEventListener('change', () => render()));
   $('#vAdd').onclick = () => { const id = ytId($('#vUrl').value.trim()); if (!id) { toast('유튜브 주소를 확인해 주세요'); return; } if (D.videos.some(v => v.id === id)) { toast('이미 있는 영상이에요'); return; } D.videos.push({ id, kind: 'mood' }); mark('videos'); render(); };
 }
 
@@ -449,21 +490,159 @@ function paneBook() {
   };
 }
 
+
+/* 처음 화면: 비어 있는 것만 골라 '채워 주세요'로, 아래는 방과 페이지 칸 */
+const SITEMAP_INDEX = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${['notes', 'photos', 'music'].map(k => `  <sitemap><loc>https://ysangyn.github.io/bora_hp/sitemap-${k}.xml</loc></sitemap>`).join('\n')}
+</sitemapindex>
+`;
+const SECTIONS = [['home', '처음'], ['tracks', '노래'], ['videos', '영상'], ['views', '창밖'], ['room', '방 소식'], ['albums', '음반장'], ['photos', '사진첩'], ['books', '책장']];
+const refs = k => k === 'room' ? [D.room.bc.voice] : D[k].flatMap(x => [x.f, x.day, x.night, x.cover, ...((x.items || []).map(i => i.src))]);
+const dayKey = (t = Date.now()) => { const d = new Date(t - 6 * 3600e3); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const dayNum = k => Math.round(Date.UTC(+k.slice(0, 4), +k.slice(5, 7) - 1, +k.slice(8, 10)) / 864e5);
+const daysAgo = k => k ? dayNum(dayKey()) - dayNum(k) : 999;
+const noteIdx = R => { const N = (R.notes || []).length; return N ? ((dayNum(dayKey()) - dayNum(R.notesFrom || '2026-11-01')) % N + N) % N : -1; };
+const srcOf = p => PEND.has(p) ? URL.createObjectURL(PEND.get(p)) : ROOT + p;
+function todo() {
+  const R = D.room, out = [], left = R.notes.length - 1 - noteIdx(R);
+  if (!R.line.t) out.push(['room', '오늘의 한 줄', '아직 걸어 둔 한 줄이 없어요', '쓰기']);
+  else if (daysAgo(R.line.d) >= 3) out.push(['room', '오늘의 한 줄', `${daysAgo(R.line.d)}일 전에 쓴 한 줄이 걸려 있어요`, '쓰기']);
+  if (!R.notes.length) out.push(['room', '오늘 밤의 쪽지', '쪽지가 없어서 방 문 아래가 비어 있어요', '쓰기']);
+  else if (left < 3) out.push(['room', '오늘 밤의 쪽지', `남은 쪽지 ${left}장 · ${left + 1}일 뒤 처음부터 다시`, '더 쓰기']);
+  if (R.bc.on && !R.bc.f && !R.bc.voice) out.push(['room', '밤 11시 방송', '오늘의 곡이 비어 있어요', '고르기']);
+  if (!R.moods.some(m => m.n && m.f)) out.push(['room', '기분별 한 곡', '고른 곡이 없어서 레코드장에 기분 단추가 숨어 있어요', '고르기']);
+  const A = D.albums.filter(a => !a.hide), tr = A.flatMap(a => a.tracks || []), noCover = A.filter(a => !a.cover).length, noLyr = tr.filter(t => !t.lyr).length;
+  if (!A.length) out.push(['albums', '음반장', '아직 앨범이 없어요', '만들기']);
+  else if (noCover || noLyr) out.push(['albums', '음반장', [noCover ? `커버 없는 앨범 ${noCover}장` : '', noLyr ? `가사 없는 곡 ${noLyr}곡` : ''].filter(Boolean).join(' · '), '채우기']);
+  const mv = D.videos.filter(v => !v.hide && (v.kind === 'mv' || v.kind === 'live')), noLine = mv.filter(v => !v.line).length;
+  if (noLine) out.push(['videos', '상영관', `한 줄 설명이 없는 영상 ${noLine}편`, '쓰기']);
+  return out;
+}
+function paneHome() {
+  const T = todo(), R = D.room, A = D.albums.filter(a => !a.hide);
+  const card = (k, n, sub) => `<button type="button" class="hcard" data-go="${k}"><b>${n}</b><small>${sub}</small></button>`;
+  $('#pane').innerHTML = `<section class="todo"><h2>채워 주세요</h2>${T.length ? T.map(([k, n, why, act]) => `<button type="button" class="trow" data-go="${k}"><span><b>${n}</b><small>${esc(why)}</small></span><em>${act}</em></button>`).join('') : '<p class="help" style="margin:4px 0 12px">지금은 채울 것이 없어요.</p>'}</section>
+  <h3 class="gl">방</h3><div class="hgrid">${card('tracks', '노래', `턴테이블 ${D.tracks.filter(t => t.kind !== 'sketch' && !t.hide).length}곡 · 습작 ${D.tracks.filter(t => t.kind === 'sketch' && !t.hide).length}곡`)}${card('videos', '영상', `프로젝터 ${D.videos.filter(v => !v.hide).length}편`)}${card('views', '창밖', `직접 찍은 창 ${D.views.filter(v => !v.hide).length}곳`)}${card('room', '방 소식', `한 줄 · 쪽지 ${R.notes.length}장 · 방송 ${R.bc.on ? '켬' : '끔'}`)}</div>
+  <h3 class="gl">페이지</h3><div class="hgrid">${card('albums', '음반장', `앨범 ${A.length}장 · 곡 ${A.reduce((x, a) => x + (a.tracks || []).length, 0)}`)}${card('photos', '사진첩', `${D.photos.filter(x => !x.hide).length}묶음`)}${card('books', '책장', `${D.books.filter(x => !x.hide).length}권`)}<a class="hcard" href="../notes/write/"><b>노트 쓰기 ↗</b><small>블로그 글</small></a></div>`;
+  $$('[data-go]').forEach(b => b.onclick = () => { tab = b.dataset.go; render(); scrollTo(0, 0); });
+}
+
+/* 방 소식: 주인장의 한 줄, 오늘 밤의 쪽지, 밤 11시 방송, 기분별 한 곡 */
+const songOpts = sel => `<option value="">고르지 않음</option>${D.tracks.filter(t => !t.hide).map(t => `<option value="${esc(t.f)}"${t.f === sel ? ' selected' : ''}>${esc(t.t)}${t.kind === 'sketch' ? ' (습작)' : ''}</option>`).join('')}`;
+function paneRoom() {
+  const R = D.room, ni = noteIdx(R);
+  if (!R.moods.length) R.moods = ['비 오는 날', '잠 안 오는 밤', '그냥 멍하니', '위로가 필요한 날'].map(n => ({ n, f: '', msg: '' }));
+  $('#pane').innerHTML = `<section class="rbox"><h2>오늘의 한 줄</h2><textarea id="rLine" rows="2" maxlength="90" placeholder="방에 들어오면 인사 아래에 보이는 한 줄">${esc(R.line.t)}</textarea>
+    <p class="help">${R.line.t ? `걸어 둔 날 ${esc(R.line.d)} · 고치면 오늘 날짜로 바뀌어요.` : '쓰면 오늘 날짜가 함께 걸려요. 비워 두면 방에 보이지 않아요.'}</p></section>
+  <section class="rbox"><h2>오늘 밤의 쪽지</h2><p class="help">하룻밤에 한 장씩 차례로 나가요(새벽 6시에 바뀌어요). 다 돌면 처음부터.${R.notes.length ? ` 오늘 밤에는 <b>${ni + 1}번</b> 쪽지가 나가요.` : ''}</p>
+    <ol class="nlist">${R.notes.map((t, i) => `<li${i === ni ? ' class="now"' : ''}><span class="nn">${i + 1}</span><textarea data-note="${i}" rows="2" aria-label="${i + 1}번 쪽지">${esc(t)}</textarea><span class="nb"><button class="btn sm" type="button" data-nup="${i}"${i ? '' : ' disabled'} aria-label="위로">↑</button><button class="btn sm" type="button" data-ndel="${i}">빼기</button></span></li>`).join('')}</ol>
+    <textarea id="rNew" rows="3" placeholder="새 쪽지 (손님은 하룻밤에 한 장 받아요)"></textarea><div class="row"><button class="btn" type="button" id="rAdd">쪽지 더하기</button></div></section>
+  <section class="rbox"><div class="rhead"><h2>밤 11시 방송</h2><button class="btn sm${R.bc.on ? ' lamp' : ''}" type="button" id="bcOn" aria-pressed="${!!R.bc.on}">${R.bc.on ? '켜짐' : '꺼짐'}</button></div>
+    <label class="fld"><span>방송 이름</span><input type="text" id="bcName" value="${esc(R.bc.name)}"></label>
+    <label class="fld"><span>여는 말</span><textarea id="bcIntro" rows="4" placeholder="오늘 밤 방송을 시작하며 손님에게 하는 말">${esc(R.bc.intro)}</textarea></label>
+    <label class="fld"><span>오늘의 곡</span><select id="bcSong">${songOpts(R.bc.f)}</select></label>
+    <div class="fld"><span>목소리 녹음 (선택)</span><div class="row">${R.bc.voice ? `<span class="tag">${PEND.has(R.bc.voice) ? '새로 넣음' : '넣어 둠'}</span><button class="btn sm" type="button" id="bcVplay">▶ 들어 보기</button><button class="btn sm" type="button" id="bcVdel">빼기</button>` : ''}<button class="btn sm" type="button" id="bcVpick">${R.bc.voice ? '바꾸기' : '파일 넣기'}</button></div><input type="file" id="bcVfile" accept="audio/mpeg,audio/mp4,audio/x-m4a,.mp3,.m4a" hidden></div>
+    <p class="help">손님이 있는 곳의 밤 11시부터 한 시간 동안 라디오에서 나와요. 목소리가 있으면 목소리 다음에 곡이 나와요. 목소리도 소리 크기를 다른 곡과 맞춰 둬요.</p></section>
+  <section class="rbox"><h2>기분별 한 곡</h2><p class="help">레코드장 맨 위에 기분 단추로 보여요. 곡을 고르지 않은 기분은 숨겨요.</p>
+    ${R.moods.map((m, i) => `<div class="mood"><input type="text" data-mood="${i}:n" value="${esc(m.n)}" placeholder="기분 이름" aria-label="기분 이름"><select data-mood="${i}:f" aria-label="${esc(m.n)} 곡">${songOpts(m.f)}</select><input type="text" data-mood="${i}:msg" value="${esc(m.msg || '')}" placeholder="이 곡을 고른 이유 한 마디" aria-label="한 마디"><button class="btn sm" type="button" data-mdel="${i}">빼기</button></div>`).join('')}
+    ${R.moods.length < 6 ? '<div class="row"><button class="btn" type="button" id="mAdd">기분 더하기</button></div>' : ''}</section>`;
+  const M = () => mark('room');
+  $('#rLine').oninput = e => { R.line = { t: e.target.value.trim(), d: dayKey() }; M(); };
+  $$('[data-note]').forEach(el => el.oninput = () => { R.notes[+el.dataset.note] = el.value.trim(); M(); });
+  $$('[data-nup]').forEach(b => b.onclick = () => { const i = +b.dataset.nup; [R.notes[i - 1], R.notes[i]] = [R.notes[i], R.notes[i - 1]]; M(); render(); });
+  $$('[data-ndel]').forEach(b => b.onclick = () => { R.notes.splice(+b.dataset.ndel, 1); M(); render(); });
+  $('#rAdd').onclick = () => { const v = $('#rNew').value.trim(); if (!v) return; if (!R.notes.length) R.notesFrom = dayKey(); R.notes.push(v); M(); render(); toast('쪽지를 더했어요'); };
+  $('#bcOn').onclick = () => { R.bc.on = !R.bc.on; M(); render(); };
+  $('#bcName').oninput = e => { R.bc.name = e.target.value; M(); };
+  $('#bcIntro').oninput = e => { R.bc.intro = e.target.value; M(); };
+  $('#bcSong').onchange = e => { R.bc.f = e.target.value; M(); };
+  $('#bcVpick').onclick = () => $('#bcVfile').click();
+  $('#bcVfile').onchange = async e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; if (f.size > 12e6) { toast('12MB가 넘어요. 3분 안쪽으로 줄여 주세요.'); return; }
+    busy(true, '목소리 크기를 재는 중…'); try { const m = await measureLufs(f), path = `music/voice_${rid()}.${/\.m4a$/i.test(f.name) ? 'm4a' : 'mp3'}`; PEND.set(path, f); R.bc.voice = path; R.bc.vg = gainOf(m.lufs); M(); } catch (er) { toast('소리 파일을 읽지 못했어요'); } busy(false); render(); };
+  if ($('#bcVdel')) $('#bcVdel').onclick = () => { R.bc.voice = ''; M(); render(); };
+  if ($('#bcVplay')) $('#bcVplay').onclick = () => { const a = new Audio(srcOf(R.bc.voice)); a.volume = Math.min(1, R.bc.vg || 1); a.play().catch(() => toast('재생하지 못했어요')); };
+  $$('[data-mood]').forEach(el => el.oninput = el.onchange = () => { const [i, k] = el.dataset.mood.split(':'); R.moods[+i][k] = el.value.trim(); M(); });
+  $$('[data-mdel]').forEach(b => b.onclick = () => { R.moods.splice(+b.dataset.mdel, 1); M(); render(); });
+  if ($('#mAdd')) $('#mAdd').onclick = () => { R.moods.push({ n: '', f: '', msg: '' }); M(); render(); };
+}
+
+/* 음반장: 앨범(커버·이야기·듣는 곳·만든 사람들)과 곡(음원·가사·곡 이야기·영상) */
+const AKINDS = [['album', '정규'], ['ep', 'EP'], ['single', '싱글']];
+const ALINKS = [['melon', '멜론'], ['genie', '지니'], ['vibe', '바이브'], ['spotify', '스포티파이'], ['apple', '애플 뮤직'], ['ytm', '유튜브 뮤직']];
+let editAlbum = null, openTrack = -1;
+const aKind = k => (AKINDS.find(x => x[0] === k) || AKINDS[0])[1];
+function paneAlbums() {
+  if (editAlbum) return paneAlbum();
+  $('#pane').innerHTML = `<p class="help">음반장 페이지와 앨범·곡 페이지가 여기서 만들어져요. 가사와 곡 이야기는 검색에도 잡혀요.</p>
+  <ul class="list">${D.albums.map((a, i) => { const tr = a.tracks || [], miss = [!a.cover ? '커버' : '', tr.some(t => !t.lyr) ? `가사 ${tr.filter(t => !t.lyr).length}곡` : ''].filter(Boolean);
+    return `<li class="it${a.hide ? ' off' : ''}">${a.cover ? `<img class="thumb" src="${esc(srcOf(a.cover))}" alt="">` : '<div class="thumb"></div>'}<div class="f"><b style="font:600 16px/1.4 var(--serif)">${esc(a.t || '제목 없는 앨범')}</b>
+    <small>${aKind(a.kind)} · ${esc((a.date || '').slice(0, 4) || '연도 없음')} · 곡 ${tr.length}${miss.length ? ` · <span class="tag new">비어 있음: ${miss.join(', ')}</span>` : ''}</small>
+    <div class="row"><button class="btn sm" type="button" data-aed="${esc(a.id)}">고치기</button>${moveBtns('albums', i)}</div></div></li>`; }).join('')}</ul>
+  <div class="add"><b>새 앨범 만들기</b><p class="help" style="margin:0">정규·EP·싱글 모두 여기서 만들어요. 곡 음원은 '노래' 칸에 올린 곡에서 골라요.</p><div class="row"><button class="btn pri" type="button" id="aNew">새 앨범 만들기</button></div></div>`;
+  wireList('albums');
+  $$('[data-aed]').forEach(b => b.onclick = () => { editAlbum = b.dataset.aed; openTrack = -1; render(); scrollTo(0, 0); });
+  $('#aNew').onclick = () => { const a = { id: rid(), slug: '', kind: 'album', t: '', date: '', cover: '', intro: '', story: '', links: {}, credits: '', tracks: [] }; D.albums.unshift(a); mark('albums'); editAlbum = a.id; openTrack = -1; render(); };
+}
+function paneAlbum() {
+  const a = D.albums.find(x => x.id === editAlbum); if (!a) { editAlbum = null; return paneAlbums(); }
+  a.links = a.links || {}; a.tracks = a.tracks || [];
+  const M = () => mark('albums'), opts = sel => `<option value="">음원 없음</option>${D.tracks.map(t => `<option value="${esc(t.f)}"${t.f === sel ? ' selected' : ''}>${esc(t.t)}${t.kind === 'sketch' ? ' (습작)' : ''}</option>`).join('')}`;
+  const badge = (ok, n) => `<span class="tag${ok ? '' : ' new'}">${n}</span>`;
+  $('#pane').innerHTML = `<div class="row" style="margin-top:14px"><button class="btn sm" type="button" id="aBack">← 앨범 목록</button></div>
+  <div class="bed">
+    <div class="cov"><button type="button" id="aCov" class="covbtn" aria-label="커버 넣기">${a.cover ? `<img src="${esc(srcOf(a.cover))}" alt="">` : '커버 넣기'}</button><p class="help" style="margin:0">정사각형으로 잘라 드려요. 위치 정보는 지우고 올려요.</p><input type="file" id="aCovF" accept="image/*" hidden></div>
+    <div class="fld"><span>종류</span><div class="row">${AKINDS.map(([k, n]) => `<button type="button" class="btn sm${a.kind === k ? ' pri' : ''}" data-ak="${k}" aria-pressed="${a.kind === k}">${n}</button>`).join('')}</div></div>
+    <label class="fld"><span>앨범 제목</span><input type="text" data-af="t" value="${esc(a.t)}" placeholder="앨범 제목"></label>
+    <div class="two"><label class="fld"><span>낸 날</span><input type="date" data-af="date" value="${esc(a.date)}"></label><label class="fld"><span>주소 이름 (영문, 선택)</span><input type="text" data-af="slug" value="${esc(a.slug)}" placeholder="예: first-album" autocapitalize="off"></label></div>
+    <label class="fld"><span>한두 줄 소개</span><input type="text" data-af="intro" value="${esc(a.intro)}" placeholder="검색 결과에도 이 문장이 보여요"></label>
+    <label class="fld"><span>앨범 이야기</span><textarea data-af="story" rows="7" placeholder="이 앨범을 만들던 때의 이야기. 라이너 노트처럼 몇 문단.">${esc(a.story)}</textarea></label>
+    <div class="fld"><span>듣는 곳 (있는 곳만 주소를 붙여 넣어요)</span><div class="two">${ALINKS.map(([k, n]) => `<input type="url" data-al="${k}" value="${esc(a.links[k] || '')}" placeholder="${n}" aria-label="${n} 주소">`).join('')}</div></div>
+    <div class="fld"><span>수록곡</span><ol class="tlist">${a.tracks.map((t, i) => i === openTrack ? `<li class="open"><div class="trow2"><span class="tn">${i + 1}</span><input type="text" data-tf="${i}:t" value="${esc(t.t)}" placeholder="곡 제목" aria-label="곡 제목"></div>
+        <label class="fld"><span>음원</span><select data-tf="${i}:f">${opts(t.f)}</select></label>
+        <label class="fld"><span>가사</span><textarea data-tf="${i}:lyr" rows="8" placeholder="가사를 붙여 넣어요. 빈 줄로 연을 나눠요.">${esc(t.lyr || '')}</textarea></label>
+        <label class="fld"><span>곡 이야기</span><textarea data-tf="${i}:story" rows="3" placeholder="이 곡이 생겨난 순간 한두 줄">${esc(t.story || '')}</textarea></label>
+        <div class="two"><label class="fld"><span>영상 주소 (유튜브)</span><input type="url" data-tf="${i}:mv" value="${t.mv ? 'https://youtu.be/' + esc(t.mv) : ''}" placeholder="있으면"></label><label class="fld"><span>작사 · 작곡 · 편곡</span><input type="text" data-tf="${i}:credit" value="${esc(t.credit || '')}" placeholder="예: 어른아이 · 어른아이 · 홍길동"></label></div>
+        <div class="row"><button class="btn sm" type="button" data-tclose="${i}">접기</button><button class="btn sm" type="button" data-tup="${i}"${i ? '' : ' disabled'}>↑</button><button class="btn sm" type="button" data-tdn="${i}"${i < a.tracks.length - 1 ? '' : ' disabled'}>↓</button><button class="btn sm" type="button" data-tdel="${i}">빼기</button></div></li>`
+      : `<li><button type="button" class="tbar" data-topen="${i}"><span class="tn">${i + 1}</span><span class="tt">${esc(t.t || '제목 없는 곡')}</span>${badge(t.f, '음원')}${badge(t.lyr, '가사')}${badge(t.story, '이야기')}${t.mv ? badge(1, '영상') : ''}</button></li>`).join('')}</ol>
+      <div class="row"><button class="btn" type="button" id="tAdd">곡 더하기</button></div></div>
+    <label class="fld"><span>만든 사람들</span><textarea data-af="credits" rows="4" placeholder="노래·글·곡 어른아이&#10;편곡 …&#10;녹음 …">${esc(a.credits)}</textarea></label>
+    <div class="row"><button class="btn sm" type="button" id="aHide">${a.hide ? '다시 보이기' : '숨기기'}</button><button class="btn sm" type="button" id="aDel">앨범 빼기</button></div>
+  </div>`;
+  $('#aBack').onclick = () => { editAlbum = null; render(); };
+  $('#aCov').onclick = () => $('#aCovF').click();
+  $('#aCovF').onchange = async e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; busy(true, '커버를 다듬는 중…');
+    try { const bmp = await bitmapOf(f), cv = develop(bmp, { ratio: 1 }, 1200), { b, ext } = await cvBlob(cv), path = `img/albums/${a.id}/cover_${rid()}.${ext}`; PEND.set(path, b); a.cover = path; M(); } catch (er) { toast('사진을 읽지 못했어요'); } busy(false); render(); };
+  $$('[data-ak]').forEach(b => b.onclick = () => { a.kind = b.dataset.ak; M(); render(); });
+  $$('[data-af]').forEach(el => el.oninput = el.onchange = () => { a[el.dataset.af] = el.dataset.af === 'slug' ? el.value.toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '') : el.value; M(); });
+  $$('[data-al]').forEach(el => el.oninput = () => { a.links[el.dataset.al] = el.value.trim(); M(); });
+  $$('[data-tf]').forEach(el => el.oninput = el.onchange = () => { const [i, k] = el.dataset.tf.split(':'), t = a.tracks[+i]; t[k] = k === 'mv' ? (ytId(el.value.trim()) || '') : el.value; M(); });
+  $$('[data-topen]').forEach(b => b.onclick = () => { openTrack = +b.dataset.topen; render(); });
+  $$('[data-tclose]').forEach(b => b.onclick = () => { openTrack = -1; render(); });
+  $$('[data-tup]').forEach(b => b.onclick = () => { const i = +b.dataset.tup; [a.tracks[i - 1], a.tracks[i]] = [a.tracks[i], a.tracks[i - 1]]; openTrack = i - 1; M(); render(); });
+  $$('[data-tdn]').forEach(b => b.onclick = () => { const i = +b.dataset.tdn; [a.tracks[i + 1], a.tracks[i]] = [a.tracks[i], a.tracks[i + 1]]; openTrack = i + 1; M(); render(); });
+  $$('[data-tdel]').forEach(b => b.onclick = () => { a.tracks.splice(+b.dataset.tdel, 1); openTrack = -1; M(); render(); });
+  $('#tAdd').onclick = () => { a.tracks.push({ id: rid(), t: '', f: '', lyr: '', story: '', mv: '', credit: '' }); openTrack = a.tracks.length - 1; M(); render(); };
+  $('#aHide').onclick = () => { a.hide = !a.hide; M(); render(); };
+  $('#aDel').onclick = () => { const i = D.albums.indexOf(a); if (i >= 0) D.albums.splice(i, 1); editAlbum = null; M(); render(); toast('앨범을 뺐어요. 올리기 전까지는 되돌릴 수 있어요.'); };
+}
+
 /* 올리기 */
 $('#saveAll').onclick = async () => {
   busy(true, '방에 올리는 중… (곡 파일이 크면 1분쯤 걸려요)');
   try { const files = [], used = new Set();
     if (dirty.has('photos')) files.push(...photoFiles());
+    if (dirty.has('albums') || dirty.has('videos') || dirty.has('tracks')) { files.push(...musicFiles(D.albums, D.videos, D.tracks, musicPaths(JSON.parse(ORIG.albums || '[]')))); files.push({ path: 'sitemap.xml', text: SITEMAP_INDEX }); dirty.add('albums'); }
     if (dirty.has('books')) { const now = new Set(D.books.map(b => b.id));
       for (const id of BDIRTY) if (now.has(id) && BT.has(id)) files.push({ path: `data/books/${id}.json`, text: JSON.stringify(BT.get(id)) });
       JSON.parse(ORIG.books || '[]').forEach(b => { if (!now.has(b.id)) files.push({ path: `data/books/${b.id}.json`, del: true }); }); }
     for (const k of dirty) { files.push({ path: FILES[k], text: JSON.stringify(D[k], null, 1) });
-      for (const x of D[k]) for (const p of [x.f, x.day, x.night, ...((x.items || []).map(i => i.src))]) if (p && PEND.has(p) && !used.has(p)) { used.add(p); files.push({ path: p, blob: PEND.get(p) }); } }
+      for (const p of refs(k)) if (p && PEND.has(p) && !used.has(p)) { used.add(p); files.push({ path: p, blob: PEND.get(p) }); } }
     await commit(files, '주인장 방: ' + [...dirty].join(', ')); for (const p of used) PEND.delete(p); BDIRTY.clear();
     for (const k of dirty) ORIG[k] = JSON.stringify(D[k]); dirty.clear(); $('#saveBar').hidden = true; busy(false); toast('올렸어요. 1~2분 뒤 방에 보여요.'); render();
   } catch (e) { busy(false); toast('올리지 못했어요 (' + (e.status || '연결') + '). 잠시 뒤 다시 해 주세요.'); console.warn(e); }
 };
-$('#undoAll').onclick = () => { for (const k of dirty) D[k] = JSON.parse(ORIG[k]); dirty.clear(); PEND.clear(); editSet = null; editBook = null; bDraft = null; BDIRTY.clear(); BT.clear(); $('#saveBar').hidden = true; render(); };
+$('#undoAll').onclick = () => { for (const k of dirty) D[k] = JSON.parse(ORIG[k]); dirty.clear(); PEND.clear(); editSet = null; editBook = null; bDraft = null; editAlbum = null; BDIRTY.clear(); BT.clear(); $('#saveBar').hidden = true; render(); };
 window.addEventListener('beforeunload', e => { if (dirty.size) { e.preventDefault(); e.returnValue = ''; } });
 
 async function start() {

@@ -52,7 +52,7 @@ ${extra}</head>`;
 
 export const bar = (root, here) => `<header class="bar">
   <a class="logo" href="${root}" aria-label="보라다방 방으로">보라다방</a>
-  <nav aria-label="메뉴"><a href="${root}notes/"${here === 'notes' ? ' aria-current="page"' : ''}>노트</a><a href="${root}photos/"${here === 'photos' ? ' aria-current="page"' : ''}>사진첩</a><button class="theme" type="button" aria-label="밤·종이 화면 바꾸기"><i></i></button></nav>
+  <nav aria-label="메뉴"><a href="${root}notes/"${here === 'notes' ? ' aria-current="page"' : ''}>노트</a><a href="${root}music/"${here === 'music' ? ' aria-current="page"' : ''}>음반장</a><a href="${root}photos/"${here === 'photos' ? ' aria-current="page"' : ''}>사진첩</a><button class="theme" type="button" aria-label="밤·종이 화면 바꾸기"><i></i></button></nav>
 </header>`;
 
 export const foot = root => `<footer class="foot"><a href="${root}">보라다방</a> · 어른아이 · <a href="${root}rss.xml">RSS</a></footer>
