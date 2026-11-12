@@ -215,6 +215,12 @@ img.room.off{opacity:0;transition:opacity 1.2s}.lampoff img.room.off{opacity:1}
 .stage.isday.lampoff:not(.gl) .glow{opacity:0}
 
 /* 찻잔·시계·소리 섞기 패널 */
+/* 리모컨이 떠 있으면 '소리 섞기'는 리모컨 위로 올라가 한 묶음이 된다(겹치지 않게) */
+body:has(#remote:not([hidden])) #bMix{display:none}
+.remote .rmix{height:34px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(20,12,26,.42);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);color:#f1eaf5;font-size:11.5px;letter-spacing:.14em;margin-bottom:4px}
+.remote.open .rmix{display:none}
+/* 노래·라디오 제목이 떠 있으면 아래 안내 글은 숨긴다 */
+body:has(#npBox.on) .hintline,body:has(.nowplaying.on) .hintline,body:has(#npR:not(:empty)) .hintline{display:none}
 
 .way{display:flex;flex-direction:column;gap:8px;padding:16px 0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}.way b{font-family:var(--f-serif);font-weight:300;font-size:23px;line-height:1.4;letter-spacing:.02em;word-break:keep-all}.way p{font-size:14px!important;line-height:1.8!important}
 .way.mini{cursor:pointer;padding:12px 0;gap:3px}.way.mini b{font-size:17px}.way.mini small{color:var(--accent)}
@@ -587,7 +593,13 @@ body.lite .grade .grain,body.lite .steam i,body.lite .flake,body.lite .record i:
 @keyframes lf2{0%{opacity:0}6%{opacity:.35}14%{opacity:0}22%{opacity:.22}40%{opacity:0}100%{opacity:0}}
 .static .dial{opacity:.55}
 
-.window.wopen::before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 40%)}
+.window.wopen::before{content:"";position:absolute;inset:-10% -30%;z-index:2;pointer-events:none;background:linear-gradient(100deg,transparent 30%,rgba(210,230,255,.10) 45%,rgba(255,255,255,.16) 50%,rgba(210,230,255,.10) 55%,transparent 70%);animation:winAir 7s ease-in-out infinite}
+@keyframes winAir{0%{transform:translateX(-30%);opacity:0}25%{opacity:1}60%{opacity:.8}100%{transform:translateX(30%);opacity:0}}
+/* 창을 열면: 유리에 맺힌 빗방울이 걷히고 바깥이 또렷해지며 서늘한 빛이 돈다 */
+.window.wopen #rain{opacity:.22;transition:opacity 1.6s}.window #rain{transition:opacity 1.6s}
+.window::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:rgba(160,190,230,0);transition:background 1.6s}
+.window.wopen::after{background:rgba(160,190,230,.06);box-shadow:inset 0 0 0 2px rgba(255,255,255,.08)}
+@media (prefers-reduced-motion:reduce){.window.wopen::before{animation:none;opacity:.6}}
 
 /* 리모컨: 오른쪽 아래에 작은 단추로 숨어 있다가, 누르면 펼쳐진다 */
 .remote{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(64px,calc(env(safe-area-inset-bottom,0px) + 58px));z-index:12;display:flex;flex-direction:column;align-items:flex-end;gap:4px;color:#f1eaf5}
@@ -871,6 +883,7 @@ body.hasnote .hs[data-p="mailbox"]{display:block!important}
   <canvas class="fx" id="fx" aria-hidden="true"></canvas>
  </div></div>
  <div class="remote" id="remote" hidden>
+   <button class="rmix" id="rmMix" type="button">소리 섞기</button>
    <button class="rtog" id="rmTog" aria-label="리모컨 열기"><i></i><i></i><i></i></button>
    <span class="rt" id="rmT"></span>
    <div class="rb"><button id="rmPrev" aria-label="이전"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h2v12H6zM9.5 12l8.5-6v12z"/></svg></button><button id="rmB" aria-label="10초 뒤로"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg></button><button id="rmPlay" class="big" aria-label="재생 또는 멈춤"><span class="i1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></span><span class="i2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span></button><button id="rmF" aria-label="10초 앞으로"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2l5 4-5 4V7a5 5 0 1 0 5 5h2a7 7 0 1 1-7-7z"/></svg></button><button id="rmNext" aria-label="다음"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 6h2v12h-2zM14.5 12 6 6v12z"/></svg></button><button id="rmShuf" aria-label="무작위 재생"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3l4 4-4 4V8h-2.5l-3 4 3 4H17v-3l4 4-4 4v-3h-3.5l-3.5-4.7L6.5 18H3v-2h2.5l4.2-5.6L5.5 6H3V4h3.5l3.5 4.7L13.5 4H17z"/></svg></button></div>
@@ -1910,7 +1923,7 @@ function openMix(){ blip('paper');
   document.querySelectorAll('[data-mp]').forEach(b=>b.onclick=()=>{ const i=+b.dataset.mp; mixApply(i<0?{}:MIXP[i].v); });
   $('mxSave').onclick=()=>{ const n=$('mxName').value.trim()||'나의 자리', a=LS.get('mixSaved',[]).filter(p=>p.n!==n); a.unshift({n,v:mixNow()}); LS.set('mixSaved',a.slice(0,6)); $('mxName').value=''; mixUI(); roomSay(`‘${n}’ 자리를 간직했어요`); };
   $('mxSleep').onclick=()=>openSleep(); $('mxWays').onclick=e=>{ e.stopPropagation(); openWays(); }; mixUI(); }
-$('bMix').addEventListener('click',e=>{ e.stopPropagation(); openMix(); });
+$('bMix').addEventListener('click',e=>{ e.stopPropagation(); openMix(); }); $('rmMix').addEventListener('click',e=>{ e.stopPropagation(); openMix(); });
 /* ---------- 세계의 잠 청하는 법: 오늘 밤의 방법 하나, 양 세기, 낱말 띄우기 ---------- */
 // 효능을 말하지 않고 '이 나라에서는 이렇게 해요'로만 소개한다. go=이 방에서 이어지는 것
 const WAYS=[
