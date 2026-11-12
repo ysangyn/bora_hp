@@ -90,44 +90,22 @@ label.f{display:block;font-size:12.5px;letter-spacing:.08em;color:var(--mut);mar
 <div class="busy" id="busy" hidden><span id="busyT">올리는 중…</span></div>
 <script type="module">
 import { SITE, CATS, catName, renderPost, renderList, renderSitemap, renderRss, autoSummary, plain } from '../../assets/notes-render.js';
+import * as fb from '../../assets/fbstore.js';
 
 const REPO = 'ysangyn/bora_hp', BRANCH = 'main';
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const LS = { get(k, d = null) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }, del(k) { try { localStorage.removeItem(k); } catch (e) {} } };
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-let KEY = (() => { try { return localStorage.getItem('bora_wkey') || ''; } catch (e) { return ''; } })();
+/* 저장은 Firebase를 거쳐 사이트로 간다(assets/fbstore.js) */
 let tt = 0;
 const toast = m => { let t = $('.toast'); if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); } t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 2600); };
 const busy = (on, t) => { $('#busy').hidden = !on; if (t) $('#busyT').textContent = t; };
 $('.theme').onclick = () => { const r = document.documentElement, p = r.dataset.theme !== 'paper'; if (p) r.dataset.theme = 'paper'; else delete r.dataset.theme; try { localStorage.setItem('bora_theme', p ? 'paper' : 'night'); } catch (e) {} };
 
 /* ── GitHub: 저장소에 바로 쓰기 ── */
-async function gh(path, opt = {}) {
-  const r = await fetch('https://api.github.com' + path, { ...opt, cache: 'no-store', headers: { Authorization: 'Bearer ' + KEY, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', ...(opt.body ? { 'Content-Type': 'application/json' } : {}) } });
-  if (!r.ok) { const t = await r.text(); const e = new Error(r.status + ' ' + t.slice(0, 160)); e.status = r.status; throw e; }
-  return r.status === 204 ? null : r.json();
-}
-const encPath = p => p.split('/').map(encodeURIComponent).join('/');
-const b64dec = b => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\n/g, '')), c => c.charCodeAt(0)));
-const utf8b64 = s => { const u = new TextEncoder().encode(s); let bin = ''; for (let i = 0; i < u.length; i += 0x8000) bin += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(bin); };
-const blobB64 = b => new Promise((res, rej) => { const f = new FileReader(); f.onload = () => res(String(f.result).split(',')[1]); f.onerror = rej; f.readAsDataURL(b); });
-async function getText(path) { try { const j = await gh(`/repos/${REPO}/contents/${encPath(path)}?ref=${BRANCH}`); return b64dec(j.content); } catch (e) { if (e.status === 404) return null; throw e; } }
-async function getJSON(path, d) { const t = await getText(path); return t == null ? d : JSON.parse(t); }
-async function commit(files, msg) {
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const ref = await gh(`/repos/${REPO}/git/ref/heads/${BRANCH}`), base = ref.object.sha, bc = await gh(`/repos/${REPO}/git/commits/${base}`), tree = [];
-    for (const f of files) {
-      if (f.del) { tree.push({ path: f.path, mode: '100644', type: 'blob', sha: null }); continue; }
-      const content = f.blob ? await blobB64(f.blob) : utf8b64(f.text);
-      const b = await gh(`/repos/${REPO}/git/blobs`, { method: 'POST', body: JSON.stringify({ content, encoding: 'base64' }) });
-      tree.push({ path: f.path, mode: '100644', type: 'blob', sha: b.sha });
-    }
-    const t = await gh(`/repos/${REPO}/git/trees`, { method: 'POST', body: JSON.stringify({ base_tree: bc.tree.sha, tree }) });
-    const c = await gh(`/repos/${REPO}/git/commits`, { method: 'POST', body: JSON.stringify({ message: msg, tree: t.sha, parents: [base] }) });
-    try { await gh(`/repos/${REPO}/git/refs/heads/${BRANCH}`, { method: 'PATCH', body: JSON.stringify({ sha: c.sha }) }); return c.sha; }
-    catch (e) { if (e.status !== 422 || attempt === 2) throw e; }          // 그 사이 다른 변경이 들어왔으면 다시
-  }
-}
+const getText = path => fb.getText(path);
+const getJSON = (path, d) => fb.getJSON(path, d);
+const commit = (files, msg) => fb.commit(files, msg);
 
 /* ── 사진: 이 기기 안에서 줄이고(최대 1600px) 위치 정보 없이 다시 저장 ── */
 const IDB = (() => { let dbp = null; const db = () => dbp || (dbp = new Promise((res, rej) => { const r = indexedDB.open('bora_write', 1); r.onupgradeneeded = () => r.result.createObjectStore('img'); r.onsuccess = () => res(r.result); r.onerror = rej; }));
@@ -155,30 +133,15 @@ async function loadIndex() { INDEX = await getJSON('data/notes.json', []); retur
 async function loadTracks() { try { TRACKS = await (await fetch(ROOT + 'data/tracks.json', { cache: 'no-store' })).json(); } catch (e) { TRACKS = []; } }
 
 /* ── 화면 1: 쓰기 열쇠 ── */
-function viewKey(err) {
+async function viewKey(err) {
+  let u = null; try { u = await fb.currentUser(); } catch (e) { err = err || '연결하지 못했어요. 인터넷을 확인해 주세요.'; }
+  if (u) { let ok = false; try { ok = await fb.canWrite(); } catch (e) {} if (ok) return route(); err = '이 계정은 아직 저장 허락이 없어요. 주인장 방에서 규칙을 먼저 바꿔 주세요.'; }
   $('#app').innerHTML = `<h1 class="lt">노트 쓰기</h1>
-  <p class="ls">이 기기에서 처음 한 번만 '쓰기 열쇠'를 넣으면 돼요.</p>
-  <div class="card" style="margin-top:24px">
-    <label class="f" for="kIn" style="margin-top:0">쓰기 열쇠</label>
-    <input type="password" id="kIn" autocomplete="off" placeholder="github_pat_…" value="">
-    ${err ? `<p class="warnline">${esc(err)}</p>` : ''}
-    <div class="row" style="margin-top:14px"><button class="btn pri" id="kOk" type="button">열쇠 넣기</button></div>
-    <div class="help" style="margin-top:18px">열쇠는 이 휴대폰(브라우저)에만 저장돼요. 휴대폰을 잃어버리면 GitHub에서 그 열쇠를 지우면 돼요.
-      <details style="margin-top:10px"><summary>열쇠 만드는 법 (영상이가 한 번 만들어 주면 돼요)</summary>
-      <ol><li>GitHub 로그인 → 오른쪽 위 사진 → Settings → 맨 아래 Developer settings</li>
-      <li>Personal access tokens → <b>Fine-grained tokens</b> → Generate new token</li>
-      <li>이름: 보라다방 노트 · 만료일: 가장 길게</li>
-      <li>Repository access: <b>Only select repositories</b> → <b>bora_hp</b></li>
-      <li>Permissions → Repository permissions → <b>Contents: Read and write</b></li>
-      <li>Generate token → 나온 글자(github_pat_로 시작)를 복사해 위 칸에 붙여 넣기</li></ol></details></div>
-  </div>`;
-  $('#kOk').onclick = async () => {
-    const k = $('#kIn').value.trim(); if (!k) return;
-    KEY = k; busy(true, '열쇠를 확인하는 중…');
-    try { const j = await gh(`/repos/${REPO}`); if (!(j.permissions && j.permissions.push)) throw new Error('이 열쇠로는 글을 올릴 수 없어요. Contents 권한을 Read and write로 해 주세요.');
-      try { localStorage.setItem('bora_wkey', k); } catch (e) {} busy(false); toast('열쇠를 넣었어요'); route();
-    } catch (e) { busy(false); KEY = ''; viewKey(e.status === 401 ? '열쇠가 맞지 않아요. 다시 복사해 주세요.' : (e.message || '확인하지 못했어요')); }
-  };
+  <p class="ls">주인장 구글 계정으로 들어가요. 이 기기에서는 한 번만 하면 돼요.</p>
+  <div class="card" style="margin-top:24px">${err ? `<p class="warnline">${esc(err)}</p>` : ''}
+    <div class="row"><button class="btn pri" id="kOk" type="button">구글로 들어가기</button>${u ? '<button class="btn" id="kO2" type="button">다른 계정으로</button>' : ''}</div></div>`;
+  $('#kOk').onclick = async () => { busy(true, '구글 계정 확인 중…'); try { await fb.signIn(); busy(false); viewKey(); } catch (e) { busy(false); viewKey(e.message || String(e)); } };
+  if (u) $('#kO2').onclick = async () => { await fb.signOut(); viewKey(); };
 }
 
 /* ── 화면 2: 내 노트 목록 ── */
@@ -192,13 +155,13 @@ async function viewList() {
   <div class="row" style="margin-top:22px"><button class="btn lamp" id="nNew" type="button">＋ 새 노트 쓰기</button><a class="btn" href="../">노트 보러 가기</a></div>
   <ul class="mine">${drafts.map(d => `<li><button type="button" data-d="${esc(d.id)}"><span class="tag d">쓰는 중</span><span><b>${esc(d.title || '(제목 없음)')}</b><small>${new Date(d.saved).toLocaleString('ko-KR')} 저장</small></span></button></li>`).join('')}
   ${idx.filter(p => !dIds.has(p.id)).map(p => `<li><button type="button" data-p="${esc(p.id)}"><span class="tag">${esc(catName(p.cat))}</span><span><b>${esc(p.title)}</b><small>${p.date.slice(0, 10).replace(/-/g, '.')}</small></span></button></li>`).join('')}</ul>
-  <div class="help" style="margin-top:40px">쓰다 만 글은 이 기기에만 남아요. 올린 글을 고치려면 목록에서 누르세요.<br><button class="btn" id="kOut" type="button" style="margin-top:12px">이 기기에서 열쇠 빼기</button></div>`;
+  <div class="help" style="margin-top:40px">쓰다 만 글은 이 기기에만 남아요. 올린 글을 고치려면 목록에서 누르세요.<br><button class="btn" id="kOut" type="button" style="margin-top:12px">이 기기에서 나가기</button></div>`;
   $('#nNew').onclick = () => openEditor(null);
   $$('[data-d]').forEach(b => b.onclick = () => openEditor(LS.get('bora_draft_' + b.dataset.d), true));
   $$('[data-p]').forEach(b => b.onclick = async () => { busy(true, '불러오는 중…'); try { const p = await getJSON(`data/notes/${b.dataset.p}.json`, null); busy(false); if (p) openEditor(p); else toast('글을 찾지 못했어요'); } catch (e) { busy(false); toast('불러오지 못했어요'); } });
   $('#kOut').onclick = () => { forgetKey(); };
 }
-function forgetKey() { try { localStorage.removeItem('bora_wkey'); } catch (e) {} KEY = ''; viewKey(); }
+async function forgetKey() { try { await fb.signOut(); } catch (e) {} viewKey(); }
 
 /* ── 화면 3: 쓰기 ── */
 async function openEditor(p, isDraft) {
@@ -228,7 +191,7 @@ async function openEditor(p, isDraft) {
     <input type="date" id="eDate" value="${esc((cur.date || today()).slice(0, 10))}">
     ${placeName ? `<label class="chk"><input type="checkbox" id="ePlace" ${cur.keepPlace !== false ? 'checked' : ''}> 그날 창밖 남기기 · 지금 창밖: ${esc(placeName)}</label>` : ''}
     <div class="row" style="margin-top:32px"><button class="btn lamp" id="ePub" type="button">${published ? '고친 내용 올리기' : '노트 올리기'}</button>${published ? '<button class="btn warn" id="eDel" type="button">글 지우기</button>' : ''}</div>
-    <p class="help">올리면 1~2분 뒤 노트에 보여요. 쓰는 동안 이 기기에 자동으로 저장돼요.</p>
+    <p class="help">올리면 5분쯤 뒤 노트에 보여요. 쓰는 동안 이 기기에 자동으로 저장돼요.</p>
   </section>
   <div class="tools" id="tools" role="toolbar" aria-label="본문 꾸미기">
     <button type="button" data-t="photo"><b>▣</b>사진</button>
@@ -408,7 +371,7 @@ async function publish() {
     for (const p of imgs) { PEND.delete(p); IDB.del(p); }
     LS.del('bora_draft_' + cur.id); INDEX = list; busy(false);
     const url = `${SITE.base}/notes/${post.slug}/`;
-    sheet(`<h2>올렸어요</h2><p class="help">1~2분 뒤 이 주소에서 보여요.</p><p style="word-break:break-all;font-size:14px"><a href="${url}">${url}</a></p>
+    sheet(`<h2>올렸어요</h2><p class="help">5분쯤 뒤 이 주소에서 보여요.</p><p style="word-break:break-all;font-size:14px"><a href="${url}">${url}</a></p>
       <div class="row" style="margin-top:14px"><a class="btn pri" href="${url}">노트 보기</a><button class="btn" id="dCopy" type="button">주소 복사</button></div>
       <div class="help" style="margin-top:20px"><b>검색에 빨리 잡히게</b><br>네이버 서치어드바이저 → 요청 → 웹 페이지 수집에 위 주소를 넣어 주세요.<br><a href="https://searchadvisor.naver.com/console/board" target="_blank" rel="noopener">서치어드바이저 열기</a>
       <br><br><b>네이버 블로그에도 올리려면</b><br>노트 페이지 아래 '주인장만 보이는 칸'에서 제목·본문을 복사해 붙여 넣으면 돼요. 보라다방 글이 네이버에 먼저 잡힌 뒤(며칠 뒤) 옮기는 게 좋아요.</div>
@@ -432,8 +395,9 @@ function closeSheet() { $('#sheet').hidden = true; }
 $('#sheet').addEventListener('click', e => { if (e.target.id === 'sheet') closeSheet(); });
 
 /* ── 길 찾기 ── */
+let IN = false;
 async function route(to) {
-  if (!KEY) return viewKey();
+  if (!IN) { IN = true; return viewKey(); }
   if (!TRACKS.length) await loadTracks();
   const m = location.hash.match(/edit=([\w-]+)/);
   if (!to && m) { history.replaceState(null, '', location.pathname); busy(true, '불러오는 중…'); try { const p = await getJSON(`data/notes/${m[1]}.json`, null); busy(false); if (p) return openEditor(p); } catch (e) { busy(false); } }

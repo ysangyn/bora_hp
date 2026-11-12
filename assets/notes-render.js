@@ -2,7 +2,7 @@
 // 쓰기 화면(브라우저)과 다시 굽기 도구(Node)가 같은 이 파일을 쓴다. DOM을 쓰지 않는다.
 
 export const SITE = {
-  base: 'https://ysangyn.github.io/bora_hp',   // 전용 도메인이 생기면 여기만 바꾸고 전체 다시 굽기
+  base: 'https://bora-hp.web.app',   // 전용 도메인이 생기면 여기만 바꾸고 전체 다시 굽기
   name: '보라다방',
   author: '어른아이',
   notesTitle: '어른아이의 노트',

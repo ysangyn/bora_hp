@@ -1,0 +1,45 @@
+# 보라다방: 주인장 방에서 저장한 것을 가져와 저장소에 넣고, Firebase Hosting(bora-hp.web.app)에 올린다
+name: 보라다방 올리기
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+permissions:
+  contents: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Firebase에 저장된 것 가져오기
+        id: pull
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          npm install --no-save --no-package-lock firebase-admin@12 > /dev/null
+          node tools/outbox-apply.mjs
+          git add -A -- . ':!.outbox-msg' ':!.outbox-done.json' ':!node_modules'
+          if git diff --cached --quiet; then echo "changed=0" >> $GITHUB_OUTPUT; else
+            git config user.name "bora-dabang-bot"; git config user.email "actions@users.noreply.github.com"
+            git commit -q -m "주인장 방: $(head -c 200 .outbox-msg | tr '\n' ' ')"; git push -q
+            echo "changed=1" >> $GITHUB_OUTPUT; fi
+      - name: Firebase Hosting에 올리기
+        if: github.event_name != 'schedule' || steps.pull.outputs.changed == '1'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: bora-hp
+          channelId: live
+      - name: 처리한 묶음 지우기
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: node tools/outbox-clean.mjs

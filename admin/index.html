@@ -121,37 +121,20 @@
 <script type="module">
 import { renderFeed, renderSet, renderPhotoSitemap, PCATS, pcatName } from '../assets/photos-render.js';
 import { musicFiles, musicPaths } from '../assets/music-render.js';
+import * as fb from '../assets/fbstore.js';
 const REPO = 'ysangyn/bora_hp', BRANCH = 'main', ROOT = '../';
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-let KEY = (() => { try { return localStorage.getItem('bora_wkey') || ''; } catch (e) { return ''; } })();
+/* 저장은 Firebase를 거쳐 사이트로 간다(assets/fbstore.js) */
 let tt = 0;
 const toast = m => { let t = $('.toast'); if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); } t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 2600); };
 const busy = (on, t) => { $('#busy').hidden = !on; if (t) $('#busyT').textContent = t; };
 $('.theme').onclick = () => { const r = document.documentElement, p = r.dataset.theme !== 'paper'; if (p) r.dataset.theme = 'paper'; else delete r.dataset.theme; try { localStorage.setItem('bora_theme', p ? 'paper' : 'night'); } catch (e) {} };
 const rid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
 
-/* GitHub 저장소에 바로 쓰기 (노트 쓰기와 같은 열쇠) */
-async function gh(path, opt = {}) {
-  const r = await fetch('https://api.github.com' + path, { ...opt, cache: 'no-store', headers: { Authorization: 'Bearer ' + KEY, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', ...(opt.body ? { 'Content-Type': 'application/json' } : {}) } });
-  if (!r.ok) { const e = new Error(r.status + ' ' + (await r.text()).slice(0, 160)); e.status = r.status; throw e; }
-  return r.status === 204 ? null : r.json();
-}
-const encPath = p => p.split('/').map(encodeURIComponent).join('/');
-const b64dec = b => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\n/g, '')), c => c.charCodeAt(0)));
-const utf8b64 = s => { const u = new TextEncoder().encode(s); let bin = ''; for (let i = 0; i < u.length; i += 0x8000) bin += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(bin); };
 const blobB64 = b => new Promise((res, rej) => { const f = new FileReader(); f.onload = () => res(String(f.result).split(',')[1]); f.onerror = rej; f.readAsDataURL(b); });
-async function getJSON(path, d) { try { const j = await gh(`/repos/${REPO}/contents/${encPath(path)}?ref=${BRANCH}`); return JSON.parse(b64dec(j.content)); } catch (e) { if (e.status === 404) return d; throw e; } }
-async function commit(files, msg) {
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const ref = await gh(`/repos/${REPO}/git/ref/heads/${BRANCH}`), base = ref.object.sha, bc = await gh(`/repos/${REPO}/git/commits/${base}`), tree = [];
-    for (const f of files) { if (f.del) { tree.push({ path: f.path, mode: '100644', type: 'blob', sha: null }); continue; } const content = f.blob ? await blobB64(f.blob) : utf8b64(f.text);
-      const b = await gh(`/repos/${REPO}/git/blobs`, { method: 'POST', body: JSON.stringify({ content, encoding: 'base64' }) }); tree.push({ path: f.path, mode: '100644', type: 'blob', sha: b.sha }); }
-    const t = await gh(`/repos/${REPO}/git/trees`, { method: 'POST', body: JSON.stringify({ base_tree: bc.tree.sha, tree }) });
-    const c = await gh(`/repos/${REPO}/git/commits`, { method: 'POST', body: JSON.stringify({ message: msg, tree: t.sha, parents: [base] }) });
-    try { await gh(`/repos/${REPO}/git/refs/heads/${BRANCH}`, { method: 'PATCH', body: JSON.stringify({ sha: c.sha }) }); return; } catch (e) { if (e.status !== 422 || attempt === 2) throw e; }
-  }
-}
+const getJSON = (path, d) => fb.getJSON(path, d);
+const commit = (files, msg) => fb.commit(files, msg);
 
 /* 소리 크기 재기(사람 귀 기준 LUFS 근사): 곡마다 -17에 맞춰 재생 볼륨만 낮춘다 → 파일·음질은 그대로 */
 async function measureLufs(file) {
@@ -186,12 +169,35 @@ const ROOM0 = () => ({ line: { t: '', d: '' }, notes: [], notesFrom: '', bc: { o
 async function loadAll() { const ks = Object.keys(FILES), got = await Promise.all(ks.map(k => getJSON(FILES[k], k === 'room' || k === 'artist' ? {} : [])));
   ks.forEach((k, i) => { D[k] = got[i]; if (k === 'room') { const r0 = ROOM0(); D.room = { ...r0, ...(got[i] || {}), line: { ...r0.line, ...((got[i] || {}).line || {}) }, bc: { ...r0.bc, ...((got[i] || {}).bc || {}) } }; } if (k === 'artist') D.artist = { bio: '', photo: '', ...(got[i] || {}) }; ORIG[k] = JSON.stringify(D[k]); }); }
 
-function viewKey(err) {
-  $('#app').innerHTML = `<h1 class="lt">주인장 방</h1><p class="ls">노트 쓰기에 넣은 것과 같은 '쓰기 열쇠'를 넣어 주세요.</p>
-  <div class="card"><input type="password" id="kIn" placeholder="github_pat_…" autocomplete="off">${err ? `<p class="warnline">${esc(err)}</p>` : ''}<div class="row" style="margin-top:12px"><button class="btn pri" id="kOk" type="button">열쇠 넣기</button></div></div>`;
-  $('#kOk').onclick = async () => { KEY = $('#kIn').value.trim(); if (!KEY) return; busy(true, '열쇠 확인 중…');
-    try { const j = await gh(`/repos/${REPO}`); if (!(j.permissions && j.permissions.push)) throw new Error('이 열쇠로는 올릴 수 없어요.'); localStorage.setItem('bora_wkey', KEY); busy(false); start(); }
-    catch (e) { busy(false); KEY = ''; viewKey(e.status === 401 ? '열쇠가 맞지 않아요.' : e.message); } };
+
+/* 들어가기: 구글 계정 한 번 → 처음이면 Firestore 규칙 안내 */
+async function viewGate(err) {
+  let u = null; try { u = await fb.currentUser(); } catch (e) { err = err || '연결하지 못했어요. 인터넷을 확인해 주세요.'; }
+  if (!u) {
+    $('#app').innerHTML = `<h1 class="lt">주인장 방</h1><p class="ls">주인장 구글 계정으로 들어가요. 이 기기에서는 한 번만 하면 돼요.</p>
+    <div class="card">${err ? `<p class="warnline">${esc(err)}</p>` : ''}<div class="row"><button class="btn pri" id="gIn" type="button">구글로 들어가기</button></div></div>`;
+    $('#gIn').onclick = async () => { busy(true, '구글 계정 확인 중…'); try { await fb.signIn(); busy(false); viewGate(); } catch (e) { busy(false); viewGate(e.code === 'auth/unauthorized-domain' ? 'Firebase 콘솔 → Authentication → 설정 → 승인된 도메인에 이 주소를 넣어 주세요.' : e.code === 'auth/operation-not-allowed' ? 'Firebase 콘솔 → Authentication → 로그인 방법에서 Google을 켜 주세요.' : (e.message || String(e))); } };
+    return;
+  }
+  busy(true, '확인 중…'); let ok = false; try { ok = await fb.canWrite(); } catch (e) { err = e.message; } busy(false);
+  if (!ok) {
+    let extra = ''; try { extra = localStorage.getItem('bora_uids') || ''; } catch (e) {}
+    const uids = () => [u.uid, ...$('#uX').value.split(/[\s,]+/)].filter((x, i, a) => x && a.indexOf(x) === i);
+    $('#app').innerHTML = `<h1 class="lt">주인장 방</h1><p class="ls">${esc(u.email || '')} 계정으로 들어왔어요. 처음 한 번, 이 계정이 저장할 수 있게 규칙을 바꿔 주세요.</p>
+    <div class="card"><ol class="hint" style="line-height:1.9;padding-left:18px"><li>아래 '규칙 복사'를 눌러요.</li><li>Firebase 콘솔 → Firestore → <b>규칙</b> 탭에서 원래 글을 모두 지우고 붙여 넣은 뒤 <b>게시</b>해요.</li><li>여기로 돌아와 '다시 확인'을 눌러요.</li></ol>
+    <p class="hint">이 계정 번호: <code>${esc(u.uid)}</code> · 다른 사람(예: 아내분)도 쓰려면 그 사람이 여기서 본 계정 번호를 아래에 넣어요.</p>
+    <input id="uX" placeholder="다른 계정 번호(없으면 비워 두기)" value="${esc(extra)}" style="width:100%;box-sizing:border-box">
+    <textarea rows="12" readonly id="rT" style="width:100%;box-sizing:border-box;margin-top:10px;font:12px/1.5 ui-monospace,Menlo,monospace;white-space:pre;overflow:auto"></textarea>
+    ${err ? `<p class="warnline">${esc(err)}</p>` : ''}
+    <div class="row" style="margin-top:10px"><button class="btn" id="rC" type="button">규칙 복사</button><button class="btn pri" id="rOk" type="button">다시 확인</button><button class="btn sm" id="gOut" type="button">다른 계정으로</button></div></div>`;
+    const upd = () => { $('#rT').value = fb.rulesFor(uids()); try { localStorage.setItem('bora_uids', $('#uX').value.trim()); } catch (e) {} };
+    upd(); $('#uX').oninput = upd;
+    $('#rC').onclick = () => { const t = $('#rT'); (navigator.clipboard ? navigator.clipboard.writeText(t.value) : Promise.reject()).then(() => toast('규칙을 복사했어요.'), () => { t.focus(); t.select(); toast('길게 눌러 복사해 주세요.'); }); };
+    $('#rOk').onclick = () => viewGate(); $('#gOut').onclick = async () => { await fb.signOut(); viewGate(); };
+    return;
+  }
+  $('#app').innerHTML = '<h1 class="lt">주인장 방</h1><p class="ls">불러오는 중…</p>';
+  try { await loadAll(); render(); } catch (e) { $('#app').innerHTML = '<h1 class="lt">주인장 방</h1><p class="ls">불러오지 못했어요. 인터넷 연결을 확인해 주세요.</p>'; }
 }
 
 /* 손님 도장: 손님은 도장을 넣기만 하고, 주인장 방에서 모아 본다(숫자는 손님 화면 어디에도 나오지 않는다) */
@@ -279,7 +285,7 @@ async function paneStamps() {
 
 function render() {
   const n = { tracks: D.tracks.length, videos: D.videos.length, views: D.views.length, photos: D.photos.length, books: D.books.length, albums: D.albums.length };
-  $('#app').innerHTML = `<h1 class="lt">주인장 방</h1><p class="ls">방과 페이지에 보이는 것들을 여기서 채우고 고쳐요. 고친 뒤 아래 '방에 올리기'를 누르면 1~2분 뒤 방에 반영돼요.</p>
+  $('#app').innerHTML = `<h1 class="lt">주인장 방</h1><p class="ls">방과 페이지에 보이는 것들을 여기서 채우고 고쳐요. 고친 뒤 아래 '방에 올리기'를 누르면 5분쯤 뒤 방에 반영돼요.</p>
   <div class="tabs" role="tablist">${SECTIONS.map(([k, nm]) => `<button type="button" data-tab="${k}" aria-pressed="${tab === k}">${nm}${n[k] != null ? ' ' + n[k] : ''}</button>`).join('')}</div>
   <section id="pane"></section>`;
   $$('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; editSet = null; editBook = null; editAlbum = null; render(); scrollTo(0, 0); });
@@ -577,7 +583,7 @@ function paneBook() {
 /* 처음 화면: 비어 있는 것만 골라 '채워 주세요'로, 아래는 방과 페이지 칸 */
 const SITEMAP_INDEX = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${['notes', 'photos', 'music'].map(k => `  <sitemap><loc>https://ysangyn.github.io/bora_hp/sitemap-${k}.xml</loc></sitemap>`).join('\n')}
+${['notes', 'photos', 'music'].map(k => `  <sitemap><loc>https://bora-hp.web.app/sitemap-${k}.xml</loc></sitemap>`).join('\n')}
 </sitemapindex>
 `;
 const SECTIONS = [['home', '처음'], ['tracks', '노래'], ['videos', '영상'], ['views', '창밖'], ['room', '방 소식'], ['albums', '음반장'], ['photos', '사진첩'], ['books', '책장'], ['stamps', '손님 도장']];
@@ -729,17 +735,13 @@ $('#saveAll').onclick = async () => {
     for (const k of dirty) { files.push({ path: FILES[k], text: JSON.stringify(D[k], null, 1) });
       for (const p of refs(k)) if (p && PEND.has(p) && !used.has(p)) { used.add(p); files.push({ path: p, blob: PEND.get(p) }); } }
     await commit(files, '주인장 방: ' + [...dirty].join(', ')); for (const p of used) PEND.delete(p); BDIRTY.clear();
-    for (const k of dirty) ORIG[k] = JSON.stringify(D[k]); dirty.clear(); $('#saveBar').hidden = true; busy(false); toast('올렸어요. 1~2분 뒤 방에 보여요.'); render();
+    for (const k of dirty) ORIG[k] = JSON.stringify(D[k]); dirty.clear(); $('#saveBar').hidden = true; busy(false); toast('올렸어요. 5분쯤 뒤 방에 보여요.'); render();
   } catch (e) { busy(false); toast('올리지 못했어요 (' + (e.status || '연결') + '). 잠시 뒤 다시 해 주세요.'); console.warn(e); }
 };
 $('#undoAll').onclick = () => { for (const k of dirty) D[k] = JSON.parse(ORIG[k]); dirty.clear(); PEND.clear(); editSet = null; editBook = null; bDraft = null; editAlbum = null; BDIRTY.clear(); BT.clear(); $('#saveBar').hidden = true; render(); };
 window.addEventListener('beforeunload', e => { if (dirty.size) { e.preventDefault(); e.returnValue = ''; } });
 
-async function start() {
-  if (!KEY) return viewKey();
-  $('#app').innerHTML = '<h1 class="lt">주인장 방</h1><p class="ls">불러오는 중…</p>';
-  try { await loadAll(); render(); } catch (e) { if (e.status === 401) { localStorage.removeItem('bora_wkey'); KEY = ''; viewKey('열쇠가 맞지 않아요. 다시 넣어 주세요.'); } else $('#app').innerHTML = '<h1 class="lt">주인장 방</h1><p class="ls">불러오지 못했어요. 인터넷 연결을 확인해 주세요.</p>'; }
-}
+async function start() { return viewGate(); }
 start();
 </script>
 </body>
