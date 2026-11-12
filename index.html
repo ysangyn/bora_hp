@@ -1012,8 +1012,9 @@ function ambUpdate(){ if(!AU.on||!AU.ctx||!AMB.out) return; const R=Math.random,
   AMB.lp.frequency.setTargetAtTime(op?16000:650,AU.ctx.currentTime,.8);
   bedLevel('lrain',rain?(.4*(1-h)+.12)*M('lr')*fade*MX.rain:0,4); bedLevel('hrain',rain?.45*h*M('hr')*fade*MX.rain:0,4);
   bedLevel('glass',rain&&!op?(.1+.32*rain)*M('gl')*fade*MX.rain:0,3);                                   // 닫힌 창: 유리를 두드리는 비
-  const fo=fade*MX.out; bedLevel('street',pk==='city'&&!night?.2*M('st')*fo:0,5); bedLevel('traffic',pk==='city'&&night?.15*M('tr')*fo:0,5);
-  bedLevel('village',pk==='quiet'&&night?.2*M('vi')*fo:0,5); bedLevel('birds',!night&&!snowy?.15*calm*M('bi')*fo:0,5);
+  const uh=new Date().getHours(), late=uh>=21||uh<6;   // 손님 쪽이 밤이면 창밖이 낮이어도 새소리는 쉬고 거리 소리는 작게
+  const fo=fade*MX.out; bedLevel('street',pk==='city'&&!night?(late?.09:.2)*M('st')*fo:0,5); bedLevel('traffic',pk==='city'&&night?.15*M('tr')*fo:0,5);
+  bedLevel('village',pk==='quiet'&&night?.2*M('vi')*fo:0,5); bedLevel('birds',!night&&!snowy&&!late?.15*calm*M('bi')*fo:0,5);
   bedLevel('crickets',night&&summerNow()&&!snowy?.13*calm*M('cr')*fo:0,5); bedLevel('wind',(snowy||(pk==='quiet'&&!rain))?.13*M('wi')*fo:0,6);
   if(!KT) bedLevel('boil',window.__sym?(op?.07:.2)*fade*MX.boil:0,6); else if(AU.recOK) bedLevel('boil',.42*MX.boil,2);                                  // 심포니: 주전자가 낮게 끓는다(창을 닫으면 더 가까이)
   if(op&&pk==='city'&&!(window.SLP>0)&&!window.__sym&&R()<.012) ambOnce('siren',.12); }           // 열린 창 너머, 아주 가끔 먼 사이렌
