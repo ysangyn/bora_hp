@@ -111,6 +111,43 @@
 .trow2{display:flex;gap:8px;align-items:center}
 .trow2 input{flex:1}
 .it .thumb{background:var(--surf)}
+
+/* ── 2026 새 옷: 어둠 속 스탠드 불빛, 유리 카드, 큰 글씨 ── */
+body{background:radial-gradient(70% 45% at 92% -6%,color-mix(in srgb,var(--lamp) 16%,transparent),transparent 70%),radial-gradient(60% 40% at -10% 105%,color-mix(in srgb,var(--acc) 14%,transparent),transparent 70%),var(--bg);background-attachment:fixed}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:100;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.bar{position:sticky;top:0;z-index:6;background:color-mix(in srgb,var(--bg) 70%,transparent);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);border-bottom:1px solid color-mix(in srgb,var(--ink) 7%,transparent)}
+.lt{font:600 clamp(42px,12vw,68px)/1.02 var(--serif);letter-spacing:-.03em;margin:44px 0 12px}
+.lt::before{content:"OWNER ROOM · 보라다방";display:block;margin-bottom:16px;font:500 11px/1 ui-monospace,'SF Mono',Menlo,monospace;letter-spacing:.32em;color:var(--lamp)}
+.ls{font-size:15px;line-height:1.7;max-width:34em}
+.tabs{top:58px;margin:30px -20px 10px;padding:10px 20px;background:transparent;gap:4px}
+.tabs::before{content:"";position:absolute;inset:6px 14px;border-radius:999px;background:color-mix(in srgb,var(--surf) 72%,transparent);border:1px solid color-mix(in srgb,var(--ink) 9%,transparent);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);z-index:-1}
+.tabs{isolation:isolate}
+.tabs button{border:0;min-height:40px;padding:0 15px;font-weight:500;letter-spacing:-.01em;transition:background .25s,color .25s}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-pressed=true]{background:var(--ink);color:var(--bg);box-shadow:0 6px 18px -8px color-mix(in srgb,var(--ink) 60%,transparent)}
+.card,.rbox,.add,.hcard,.todo,.it.open{background:color-mix(in srgb,var(--surf) 62%,transparent);border:1px solid color-mix(in srgb,var(--ink) 8%,transparent);border-radius:24px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.card,.rbox{padding:22px}
+.card h2,.rbox h2{font:600 22px/1.25 var(--serif);letter-spacing:-.02em;margin:0 0 12px}
+.hgrid{gap:12px}
+.hgrid>:first-child{grid-column:1/-1;min-height:130px;background:linear-gradient(135deg,color-mix(in srgb,var(--lamp) 22%,transparent),color-mix(in srgb,var(--surf) 60%,transparent) 60%)}
+.hcard{padding:20px;transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .35s}
+.hcard:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--lamp) 40%,transparent)}
+.hcard b{font:600 18px/1.25 var(--serif);letter-spacing:-.02em}
+.todo{padding:8px 20px;border-color:color-mix(in srgb,var(--lamp) 35%,transparent)}
+.gl,.todo h2{display:flex;align-items:center;gap:10px;font:500 11px/1 ui-monospace,'SF Mono',Menlo,monospace;letter-spacing:.28em;text-transform:uppercase;color:var(--lamp)}
+.gl::after{content:"";flex:1;height:1px;background:color-mix(in srgb,var(--ink) 10%,transparent)}
+.btn{border-radius:999px;font-weight:500;letter-spacing:-.01em;transition:transform .2s,background .25s}
+.btn:active{transform:scale(.97)}
+.btn.pri{background:var(--lamp);border-color:var(--lamp);color:#1b1208;box-shadow:0 10px 26px -12px var(--lamp)}
+.card input,.it input[type=text],.it select,.it textarea,.add input[type=text],.add select,.fld input,.fld select,.fld textarea,.rbox textarea,.rbox input[type=text],.rbox select,.mood input,.mood select{border-radius:14px;background:color-mix(in srgb,var(--bg) 70%,transparent);border-color:color-mix(in srgb,var(--ink) 10%,transparent);transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--lamp)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--lamp) 18%,transparent)}
+.it{border-bottom-color:color-mix(in srgb,var(--ink) 8%,transparent)}
+.it .thumb{border-radius:14px}
+.trow{border-top-color:color-mix(in srgb,var(--ink) 8%,transparent)}
+.savebar{left:50%;right:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);transform:translateX(-50%);width:min(560px,calc(100% - 28px));border:1px solid color-mix(in srgb,var(--ink) 12%,transparent);border-radius:999px;padding:8px 8px 8px 22px;box-shadow:0 20px 50px -20px rgba(0,0,0,.7)}
+.busy{-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.toast{border-radius:999px!important}
+@media (prefers-reduced-motion:reduce){.hcard,.btn,.tabs button{transition:none}}
 </style>
 </head>
 <body>
