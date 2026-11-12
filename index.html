@@ -164,7 +164,7 @@ a{color:inherit;text-underline-offset:3px}
 .top{position:absolute;z-index:30;top:max(22px,env(safe-area-inset-top,0px));left:max(28px,env(safe-area-inset-left,0px));right:max(28px,env(safe-area-inset-right,0px));display:flex;align-items:center;justify-content:space-between;pointer-events:none;opacity:0;transform:translateY(-6px);transition:opacity 1.6s .9s,transform 1.6s .9s var(--ease)}
 body.entered .top{opacity:1;transform:none}
 .top>*{pointer-events:auto}
-.brand{display:flex;align-items:center;gap:14px;text-shadow:0 1px 14px rgba(0,0,0,.65)}
+.brand{color:inherit;text-decoration:none;cursor:pointer;display:flex;align-items:center;gap:14px;text-shadow:0 1px 14px rgba(0,0,0,.65)}
 .brand b{font-family:var(--f-serif);font-weight:500;font-size:15px;letter-spacing:.34em}
 .brand i{width:28px;height:1px;background:var(--faint)}
 .brand span{font-size:11px;letter-spacing:.18em;color:var(--muted)}
@@ -215,6 +215,15 @@ img.room.off{opacity:0;transition:opacity 1.2s}.lampoff img.room.off{opacity:1}
 .stage.isday.lampoff:not(.gl) .glow{opacity:0}
 
 /* 찻잔·시계·소리 섞기 패널 */
+
+.hgwrap{display:flex;flex-direction:column;align-items:center;gap:8px;padding:6px 0 4px;text-align:center}
+.hg{width:118px}.hg svg{display:block;width:100%;filter:drop-shadow(0 12px 18px rgba(0,0,0,.45))}
+.hg-top{transform-box:fill-box;transform-origin:50% 100%;animation:hgTop var(--d) linear var(--e) both}
+.hg-bot{transform-box:fill-box;transform-origin:50% 100%;animation:hgBot var(--d) linear var(--e) both}
+.hg-fall{animation:hgFall var(--d) linear var(--e) both}
+@keyframes hgTop{from{transform:scaleY(1)}to{transform:scaleY(0)}}@keyframes hgBot{from{transform:scaleY(0)}to{transform:scaleY(1)}}@keyframes hgFall{0%,97%{opacity:.9}100%{opacity:0}}
+.hgt{font-family:var(--f-num);font-style:italic;font-weight:500;font-size:34px;letter-spacing:.04em;color:var(--ink)}.hgwrap small{max-width:30em}
+#tAsk{align-items:center}#tAsk p{flex:1 1 100%;color:var(--ink);font-family:var(--f-serif);font-size:15.5px}
 
 .breath{position:relative;height:190px;display:grid;place-items:center;margin:4px 0}
 .breath i{position:absolute;width:74px;height:120px;border-radius:80% 0 80% 0;background:linear-gradient(140deg,#8fb98a,#3f6b4a);opacity:.85;transform-origin:50% 100%;transform:rotate(var(--a)) scale(.72);box-shadow:inset -6px -8px 14px rgba(0,0,0,.25)}
@@ -784,7 +793,7 @@ body.hasnote .hs[data-p="mailbox"]{display:block!important}
 
 <div class="app">
 <header class="top">
-  <div class="brand"><b>보라다방</b><i></i><span>어른아이의 작은 다방</span></div>
+  <a class="brand" id="bHome" href="./" aria-label="보라다방 처음 화면으로"><b>보라다방</b><i></i><span>어른아이의 작은 다방</span></a>
   <nav aria-label="메뉴"><a id="bNotes" href="notes/">노트</a><button id="bSky">천창</button><button id="bGear">설정</button></nav>
 </header>
 
@@ -1252,7 +1261,7 @@ function openOver(url,title){ closePanel(); blip('paper');
     addEventListener('message',e=>{ if(e.origin===location.origin&&e.data&&(e.data.bora==='books-close'||e.data.bora==='page-close')) closeOver(); });
     addEventListener('popstate',()=>{ if(o.classList.contains('on')) closeOver(true); }); }
   // 틀은 매번 새로 만든다(틀 안 주소를 바꾸면 '뒤로'가 틀 안에서만 움직이므로)
-  o.innerHTML=''; o.dataset.nav=''; const f=document.createElement('iframe'); f.id='overF'; f.title=title||'보라다방'; f.allow='autoplay'; let n=0; f.addEventListener('load',()=>{ if(++n>1) o.dataset.nav='1'; }); f.src=url; o.appendChild(f);
+  o.innerHTML=''; o.dataset.nav=''; const f=document.createElement('iframe'); f.id='overF'; f.title=title||'보라다방'; f.allow='autoplay'; let n=0; f.addEventListener('load',()=>{ if(++n>1) o.dataset.nav='1'; try{ const d=f.contentDocument; d.addEventListener('click',ev=>{ const a=ev.target.closest&&ev.target.closest('a[href]'); if(!a) return; const u=new URL(a.href,f.contentWindow.location.href); if(u.origin===location.origin&&(u.pathname===location.pathname||u.pathname===location.pathname.replace(/index\.html$/,''))){ ev.preventDefault(); closeOver(); } },true); }catch(e){} }); f.src=url; o.appendChild(f);
   window.__covered=true; requestAnimationFrame(()=>o.classList.add('on'));
   try{ history.pushState({bk:1},''); }catch(e){} }
 function closeOver(fromPop){ const o=$('overOv'); if(!o||!o.classList.contains('on')) return; o.classList.remove('on'); window.__covered=false;
@@ -1497,6 +1506,9 @@ function openSettings(){
   wireDim(); $('sLite').onclick=e=>{ setLite(!S.lite); e.target.setAttribute('aria-pressed',S.lite); };
 }
 $('bGear').onclick=openSettings;
+// '보라다방'을 누르면 처음 화면으로: 열린 창·덮개·확대를 모두 닫고 방 전체를 보여 준다
+$('bHome').addEventListener('click',e=>{ e.preventDefault(); e.stopPropagation(); try{ closeOver(); }catch(_){} try{ const so=$('songOv'); if(so&&so.classList.contains('on')) $('songX').click(); }catch(_){} try{ closeBoardView(); }catch(_){} closePanel(); closeZoom(); scrollTo({top:0,behavior:'smooth'}); blip('paper'); });
+
 $('memo').onclick=e=>{ e.stopPropagation(); closeZoom(); openPlace(); };
 
 
@@ -1710,18 +1722,34 @@ function teaCard(t){ const e=escH, tm=t.s?(t.s>=60?(Math.round(t.s/6)/10)+'분':
    <div class="tea-brew"><span><small>물</small>${e(t.w)}</span>${tm?`<span><small>시간</small>${tm}</span>`:''}</div>
    <dl><dt>맛</dt><dd>${e(t.taste)}</dd><dt>우리기</dt><dd>${e(t.how)}</dd><dt>이야기</dt><dd>${e(t.story)}</dd>${t.care?`<dt>조심</dt><dd class="care">${e(t.care)}</dd>`:''}</dl>
    ${t.br&&t.br.length?`<details><summary>브랜드마다 이렇게 달라요</summary>${t.br.map(([a,b])=>`<p><b>${e(a)}</b> ${e(b)}</p>`).join('')}</details>`:''}</div>`; }
-function openTea(pick){ blip('paper'); if(pick==null&&(!TEA_L||!TEA_L.length)){ TEA_L=teaRank(); TEA_I=0; } if(!TEA_WHY) teaRank();
-  const t=pick!=null?TEAS.find(x=>x.id===pick):TEA_L[TEA_I%TEA_L.length], brew=ALM.find(a=>a.id==='tea'); teaSeen(t.id);
-  show(`<h2>차 한 잔</h2><p class="tea-why">${escH(pick!=null?'찻장에서 꺼낸 차':TEA_WHY)}</p>${teaCard(t)}
-   <div class="row" id="tBtns">${brew?`<button class="ok" id="tStop">그만 우리기 · <span id="tLeft"></span></button>`:t.s?`<button class="ok" id="tBrew">물 붓고 우리기</button>`:''}<button class="chip" id="tKet">${KT?'불 끄기':'물 올리기'}</button><button class="chip" id="tNext">다른 차</button></div>
+function hourglass(dur,el){ const d=Math.max(1,dur), e=Math.max(0,Math.min(d,el));
+  return `<div class="hg" style="--d:${d}s;--e:-${e.toFixed(1)}s" aria-hidden="true"><svg viewBox="0 0 120 190"><defs><clipPath id="hgT"><path d="M22 20h76c0 34-26 52-34 70h-8C48 72 22 54 22 20z"/></clipPath><clipPath id="hgB"><path d="M56 100h8c8 18 34 36 34 70H22c0-34 26-52 34-70z"/></clipPath></defs>
+    <g clip-path="url(#hgT)"><rect class="hg-top" x="20" y="34" width="80" height="58" fill="var(--tc)"/></g>
+    <g clip-path="url(#hgB)"><rect class="hg-bot" x="20" y="112" width="80" height="58" fill="var(--tc)"/></g>
+    <rect class="hg-fall" x="59" y="90" width="2" height="78" fill="var(--tc)"/>
+    <path d="M22 20h76c0 34-26 52-34 70h-8C48 72 22 54 22 20zM56 100h8c8 18 34 36 34 70H22c0-34 26-52 34-70z" fill="rgba(255,255,255,.07)" stroke="rgba(255,255,255,.55)" stroke-width="1.6"/>
+    <path d="M30 26c2 22 14 36 24 50" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-linecap="round"/>
+    <rect x="12" y="10" width="96" height="10" rx="3" fill="#6a4528"/><rect x="12" y="170" width="96" height="10" rx="3" fill="#6a4528"/></svg></div>`; }
+function openTea(pick){ blip('paper'); const brew=ALM.find(a=>a.id==='tea');
+  if(brew&&pick==null){ const t=TEAS.find(x=>x.id===brew.tea)||TEAS[0], dur=brew.dur||t.s||180;       // 우리는 중: 모래시계
+    show(`<h2>차 한 잔</h2><p class="tea-why">${escH(t.n)}${(t.n.charCodeAt(t.n.length-1)-0xAC00)%28>0?'을':'를'} 우리는 중이에요. 모래가 다 떨어지면 종소리로 알려 드릴게요.</p>
+     <div class="hgwrap" style="--tc:${t.c}">${hourglass(dur,dur-(brew.at-Date.now())/1000)}<b class="hgt" id="tLeft"></b><small>${escH(t.how)}</small></div>
+     <div class="row"><button class="ok" id="tStop">그만 우리기</button><button class="chip" id="tBack">방으로</button></div><small>이 창을 닫아도 모래시계는 계속 가요. 찻잔을 누르면 다시 볼 수 있어요.</small>`);
+    $('tStop').onclick=e=>{ e.stopPropagation(); almDel('tea'); openTea(); }; $('tBack').onclick=e=>{ e.stopPropagation(); closePanel(); }; almUI(); return; }
+  if(pick==null&&(!TEA_L||!TEA_L.length)){ TEA_L=teaRank(); TEA_I=0; } if(!TEA_WHY) teaRank();
+  const t=pick!=null?TEAS.find(x=>x.id===pick):TEA_L[TEA_I%TEA_L.length], tm=t.s?(t.s>=60?(Math.round(t.s/6)/10)+'분':t.s+'초'):''; teaSeen(t.id);
+  show(`<h2>차 한 잔</h2><p class="tea-why">${escH(pick!=null?'요즘 우린 차':TEA_WHY)}</p>${teaCard(t)}
+   <div class="row" id="tBtns">${t.s&&!brew?`<button class="ok" id="tBrew">물 붓고 우리기</button>`:''}<button class="chip" id="tKet">${KT?'불 끄기':'물 올리기'}</button><button class="chip" id="tNext">다른 차</button></div>
+   <div class="row" id="tAsk" hidden><p>모래시계로 ${tm}을 잴까요?</p><button class="ok" id="tYes">모래시계 뒤집기</button><button class="chip" id="tNo">아니요</button></div>
    ${(()=>{ const j=LS.get('teaLog',[]).map(x=>({t:TEAS.find(y=>y.id===x.id),at:x.at})).filter(x=>x.t).slice(0,12); return j.length?`<label class="sl">요즘 우린 차</label><div class="tlog">${j.map(x=>`<button type="button" data-tea="${x.t.id}" title="${x.t.n}" aria-label="${x.t.n}" style="background:${x.t.c}"></button>`).join('')}<span>${escH(j[0].t.n)}${j.length>1?` 외 ${j.length-1}잔`:''}</span></div>`:''; })()}
-   <label class="sl">찻장 · ${TEAS.length}가지</label>${TEAG.map(([g,nm])=>`<details class="tshelf"${t.g===g?' open':''}><summary>${nm} <small>${TEAS.filter(x=>x.g===g).length}</small></summary><div class="chips">${TEAS.filter(x=>x.g===g).map(x=>`<button class="chip" data-tea="${x.id}" aria-pressed="${x.id===t.id}"><i style="background:${x.c}"></i>${x.n}</button>`).join('')}</div></details>`).join('')}
    <small>광고가 아니에요. 받은 것도, 어디서 사라는 이야기도 없어요. 차는 약이 아니니 몸에 맞지 않으면 쉬어 가세요. 저녁 6시부터는 카페인 없는 차만 권해요(이 휴대폰의 시각 기준).</small>`);
-  $('tKet').onclick=()=>{ toggleKettle(); $('tKet').textContent=KT?'불 끄기':'물 올리기'; };
-  $('tNext').onclick=()=>{ if(pick!=null){ TEA_L=teaRank(); TEA_I=0; } else TEA_I++; openTea(); };
-  if($('tBrew')) $('tBrew').onclick=()=>{ if(KT) toggleKettle(); pour(); const c=(t.n.charCodeAt(t.n.length-1)-0xAC00)%28; { const j=LS.get('teaLog',[]); j.unshift({id:t.id,at:Date.now()}); LS.set('teaLog',j.slice(0,40)); } almAdd({id:'tea',kind:'tea',at:Date.now()+t.s*1000,msg:`${t.n}${c>0?'이':'가'} 다 우러났어요. 이제 건져 주세요.`}); openTea(pick); };
-  if($('tStop')) $('tStop').onclick=()=>{ almDel('tea'); openTea(pick); };
-  document.querySelectorAll('[data-tea]').forEach(b=>b.onclick=()=>openTea(b.dataset.tea)); almUI(); }
+  $('tKet').onclick=e=>{ e.stopPropagation(); toggleKettle(); $('tKet').textContent=KT?'불 끄기':'물 올리기'; };
+  $('tNext').onclick=e=>{ e.stopPropagation(); if(pick!=null){ TEA_L=teaRank(); TEA_I=0; } else TEA_I++; openTea(); };
+  if($('tBrew')) $('tBrew').onclick=e=>{ e.stopPropagation(); $('tBtns').hidden=true; $('tAsk').hidden=false; $('tYes').focus(); };
+  $('tNo').onclick=e=>{ e.stopPropagation(); $('tAsk').hidden=true; $('tBtns').hidden=false; };
+  $('tYes').onclick=e=>{ e.stopPropagation(); if(KT) toggleKettle(); pour(); const c=(t.n.charCodeAt(t.n.length-1)-0xAC00)%28; { const j=LS.get('teaLog',[]); j.unshift({id:t.id,at:Date.now()}); LS.set('teaLog',j.slice(0,40)); }
+    almAdd({id:'tea',kind:'tea',tea:t.id,dur:t.s,at:Date.now()+t.s*1000,msg:`${t.n}${c>0?'이':'가'} 다 우러났어요. 이제 건져 주세요.`}); openTea(); };
+  document.querySelectorAll('[data-tea]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); openTea(b.dataset.tea); }); almUI(); }
 function pour(){ const c=actx(); if(!c||!AU.on) return; const t=c.currentTime, s=c.createBufferSource(); s.buffer=noise(2.2,false); const f=c.createBiquadFilter(); f.type='bandpass'; f.Q.value=1.2; f.frequency.setValueAtTime(900,t); f.frequency.linearRampToValueAtTime(1700,t+2); const g=c.createGain(); g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.12,t+.15); g.gain.setValueAtTime(.12,t+1.6); g.gain.exponentialRampToValueAtTime(.0001,t+2.2); s.connect(f).connect(g).connect(AU.out); s.start(t); s.stop(t+2.3); }
 
 /* ---------- 시계 알림: 방이 열려 있는 동안 울린다 ---------- */
