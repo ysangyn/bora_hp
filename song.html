@@ -274,6 +274,25 @@ function rhythmS(words,start,style,temp,R,pickup,hold){ const k=words.reduce((a,
     sc+=style==='sync'?(synco>=1&&synco<=3?2.5:synco===0?-1:0):-Math.max(0,synco-1)*.8; if(b1) sc+=1; if(style==='long') sc+=len.reduce((a,b)=>a+b,0)/Math.max(1,k-1); if(last.len>=3) sc+=1; sc+=R()*(.4+temp*.9);
     cands.push({sc,syl}); }
   cands.sort((a,b)=>b.sc-a.sc); return cands[0].syl; }
+// '말하듯' 리듬: 낱말 안 글자는 반 칸(16분음)으로 몰아 부르고, 낱말 끝에서 잠깐 머물고, 줄 끝 음만 끈 뒤 나머지는 쉰다.
+// 어른아이의 실제 노래를 재 보면 줄 안의 음은 0.2초 안팎으로 빠르게 지나가고, 끝 음만 0.6~0.8초 끌고, 줄 사이를 1.5초쯤 비운다.
+function speakBody(words){ let t=0; words.forEach((w,i)=>{ t+=i<words.length-1?Math.ceil((w.length-1)*.5+1):(w.length-1)*.5; }); return t; }   // 끝 음 앞까지 드는 칸 수
+function rhythmSpeak(words,start,temp,R,hold,span){ const k=words.reduce((a,w)=>a+w.length,0); if(!k) return []; const cands=[], one=span===8; if(one) start=Math.max(0,Math.min(start,1,Math.floor(5.5-speakBody(words))));
+  for(let tr=0;tr<10;tr++){ const syl=sylList(words), len=syl.map(()=>1), gap=syl.map(x=>/[,…]/.test(x.p)?1:0); gap[k-1]=0;
+    const target=one?Math.min(7,k*.62+2.2):Math.max(5,Math.min(10.5,k*.62+2.2+(tr%3)*.5)), endLen=one?(hold?2.5:2):(hold?3:2)+(R()<.35?.5:0);
+    // 낱말마다: 안쪽 글자 반 칸, 끝 글자 한 칸. 한 글자 낱말은 한 칸(가벼운 말은 반 칸)
+    let i0=0; words.forEach(w=>{ const n=w.length; for(let j=0;j<n;j++){ const x=syl[i0+j]; len[i0+j]=j<n-1?.5:(n===1&&x.light?.5:1); } i0+=n; });
+    const body=()=>{ let t=0; for(let i=0;i<k-1;i++) t+=len[i]+gap[i]; return t; };
+    // 너무 몰리면 풀어 준다: 두 글자 낱말부터 첫 글자를 한 칸으로, 그다음 낱말 끝을 조금 끈다
+    let guard=0; while(body()+endLen<target&&guard++<40){ const c=[]; let p=0; words.forEach((w,wi)=>{ const n=w.length; if(n>=2&&len[p]===.5&&!syl[p].fn) c.push({i:p,t:'head',w:n===2?3:1}); if(p+n-1<k-1&&len[p+n-1]<2&&!syl[p+n-1].light) c.push({i:p+n-1,t:'tail',w:1.6}); p+=n; });
+      if(!c.length) break; const tot=c.reduce((a,x)=>a+x.w,0); let r=R()*tot, pick=c[0]; for(const x of c){ r-=x.w; if(r<=0){ pick=x; break; } } len[pick.i]+=.5; }
+    // 낱말 첫 글자가 반 칸 자리에서 시작하지 않게 앞 낱말 끝을 반 칸 늘려 맞춘다
+    let pos=start, p=0; words.forEach((w,wi)=>{ const n=w.length; if(wi>0&&!Number.isInteger(pos)){ len[p-1]+=.5; syl[p-1].len=len[p-1]; pos+=.5; } for(let j=0;j<n;j++){ const x=syl[p+j]; x.slot=pos; x.len=len[p+j]; pos+=len[p+j]+gap[p+j]; } p+=n; });
+    const last=syl[k-1], lim=one?5.5:12.5; if(last.slot>lim){ const f=lim/last.slot; syl.forEach(x=>{ x.slot=Math.round(x.slot*f*2)/2; x.len=Math.max(.5,Math.round(x.len*f*2)/2); }); for(let i=1;i<k;i++) if(syl[i].slot<=syl[i-1].slot) syl[i].slot=syl[i-1].slot+.5; for(let i=0;i<k-1;i++) syl[i].len=Math.min(syl[i].len,syl[i+1].slot-syl[i].slot); }
+    last.len=Math.max(1.5,Math.min(endLen,(one?7.5:15)-last.slot)); last.end=true;
+    let sc=0; syl.forEach(x=>{ if(x.wordStart&&!x.fn&&Number.isInteger(x.slot)&&x.slot%2===0) sc+=1; if(x.wordStart&&!x.fn&&x.slot%4===0) sc+=.6; if(x.light&&x.slot%4===0) sc-=.6; });
+    sc-=Math.abs(last.slot+last.len-(target+start))*.25; sc+=R()*(.5+temp*.8); cands.push({sc,syl}); }
+  cands.sort((a,b)=>b.sc-a.sc); return cands[0].syl; }
 function rhythmFrom(words,rm){ const syl=sylList(words); syl.forEach((x,i)=>{ x.slot=rm.s[i]; x.len=rm.l[i]; }); syl[syl.length-1].end=true; return syl; }
 function splitLine(line){ const words=line.split(/\s+/).map(w=>{ const sy=sylsOf(w), f=Math.min(sy.length-1,fnCount(w)); for(let i=sy.length-f;i<sy.length;i++) if(i>=0) sy[i].fn=true; if(sy.length===1&&LIGHTW.has(sy[0].ch)){ sy[0].fn=true; sy[0].light=true; } return sy; }).filter(w=>w.length), n=words.reduce((a,w)=>a+w.length,0); if(!n) return [];
   const units=n<=13?1:n<=26?2:4, out=[]; let acc=0, cur=[], u=1;
@@ -285,12 +304,12 @@ function splitLine(line){ const words=line.split(/\s+/).map(w=>{ const sy=sylsOf
 const CONT={arch:p=>-.5+1.3*Math.sin(Math.PI*p), rise:p=>-.6+1.5*p, fall:p=>.7-1.4*p, hook:p=>.55-.7*Math.sin(Math.PI*p), peak:p=>p<.65?-.2+1.2*p/.65:1-1.3*(p-.65)/.35};
 function compose(plan,o){ const text=plan.map(b=>b.lines.map(l=>l.text).join(' ')).join(' ');
   const RD=readText(plan.map(b=>b.lines.map(l=>l.text).join('\n')).join('\n')), moodId=o.mood==='auto'?RD.mood:o.mood, mood=MOODS.find(m=>m.id===moodId), sp0={sad:['sad','night'],calm:['rain','canon','night'],light:['money','canon']}[moodId], lofi=o.genre==='lofi', aa=o.genre==='aa', style=aa?(AA.find(s=>s.id===o.style)||AA[Math.floor(rng((o.song||0)*17+3)()*AA.length)]):lofi?(LOFI.find(s=>s.id===o.style)||LOFI[(moodId==='sad'?[2,0,4]:moodId==='light'?[3,1,0]:[0,1,4,2])[Math.floor(rng((o.song||0)*17+3)()*(moodId==='calm'?4:3))]]):(STYLES.find(s=>s.id===(o.style==='auto'?sp0[Math.floor(rng((o.song||0)*17+3)()*sp0.length)]:o.style))||STYLES[0]);
-  const genre=o.genre||'folk', gb=aa?{calm:80,sad:72,light:92}[moodId]:lofi?{calm:78,sad:72,light:86}[moodId]:genre==='rock'?{calm:112,sad:104,light:128}[moodId]:genre==='pop'?{calm:92,sad:84,light:104}[moodId]:mood.bpm, key=o.keyAuto?Math.floor(rng((o.song||0)*5+11)()*5):o.key, bpm=Math.max(50,Math.min(150,gb+(RD.scene&&genre!=='rock'?RD.scene.bpm:0)+o.tempo+(o.song?Math.round((rng(o.song*31+7)()-.5)*10):0))), lo0=o.range[0], hi0=o.range[1];
+  const genre=o.genre||'folk', gb=aa?{calm:76,sad:70,light:88}[moodId]:lofi?{calm:78,sad:72,light:86}[moodId]:genre==='rock'?{calm:112,sad:104,light:128}[moodId]:genre==='pop'?{calm:92,sad:84,light:104}[moodId]:mood.bpm, key=o.keyAuto?Math.floor(rng((o.song||0)*5+11)()*5):o.key, bpm=Math.max(50,Math.min(150,gb+(RD.scene&&genre!=='rock'?RD.scene.bpm:0)+o.tempo+(o.song?Math.round((rng(o.song*31+7)()-.5)*10):0))), lo0=o.range[0], hi0=o.range[1];
   if(!plan.some(b=>b.lines.length)) return null;
   const seedOf=t=>(o.seeds[t]||0)*7919+(o.song||0)*104729, VAR={}, varOf=t=>VAR[t]||(VAR[t]=(r=>({set:Math.floor(r()*4),sch:Math.floor(r()*4),mode:Math.floor(r()*3),cen:(r()-.5)*3}))(rng(hash('var|'+t+'|'+style.id)+seedOf(t)))), SR=t=>rng(hash('start|'+t+'|'+style.id)+seedOf(t));
   const startOf=b=>b.type==='verse'?1+(SR(b.tune)()<.4?1:0):b.type==='chorus'?(SR(b.tune)()<.65?0:1):b.type==='bridge'?2:b.type==='post'?0:1;
   const cenF={verse:.36,pre:.46,chorus:.6,bridge:.5,post:.55}, span={verse:4.5,pre:5,chorus:6,bridge:5,post:4};
-  const log=[], bars=[], secs=[], notes=[], motifs={}, rmot={}, temp=o.temp==null?1:o.temp, RST=(o.genre==='aa')?{verse:['talk','sync','talk'],chorus:['talk','long','sync'],pre:['talk','dense','talk'],bridge:['long','talk','sync'],post:['sync','talk','sync']}:(o.genre==='lofi')?{verse:['sync','talk','sync'],chorus:['sync','sync','long'],pre:['sync','talk','sync'],bridge:['long','sync','long'],post:['sync','long','sync']}:(o.genre==='rock')?{verse:['talk','sync','talk'],chorus:['long','sync','sync'],pre:['dense','talk','sync'],bridge:['long','talk','long'],post:['sync','long','sync']}:{verse:['talk','long','talk'],chorus:['sync','talk','long'],pre:['talk','dense','sync'],bridge:['long','talk','long'],post:['sync','long','talk']}; let prev=null, curKey=key, rit=null;
+  const log=[], bars=[], secs=[], notes=[], motifs={}, rmot={}, temp=o.temp==null?1:o.temp, RST=(o.genre==='aa')?{verse:['speak','speak','speak'],chorus:['speak','speak','speak'],pre:['speak','speak','speak'],bridge:['speak','talk','speak'],post:['speak','speak','speak']}:(o.genre==='lofi')?{verse:['sync','talk','sync'],chorus:['sync','sync','long'],pre:['sync','talk','sync'],bridge:['long','sync','long'],post:['sync','long','sync']}:(o.genre==='rock')?{verse:['talk','sync','talk'],chorus:['long','sync','sync'],pre:['dense','talk','sync'],bridge:['long','talk','long'],post:['sync','long','sync']}:{verse:['talk','long','talk'],chorus:['sync','talk','long'],pre:['talk','dense','sync'],bridge:['long','talk','long'],post:['sync','long','talk']}; let prev=null, curKey=key, rit=null;
   const lyric=plan.filter(s=>s.lines.length), lastLyric=lyric[lyric.length-1], tonic=style.tonic||style.verse[0];
   const hookSec=()=>secs.find(s=>s.type==='chorus'&&s.lines.length)||secs.find(s=>s.lines.length);
   const copyNotes=(src,nb,toBar,sh,extra)=>{ notes.filter(n=>!n.echo&&!n.again&&n.abs>=src.startBar*8&&n.abs<(src.startBar+nb)*8).forEach(e=>notes.push(Object.assign({ch:'',slot:e.slot,len:e.len,abs:e.abs-src.startBar*8+toBar*8,m:e.m+sh,end:e.end,wordEnd:e.wordEnd,wordStart:e.wordStart,echo:true,anchor:e.anchor},extra))); };
@@ -310,24 +329,25 @@ function compose(plan,o){ const text=plan.map(b=>b.lines.map(l=>l.text).join(' '
       if(sec.solo){ addBars(src.prog.slice(0,4),4,.72); copyNotes(src,4,sec.startBar,k2-src.k,{inst:'g',type:'inter'}); log.push({slot:sec.startBar*8,t:'간주 · 기타 독주',x:'목소리가 쉬는 동안 기타가 앞에서 부른 멜로디를 대신 연주합니다. 같은 멜로디를 다른 소리로 들으면 곡이 넓어져요.'}); }
       else { addBars(style.verse,4); log.push({slot:sec.startBar*8,t:'간주',x:'목소리가 쉬는 네 마디. 쉬어야 다음 소절이 새로 들립니다.'}); } }
     else if(b.type==='outro'){ const ls=[...secs].reverse().find(s=>s.lines.length), hs=hookSec();
-      if(b.variant==='last'&&ls){ const L=ls.lines[ls.lines.length-1], n=L.phrases.length*2, b0=L.phrases[0].bar; addBars(bars.slice(b0,b0+n).map(x=>x.name),n,.6); const sB=sec.startBar;
+      if(b.variant==='last'&&ls){ const L=ls.lines[ls.lines.length-1], n=L.phrases.reduce((a,p)=>a+(p.nb||2),0), b0=L.phrases[0].bar; addBars(bars.slice(b0,b0+n).map(x=>x.name),n,.6); const sB=sec.startBar;
         L.phrases.forEach(ph=>ph.notes.forEach(e=>notes.push(Object.assign({},e,{abs:e.abs-b0*8+sB*8,m:e.m+(k2-ls.k),again:true,type:'outro'})))); rit={start:sB*8,slope:.035,max:.55};
         log.push({slot:sB*8,t:'끝맺음',x:'마지막 줄을 한 번 더, 점점 느리게 부르고 끝냅니다. 하고 싶은 말을 한 번 더 남기는 방법이에요.'}); }
       else if(hs){ addBars([hs.prog[0],hs.prog[1],tonic,tonic],4); copyNotes(hs,2,sec.startBar,k2-hs.k,{type:'outro'}); rit={start:(sec.startBar+3)*8,slope:.075,max:.7};
         log.push({slot:sec.startBar*8,t:'후주',x:'곡의 첫 멜로디를 한 번 더 조용히 부르고, 점점 느려지며 마지막 코드를 길게 울립니다. 처음과 끝이 닮으면 곡이 완결돼 보여요.'}); }
       else addBars([tonic],2); }
-    else { const phs=b.lines.map(l=>splitLine(l.text)), need=phs.reduce((a,p)=>a+p.length*2,0), n=Math.max(4,Math.ceil(need/4)*4);
+    else { const phs=b.lines.map(l=>splitLine(l.text)), rsOf=l=>b.feel&&b.feel.r&&b.feel.r!=='auto'?b.feel.r:RST[b.type][varOf(l.mk||b.tune).mode], PB=phs.map((P,li)=>P.map(w=>aa&&rsOf(b.lines[li])==='speak'&&w.reduce((a,x)=>a+x.length,0)<=8&&speakBody(w)<=5.5?1:2)), need=PB.reduce((a,p)=>a+p.reduce((x,y)=>x+y,0),0), n=Math.max(4,Math.ceil(need/4)*4);
       let prog=b.type==='post'?style.chorus.slice(-4):(style[b.type]||style.verse); if(b.type==='chorus'&&n<prog.length) prog=prog.slice(prog.length-n);
-      addBars(prog,n); const s0=sec.startBar*8, isLast=b===lastLyric, start=startOf(b), closing=b.close||isLast||b.lines[b.lines.length-1].close, center=lo+(hi-lo)*(b.type==='verse'&&b.close?.45:cenF[b.type])+varOf(b.tune).cen, sp=span[b.type]*(.9+temp*.12)*(b.feel&&b.feel.m==='calm'?.6:b.feel&&b.feel.m==='wide'?1.4:1);
+      addBars(prog,n); const s0=sec.startBar*8, isLast=b===lastLyric, start=startOf(b), closing=b.close||isLast||b.lines[b.lines.length-1].close, center=lo+(hi-lo)*(b.type==='verse'&&b.close?.45:cenF[b.type])+varOf(b.tune).cen, sp=span[b.type]*(.9+temp*.12)*(b.feel&&b.feel.m==='calm'?.6:b.feel&&b.feel.m==='wide'?1.4:1)*(aa?.72:1);
       if(!lofi&&closing&&b.type!=='chorus'&&b.type!=='post'&&need>=4){ const dom=style.home===9?'E':/7/.test(tonic)?'G7':'G', e=sec.startBar+need-1, set=(i,nm)=>{ if(bars[i].ov) return; bars[i].name2=null; bars[i].ch2=null; bars[i].name=nm; bars[i].orig=nm; bars[i].ch=chord(nm,k2); }; set(e,tonic); if(bars[e-1].name===tonic||bars[e-1].name===bars[e-2].name) set(e-1,dom); for(let i=e+1;i<sec.startBar+n;i++) set(i,tonic);
         log.push({slot:e*8-7.9,t:'맺는 코드',x:`이 부분은 여기서 이야기가 끝나므로, 마지막 마디의 코드를 으뜸(${tonic})으로 바꿔 문을 닫습니다. 멜로디도 으뜸음으로 내려옵니다.`}); }
       log.push({slot:s0,t:sec.name,x:(quiet?'이번에는 반주를 줄이고 조용히 부릅니다. 같은 멜로디도 작게 부르면 다르게 들려요. ':b.variant==='up'?'여기서 조 전체를 한 음 올립니다. 같은 멜로디가 더 높은 곳에서 나와 마지막이 벅차게 들립니다. ':'')+(b.type==='chorus'?`후렴은 다른 부분보다 높은 자리에서 ${start===0?'첫 박부터 또렷하게':'반 박 쉬고'} 들어옵니다.`:b.type==='bridge'?'지금까지와 다른 코드로 잠깐 다른 방에 다녀오는 자리입니다.':b.type==='pre'?'후렴으로 올라가는 계단. 멜로디가 조금씩 올라갑니다.':b.type==='post'?'후렴이 끝난 자리에서 짧은 말을 한 번 더 얹습니다.':`낮은 자리에서 말하듯이. 첫 박을 ${start===1?'반 박':'한 박'} 쉬고 들어가면 이야기하는 느낌이 납니다.`)+` 코드: ${prog.slice(0,Math.min(n,prog.length)).join(' → ')}`});
       const fw=l=>hg(l.text.split(/\s+/)[0]||''), ns=l=>hg(l.text).length; b.lines.forEach((l,li)=>{ l.rep=-1; l.exact=false; if(l.mk) return; for(let j=0;j<li;j++){ const o2=b.lines[j]; if(o2.mk) continue; if(o2.text===l.text){ l.rep=j; l.exact=true; break; } if(fw(l).length>=2&&fw(o2)===fw(l)&&Math.abs(ns(o2)-ns(l))<=3){ l.rep=j; break; } } });
       let bar=sec.startBar;
       b.lines.forEach((lineO,li)=>{ const line=lineO.text, L={text:line,phrases:[]}; sec.lines.push(L); const role=li%4, tn=lineO.mk||b.tune; let woff=0;
-        phs[li].forEach((words,pi)=>{ const lastPh=pi===phs[li].length-1, base=bar*8, ls=((o.lseed||{})[tn+'|'+(lineO.mk?0:li)]||0)*611, Vr=varOf(tn), cfr=lineO.mk||b.noRepeat?-1:[[-1,0,-1,-1],[-1,-1,0,-1],[-1,0,0,-1],[-1,0,-1,1]][Vr.sch][role], nk=words.reduce((a,w)=>a+w.length,0),
+        phs[li].forEach((words,pi)=>{ const pb=PB[li][pi], lastPh=pi===phs[li].length-1, base=bar*8, ls=((o.lseed||{})[tn+'|'+(lineO.mk?0:li)]||0)*611, Vr=varOf(tn), cfr=lineO.mk||b.noRepeat?-1:[[-1,0,-1,-1],[-1,-1,0,-1],[-1,0,0,-1],[-1,0,-1,1]][Vr.sch][role], nk=words.reduce((a,w)=>a+w.length,0),
             rkey=tn+'|'+(lineO.mk?0:li)+'|'+pi+'|'+nk, rpl=lineO.rep>=0?lineO.rep:(cfr>=0?li-role+cfr:-1), rsrc=rmot[rkey]||(rpl>=0?rmot[tn+'|'+rpl+'|'+pi+'|'+nk]:null), EK=endKindOf(lineO.text), rstyle=b.feel&&b.feel.r&&b.feel.r!=='auto'?b.feel.r:RST[b.type][Vr.mode],
-            ev=rsrc?rhythmFrom(words,rsrc):rhythmS(words,start,rstyle,temp,rng(hash('rh|'+rkey+'|'+style.id)+seedOf(tn)+ls),base>0,EK==='trail'&&pi===phs[li].length-1);
+            ev=rsrc?rhythmFrom(words,rsrc):rstyle==='speak'?rhythmSpeak(words,start,temp,rng(hash('rh|'+rkey+'|'+style.id)+seedOf(tn)+ls),(EK==='trail'||closing&&li===b.lines.length-1)&&pi===phs[li].length-1,pb*8):rhythmS(words,start,rstyle,temp,rng(hash('rh|'+rkey+'|'+style.id)+seedOf(tn)+ls),base>0,EK==='trail'&&pi===phs[li].length-1);
+          if(aa&&ev.length&&!rsrc){ const l=ev[ev.length-1]; l.len=Math.min(l.len,closing&&li===b.lines.length-1?4:3); }
           if(ev.length&&!rmot[rkey]) rmot[rkey]={s:ev.map(e=>e.slot),l:ev.map(e=>e.len)}; const  w0=woff; woff+=words.length; if(!ev.length) return; let emWord='';
           const q=EK==='q'||/\?/.test(ev[ev.length-1].p), lastLine=li===b.lines.length-1;
           const endType=!lastPh?'mid':q?'open':EK==='trail'?'open':lineO.close?'closed':lastLine?((b.close||b.type==='chorus'||b.type==='post'||isLast)?'closed':'open'):EK==='excl'?'mid':li%2===0?'open':'mid';
@@ -336,7 +356,7 @@ function compose(plan,o){ const text=plan.map(b=>b.lines.map(l=>l.text).join(' '
           const C=CONT[cname], k=ev.length, prev0=prev, seedB=hash([tn,lineO.mk?0:li,pi,style.id].join('|'))+seedOf(tn)+ls; let best=null;
           for(let tr=0;tr<(src?1:10);tr++){ const R=rng(seedB+tr*131); let prev=prev0, lastLeap=0, fit=0; const ms=[];
           ev.forEach((e,i)=>{ e.abs=base+e.slot; const cb0=bars[Math.max(0,Math.min(bars.length-1,Math.floor(e.abs/8)))], ch=cb0.ch2&&((e.abs%8)+8)%8>=4?cb0.ch2:cb0.ch, pool=poolFor(ch), tones=pool.filter(m=>(ch.tones.includes(m%12)||((lofi||aa)&&ch.color.includes(m%12)))&&m>=lo&&m<=hi);
-            const p=k>1?Math.max(0,e.slot)/14:.5, target=center+C(Math.min(1,p))*sp+lv*1.3, anchor=i===0||e.end||e.len>=2||(Number.isInteger(e.slot)&&e.slot%4===0&&!(e.fn&&!e.wordStart));
+            const p=k>1?Math.max(0,e.slot)/(pb===1?7:14):.5, target=center+C(Math.min(1,p))*sp+lv*1.3, anchor=i===0||e.end||e.len>=2||(Number.isInteger(e.slot)&&e.slot%4===0&&!(e.fn&&!e.wordStart));
             const near=(arr,x)=>arr.reduce((a,c)=>Math.abs(c-x)<Math.abs(a-x)?c:a); const pv=prev==null?near(tones,center):prev; let m;
             const em=lineO.emph===w0+e.wi&&e.wordStart&&!e.end; if(em){ e.em=true; emWord=words[e.wi].map(s=>s.ch).join(''); }
             if(e.end){ let cand;
@@ -347,23 +367,23 @@ function compose(plan,o){ const text=plan.map(b=>b.lines.map(l=>l.text).join(' '
               if(lineO.exact&&src&&!lastLine) m=near(tones,src[src.length-1]+sh); }
             else if(em){ const tg=center+sp+1; const cost=c=>Math.abs(c-tg)+(Math.abs(c-pv)>9?4:0); m=tones.reduce((a,c)=>cost(c)<cost(a)?c:a); }
             else if(src){ const s=src[k>1?Math.round(i*(src.length-1)/(k-1)):0]+sh; m=anchor?near(tones,s):near(pool,s); }
-            else if(anchor){ const rp=lofi?.05:b.type==='chorus'?.15:.7; const cost=c=>Math.abs(c-target)+.45*Math.abs(c-pv)+(c===pv?rp:0)+(Math.abs(c-pv)>9?5:0)+(e.fn?Math.max(0,c-pv)*.5:0)+R()*(.35+temp*.45); m=tones.reduce((a,c)=>cost(c)<cost(a)?c:a); }
-            else { const r=R(); let dir=lastLeap?-Math.sign(lastLeap):Math.sign(target-pv)||(R()<.5?1:-1); const st=r<.14?0:r<.86?1:-1; const idx=pool.indexOf(near(pool,pv)); m=pool[Math.max(0,Math.min(pool.length-1,idx+dir*st))]; }
+            else if(anchor){ const rp=lofi?.05:b.type==='chorus'?.15:.7; const cost=c=>Math.abs(c-target)+.45*Math.abs(c-pv)+(c===pv?(aa?rp*.35:rp):0)+(Math.abs(c-pv)>9?5:0)+(aa&&Math.abs(c-pv)>5?2.2:0)+(e.fn?Math.max(0,c-pv)*.5:0)+R()*(.35+temp*.45); m=tones.reduce((a,c)=>cost(c)<cost(a)?c:a); }
+            else { const r=R(); let dir=lastLeap?-Math.sign(lastLeap):Math.sign(target-pv)||(R()<.5?1:-1); const st=r<(aa?.36:.14)?0:r<.86?1:-1; const idx=pool.indexOf(near(pool,pv)); m=pool[Math.max(0,Math.min(pool.length-1,idx+dir*st))]; }
             if(Math.abs(m-pv)>9){ const lim=pv+Math.sign(m-pv)*7; m=near(anchor?tones:pool,lim); }
             m=Math.max(lo,Math.min(hi,m)); if(!pool.includes(m)) m=near(pool,m);
             lastLeap=Math.abs(m-pv)>=5?m-pv:0; prev=m; ms.push(m); fit+=Math.abs(m-target); e.sec=secs.length; e.type=b.type; e.anchor=anchor||em; e.quiet=quiet; });
             // 노래다움 점수: 순차 진행 비율, 같은 음 반복, 음역, 도약 뒤 되돌아오기, 지그재그, 꼭대기 횟수
             let sc=fit/k*.25; if(k>2){ const iv=ms.slice(1).map((m,i)=>m-ms[i]), ab=iv.map(Math.abs), rg=Math.max(...ms)-Math.min(...ms), stepR=ab.filter(x=>x>0&&x<=2).length/iv.length, repR=ab.filter(x=>x===0).length/iv.length;
-              sc+=Math.abs(stepR-.68)*3+Math.max(0,repR-(b.type==='chorus'?.45:.3))*5+(rg<3?2:rg>10?1.5:0);
+              sc+=aa?Math.abs(stepR-.58)*3+Math.max(0,repR-.48)*5+(rg<2?2:rg>8?1.8:0):Math.abs(stepR-.68)*3+Math.max(0,repR-(b.type==='chorus'?.45:.3))*5+(rg<3?2:rg>10?1.5:0);
               ab.forEach((x,i)=>{ if(x===6) sc+=1.5; if(x>=5){ sc+=.5; const nx=iv[i+1]; if(nx!==undefined&&(Math.sign(nx)===Math.sign(iv[i])||Math.abs(nx)>2)) sc+=.8; } });
               let turns=0; for(let i=1;i<iv.length;i++) if(iv[i]*iv[i-1]<0) turns++; if(turns/Math.max(1,iv.length-1)>.6) sc+=1.5;
               const mx=Math.max(...ms); if(ms.filter(x=>x===mx).length>3&&b.type!=='chorus') sc+=.6; }
             if(!best||sc<best.sc) best={sc,ms}; }
           ev.forEach((e,i)=>{ e.m=best.ms[i]; }); prev=best.ms[k-1];
           if(!motifs[mkey]) motifs[mkey]=ev.map(e=>e.m-sh);
-          const ph={base,bar,notes:ev,line:li}; L.phrases.push(ph); notes.push(...ev);
+          const ph={base,bar,nb:pb,notes:ev,line:li}; L.phrases.push(ph); notes.push(...ev);
           const endN=ev[k-1], echd=bars[Math.floor(endN.abs/8)].ch, why=[];
-          why.push(`${k}글자 → 두 마디.`+(ev.some(e=>e.wordEnd&&!e.end&&e.len>=2)?' 낱말 끝 글자를 길게 끌어 말의 띄어 읽기를 살렸고,':'')+` 마지막 글자는 ${endN.len/2}박을 끌고 나머지는 숨 쉴 자리로 비웁니다.`);
+          why.push(`${k}글자 → ${pb===1?'한':'두'} 마디.`+(ev.some(e=>e.wordEnd&&!e.end&&e.len>=2)?' 낱말 끝 글자를 길게 끌어 말의 띄어 읽기를 살렸고,':'')+` 마지막 글자는 ${endN.len/2}박을 끌고 나머지는 숨 쉴 자리로 비웁니다.`);
           if(lineO.rep>=0&&!own) why.push(lineO.exact?'앞에 나온 줄과 같은 말이라 멜로디도 똑같이 되풀이합니다.':`‘${fw(lineO)}’로 시작하는 줄이 앞에도 있어서 같은 멜로디로 시작합니다. 말이 되풀이되면 멜로디도 되풀이되어야 귀에 남아요.`);
           if(ev.some(e=>e.fn)) why.push('뜻이 실린 낱말은 박에 맞춰 또렷하게, 조사와 어미는 옆 음으로 가볍게 지나갑니다.');
           if(Math.abs(lv)>=.5) why.push(lv<0?'어두운 낱말이 있는 줄이라 멜로디를 조금 낮게 잡았습니다.':'밝은 낱말이 있는 줄이라 멜로디를 조금 높게 잡았습니다.');
@@ -374,7 +394,7 @@ function compose(plan,o){ const text=plan.map(b=>b.lines.map(l=>l.text).join(' '
           why.push(`센박 글자는 그 마디 코드(${bars[bar].name})의 구성음에 놓고, 사이 글자는 옆 음으로 이었습니다.`);
           why.push(endType==='closed'?`끝 음 '${solfa(endN.m)}' — 으뜸음으로 내려와 문을 닫습니다.`:endType==='open'?`끝 음 '${solfa(endN.m)}' — 으뜸음을 피해 열어 둡니다. ${q?'묻는 말이라서 끝을 올렸어요.':EK==='trail'?'말끝이 ‘~는데, ~지만’처럼 이어지는 말이라 닫지 않고 길게 여운을 둡니다.':'다음 줄을 부르는 끝맺음.'}`:`끝 음 '${solfa(endN.m)}' — 코드 ${echd.name}의 ${endN.m%12===echd.tones[1]?'3음(부드러운 쉼표)':'구성음(쉼표)'}에 잠깐 머뭅니다.`);
           log.push({slot:base,t:`“${words.map(w=>w.map(s=>s.ch).join('')).join(' ')}”`,x:why.join(' ')});
-          bar+=2; });
+          bar+=pb; });
       });
       if(bar<sec.startBar+n) log.push({slot:bar*8,t:'숨 쉬는 마디',x:`가사가 ${bar-sec.startBar}마디에서 끝났지만 코드 진행은 ${n}마디가 한 바퀴라서, 남은 ${sec.startBar+n-bar}마디는 기타만 흘려보냅니다. 코드가 중간에 끊기지 않게요.`});
     }
@@ -552,8 +572,16 @@ function prepVoice(v){ if(VCACHE.has(v)) return VCACHE.get(v); const x=v.buf.get
   const ps=Array.from(per).sort((p1,p2)=>p1-p2), pm=ps[ps.length>>1]||T0;   // 이 녹음의 보통 주기(실제 목소리의 주기 흔들림을 살릴 기준)
   const out={x,sr,ep:Int32Array.from(ep),per,pm,a,b,m:v.m}; VCACHE.set(v,out); return out; }
 const smooth=x=>x<=0?0:x>=1?1:x*x*(3-2*x);
-function humTrack(song,sro,from,to,R,PRE){ const V=BUF.bora.map(prepVoice).sort((p,q)=>p.m-q.m); if(!V.length) return null;
-  const rel=s=>song.time(s)-song.time(from)+PRE, N=song.notes.filter(n=>!n.inst&&n.abs>=from&&n.abs<to); if(!N.length) return null;
+// '기타 먼저, 허밍은 뒤에': 후렴(없으면 가사 뒤쪽 절반)과 후주만 허밍이 부르고, 앞은 기타가 멜로디를 짚는다
+function humPlan(song){ if(song._hp) return song._hp; const lyr=song.secs.map((s,i)=>({s,i})).filter(x=>x.s.lines&&x.s.lines.length), ch=lyr.filter(x=>x.s.type==='chorus'||x.s.type==='post');
+  const hs=new Set((ch.length?ch:lyr.slice(Math.floor(lyr.length/2))).map(x=>x.i)), last=lyr.length?lyr[lyr.length-1].i:-1, top=new Set(ch.length?ch.map(x=>x.i):[last]);
+  const isHum=n=>!n.inst&&(n.type==='outro'||hs.has(n.sec));
+  // 화음: 후렴(없으면 마지막 절)의 머무는 음 위에 3도쯤 위의 코드 음을 얹는다
+  const harm=[]; song.notes.forEach(n=>{ if(n.inst||n.echo||n.again||!top.has(n.sec)||n.type==='outro') return; if(!(n.end||n.len>=1.5)) return; const b=song.bars[Math.max(0,Math.min(song.bars.length-1,Math.floor(n.abs/8)))], tones=(b.ch2&&((n.abs%8)+8)%8>=4?b.ch2:b.ch).tones; let m=0;
+    for(let d=3;d<=5;d++) if(tones.includes((n.m+d)%12)){ m=n.m+d; break; } if(!m||m>72) return; harm.push(Object.assign({},n,{m,anchor:false,em:false,quiet:true,wordEnd:true,harm:true})); });
+  return (song._hp={isHum,harm}); }
+function humTrack(song,sro,from,to,R,PRE,NS){ const V=BUF.bora.map(prepVoice).sort((p,q)=>p.m-q.m); if(!V.length) return null;
+  const rel=s=>song.time(s)-song.time(from)+PRE, N=(NS||song.notes).filter(n=>!n.inst&&n.abs>=from&&n.abs<to); if(!N.length) return null;
   const groups=[]; let g=null;
   N.forEach((n,i)=>{ const pv=N[i-1], contig=!!pv&&Math.abs(n.abs-(pv.abs+pv.len))<.01, t=rel(n.abs), te=rel(n.abs+n.len);
     if(g&&contig&&!pv.wordEnd&&te-g.t0<2.4) g.notes.push(n); else { g={notes:[n],t0:t,phrase:!pv||n.abs-(pv.abs+pv.len)>=1.5,contigPrev:contig}; groups.push(g); } g.t1=te; });
@@ -634,7 +662,7 @@ function schedule(c,song,t0,opt){ const R=rng(song.seed+99), nodes=[], from=opt.
     const ch=c.createDelay(.06), lfo=c.createOscillator(), lg=c.createGain(), cg=c.createGain(); ch.delayTime.value=.014; lfo.frequency.value=.37; lg.gain.value=.0022; lfo.connect(lg).connect(ch.delayTime); lfo.start(); nodes.push(lfo);
     cg.gain.value=state.space==='near'?.12:.28; const cp=c.createStereoPanner?c.createStereoPanner():c.createGain(); if(cp.pan) cp.pan.value=.45; air.connect(ch).connect(cg).connect(cp).connect(master); }
   const ring=[null,null,null,null,null,null,null];
-  const lead=song.notes.filter(n=>n.inst==='g'||(opt.leadGtr&&n.abs>=from&&n.abs<to&&(!opt.leadThin||n.end||(n.wordStart&&!n.fn)))).map(n=>({slot:n.abs,s:6,m:n.m,vel:n.inst?.78:(n.em?.95:n.anchor?.82:.68)*(n.type==='outro'?.7:1),off:0}));
+  const HP=opt.mix||opt.hum?humPlan(song):null, lead=song.notes.filter(n=>n.inst==='g'||(opt.leadGtr&&n.abs>=from&&n.abs<to&&(!opt.mix||!HP.isHum(n))&&(!opt.leadThin||n.end||(n.wordStart&&!n.fn)))).map(n=>({slot:n.abs,s:6,m:n.m,vel:n.inst?.78:(n.em?.95:n.anchor?.82:.68)*(n.type==='outro'?.7:1),off:0}));
   (song.genre==='rock'?[]:song.gtr.concat(lead)).sort((a,b)=>a.slot-b.slot||(a.mute?-1:1)).forEach(e=>{ if(e.slot<from-.2||e.slot>=to) return; const t=T(e.slot)+(e.off||0)+(e.mute?0:(R()-.5)*.012); const old=ring[e.s];
     if(old){ old.g.gain.cancelScheduledValues(Math.max(t-.004,old.t+.02)); old.g.gain.setTargetAtTime(0,Math.max(t-.004,old.t+.02),e.mute?.045:.012); try{ old.s.stop(t+.4); }catch(_){} ring[e.s]=null; }
     if(e.mute) return; const vel=Math.min(1,e.vel*(.9+R()*.2)), sm=pick(BUF[song.ginst]&&BUF[song.ginst].length?BUF[song.ginst]:BUF.g,e.m,vel); if(!sm) return;
@@ -644,19 +672,20 @@ function schedule(c,song,t0,opt){ const R=rng(song.seed+99), nodes=[], from=opt.
     s.start(t); nodes.push(s); ring[e.s]={g,s,t}; });
   if(song.genre==='lofi') scheduleLofi(c,song,T,master,comp,rev,R,nodes,from,to); else if(song.band) scheduleBand(c,song,T,master,rev,R,nodes,from,to,opt);
   // 허밍: 낱말 하나는 한 호흡으로 이어 부르고(음 사이를 미끄러지며), 음마다 사람처럼 닿고·떨고·내려놓는다
-  if(opt.hum&&BUF.bora.length){ const PRE=.6, H=humTrack(song,c.sampleRate,from,to,R,PRE);
+  if(opt.hum&&BUF.bora.length){ const PRE=.6, H=humTrack(song,c.sampleRate,from,to,R,PRE,opt.mix?song.notes.filter(HP.isHum):null), H2=HP.harm.length&&!window.__noHarm?humTrack(song,c.sampleRate,from,to,rng(song.seed+7),PRE,HP.harm):null;
     if(H){ const hb=c.createBuffer(1,H.pcm.length,c.sampleRate); hb.copyToChannel(H.pcm,0); const hbus=c.createGain(); hbus.gain.value=1.2*(song.genre==='rock'?1.2:song.genre==='pop'?1.1:1);
       const hp=c.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=100; const body=c.createBiquadFilter(); body.type='peaking'; body.frequency.value=260; body.Q.value=.9; body.gain.value=1.5; const pres=c.createBiquadFilter(); pres.type='peaking'; pres.frequency.value=3000; pres.Q.value=.9; pres.gain.value=2; const air=c.createBiquadFilter(); air.type='lowpass'; air.frequency.value=9000;
       const vc=c.createDynamicsCompressor(); vc.threshold.value=-24; vc.ratio.value=3; vc.attack.value=.012; vc.release.value=.18; const vs=c.createGain(); vs.gain.value=.5;
       const pd=c.createDelay(.2); pd.delayTime.value=.035; vs.connect(pd).connect(rev);
       hbus.connect(hp).connect(body).connect(pres).connect(air).connect(vc); vc.connect(master); vc.connect(vs);
       const s=c.createBufferSource(); s.buffer=hb; s.connect(hbus); const st=T(from)-PRE; if(st<c.currentTime) s.start(c.currentTime,c.currentTime-st); else s.start(st); nodes.push(s);
+      if(H2){ const b2=c.createBuffer(1,H2.pcm.length,c.sampleRate); b2.copyToChannel(H2.pcm,0); const s2=c.createBufferSource(); s2.buffer=b2; const g2=c.createGain(); g2.gain.value=.34; const d2=c.createDelay(.1); d2.delayTime.value=.018; s2.connect(g2).connect(d2).connect(hbus); if(st<c.currentTime) s2.start(c.currentTime,c.currentTime-st); else s2.start(st); nodes.push(s2); }
       if(BUF.breath) H.breaths.forEach(bt=>{ const at=st+bt-BUF.breath.duration-.03; if(at<c.currentTime) return; const b=c.createBufferSource(); b.buffer=BUF.breath; const bg=c.createGain(); bg.gain.value=.2+R()*.08; b.playbackRate.value=.95+R()*.1; b.connect(bg).connect(hbus); b.start(at); nodes.push(b); }); } }
   else if(opt.hum){ const bora=BUF.bora.length>0, set=bora?BUF.bora:BUF.v, hbus=c.createGain(); hbus.gain.value=(bora?1.25:.4)*(song.genre==='rock'?1.2:song.genre==='pop'?1.1:1); const cents=x=>Math.pow(2,x/1200);
     const hp=c.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=110; const pres=c.createBiquadFilter(); pres.type='peaking'; pres.frequency.value=2800; pres.Q.value=.9; pres.gain.value=bora?1.5:0;
     const vc=c.createDynamicsCompressor(); vc.threshold.value=-22; vc.ratio.value=2.5; vc.attack.value=.02; vc.release.value=.2; const vsend=c.createGain(); vsend.gain.value=.45;
     hbus.connect(hp).connect(pres).connect(vc); vc.connect(master); vc.connect(vsend); vsend.connect(rev);
-    const N=song.notes.filter(n=>!n.inst&&n.abs>=from&&n.abs<to), groups=[]; let g=null;
+    const N=song.notes.filter(n=>!n.inst&&n.abs>=from&&n.abs<to&&(!opt.mix||HP.isHum(n))), groups=[]; let g=null;
     N.forEach((n,i)=>{ const pv=N[i-1], contig=!!pv&&Math.abs(n.abs-(pv.abs+pv.len))<.01, t=T(n.abs), te=T(n.abs+n.len);
       if(g&&contig&&!pv.wordEnd&&Math.abs(n.m-g.notes[0].m)<=4&&te-g.t0<1.9) g.notes.push(n); else { g={notes:[n],t0:t,phrase:!pv||n.abs-(pv.abs+pv.len)>=1.5,contigPrev:contig}; groups.push(g); } g.t1=te; });
     groups.forEach((g,gi)=>{ const nx=groups[gi+1]; g.contigNext=!!nx&&nx.contigPrev; g.phraseEnd=!nx||nx.phrase; });
@@ -748,14 +777,14 @@ const EXL={s:['괜찮아요 천천히 와요','이 밤은 길고 불은 켜 뒀�
  t1:['비가 창을 두드리는 밤','나는 찻물을 올려놓고','오지 않는 사람의 의자를','한 번 더 닦아 둡니다'],t2:['시계는 가는 줄도 모르고','빗소리만 가득한 방'],t3:['그래도 불은 켜 둘게요','당신이 길을 잃지 않게']};
 const exLines=k=>!EXL[k]?Array(PARTDEF[k].n).fill(''):state.tpl==='ref'&&/^v/.test(k)?EXL[k].slice(0,3):EXL[k].slice();
 const blank=k=>({lines:Array(state&&state.tpl==='ref'&&/^v/.test(k)?3:PARTDEF[k].n).fill(''),emph:[],pat:'auto'});
-var state={space:'wide',acc:'sparse',ginst:'auto',lv:0,made:false,feel:'',lead:'thin',keyAuto:true,swing:'auto',genre:'aa',lseed:{},temp:1,chordOv:{},song:0,hist:[],gtr:'auto',title:'',tpl:'vc',form:[],sel:-1,pristine:true,style:'auto',mood:'auto',key:0,tempo:0,hum:true,why:false,range:[55,70],hiMax:72,seeds:{},parts:{}};
+var state={space:'wide',acc:'sparse',ginst:'auto',lv:0,made:false,feel:'',lead:'mix',keyAuto:true,swing:'auto',genre:'aa',lseed:{},temp:1,chordOv:{},song:0,hist:[],gtr:'auto',title:'',tpl:'vc',form:[],sel:-1,pristine:true,style:'auto',mood:'auto',key:0,tempo:0,hum:true,why:false,range:[55,70],hiMax:72,seeds:{},parts:{}};
 Object.keys(PARTDEF).forEach(k=>state.parts[k]=blank(k));
 const setTpl=id=>{ state.chordOv={}; state.tpl=id; state.form=TPL.find(t=>t.id===id).form.map(x=>({id:x,v:''})); state.sel=-1; if(state.pristine) Object.keys(PARTDEF).forEach(k=>{ state.parts[k]={lines:exLines(k),emph:[],pat:'auto'}; }); };
 try{ const s=JSON.parse(localStorage.getItem('bora_gtr6')||'null'); if(s&&Array.isArray(s.form)){ ['title','tpl','form','pristine','style','mood','key','tempo','song','hist','gtr','chordOv','lseed','temp','genre','lv','made','feel','lead','keyAuto','swing'].forEach(k=>{ if(k in s) state[k]=s[k]; }); Object.assign(state.seeds,s.seeds||{}); Object.keys(PARTDEF).forEach(k=>{ if(s.parts&&s.parts[k]&&Array.isArray(s.parts[k].lines)) state.parts[k]=Object.assign(blank(k),s.parts[k]); }); state.form=state.form.filter(it=>PARTDEF[it.id]||STRUCT[it.id]); } else setTpl('vc'); }catch(_){ setTpl('vc'); }
-if(state.style!=='auto'&&!STYLES.concat(AA).some(x=>x.id===state.style)) state.style='auto'; state.genre='aa'; if(!AA.some(x=>x.id===state.style)) state.style='auto'; if(state.lead==='hum'&&!SAMP.b) state.lead='thin';
+if(state.style!=='auto'&&!STYLES.concat(AA).some(x=>x.id===state.style)) state.style='auto'; state.genre='aa'; if(!AA.some(x=>x.id===state.style)) state.style='auto'; if((state.lead==='hum'||state.lead==='mix')&&!SAMP.b) state.lead='thin';
 const PKEYS=['title','tpl','form','pristine','style','mood','key','tempo','seeds','parts','song','hist','gtr','chordOv','lseed','temp','genre','lv','made','feel','lead','keyAuto','swing','ginst','acc'];
 const persist=()=>{ try{ const s={}; PKEYS.forEach(k=>s[k]=state[k]); localStorage.setItem('bora_gtr6',JSON.stringify(s)); }catch(_){} };
-let song=null, deb=0;
+let song=null, deb=0; window.__song=()=>song;
 const pname=k=>{ const D=PARTDEF[k]; if(D.name) return D.name; const n=k.slice(1); return (state.tpl==='str'||state.tpl==='ref')?n+'절':'벌스 '+n; };
 const nSyl=t=>t.split(/\s+/).map(sylsOf).reduce((a,w)=>a+w.length,0);
 const filled=k=>state.parts[k].lines.some(l=>l.trim());
@@ -847,7 +876,7 @@ function stop(){ try{ keepEl&&keepEl.pause(); }catch(_){} if(!live) return; canc
   document.querySelectorAll('.bar.now,.bar span.now,.bar span.on,#why .now,#lyr .now,#lyr .done').forEach(e=>e.classList.remove('now','on','done')); draw(-1); }
 function playPart(k){ if(!song) return; const s=song.secs.find(x=>x.part===k)||(k==='r'&&song.secs.find(x=>x.lines.length)); if(s) playRange(s.startBar*8,(s.startBar+s.nBars)*8); }
 async function playRange(from,to){ if(!song) prepare(); if(!song) return; stop(); const c=getAC(); audioCheck(); $('play').textContent='소리 준비 중…'; await loadSamples(c); await loadGset(c,song.ginst); if(song.genre==='rock') await loadGset(c,'gb'); if(song.band) await loadBand(c); const whole=from==null; if(whole){ from=0; to=song.total+16; }
-  const t0=c.currentTime+.3, h=schedule(c,song,t0,{hum:state.lead==='hum',leadGtr:state.lead==='gtr'||state.lead==='thin',leadThin:state.lead==='thin',from,to}), my=song, base=song.time(from), len=whole?song.dur:song.time(to)-base+2.2;
+  const t0=c.currentTime+.3, h=schedule(c,song,t0,{hum:state.lead==='hum'||state.lead==='mix',mix:state.lead==='mix',leadGtr:state.lead==='gtr'||state.lead==='thin'||state.lead==='mix',leadThin:state.lead==='thin'||state.lead==='mix',from,to}), my=song, base=song.time(from), len=whole?song.dur:song.time(to)-base+2.2;
   const lys=[...$('lyr').children].filter(e=>e.dataset.a), spans=[...document.querySelectorAll('.bar span')], cells=[...document.querySelectorAll('.bar')], whys=[...$('why').children]; let li=-1;
   const slotAt=sec=>{ let a=0,b=song.total+16; for(let i=0;i<22;i++){ const m=(a+b)/2; if(song.time(m)<sec) a=m; else b=m; } return a; };
   $('play').textContent='연주 중'; $('stop').hidden=false;
@@ -873,7 +902,7 @@ function midi(){ const tpq=480, st=240, vlq=n=>{ const b=[n&127]; while(n>>=7) b
   const g=song.gtr.filter(e=>!e.mute); g.forEach((e,i)=>{ let end=e.slot+4; for(let j=i+1;j<g.length;j++) if(g[j].s===e.s){ end=Math.min(end,g[j].slot); break; } gt.push({t:e.slot*st,d:[0x91,e.m,Math.round(40+e.vel*70)]},{t:Math.max(e.slot*st+30,end*st-5),d:[0x81,e.m,0]}); });
   const bytes=[77,84,104,100,0,0,0,6,0,1,0,3,tpq>>8,tpq&255,...track([],t0),...track(mel,[0,0xC0,53]),...track(gt,[0,0xC1,25])]; return new Uint8Array(bytes); }
 function save(blob,name){ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); a.remove(); }
-async function render(sr){ await loadSamples(getAC()); await loadGset(getAC(),song.ginst); if(song.genre==='rock') await loadGset(getAC(),'gb'); if(song.band) await loadBand(getAC()); const oc=new OfflineAudioContext(2,Math.ceil((song.dur+.5)*sr),sr); schedule(oc,song,.2,{hum:state.lead==='hum',leadGtr:state.lead==='gtr'||state.lead==='thin',leadThin:state.lead==='thin'}); return oc.startRendering(); }
+async function render(sr){ await loadSamples(getAC()); await loadGset(getAC(),song.ginst); if(song.genre==='rock') await loadGset(getAC(),'gb'); if(song.band) await loadBand(getAC()); const oc=new OfflineAudioContext(2,Math.ceil((song.dur+.5)*sr),sr); schedule(oc,song,.2,{hum:state.lead==='hum'||state.lead==='mix',mix:state.lead==='mix',leadGtr:state.lead==='gtr'||state.lead==='thin'||state.lead==='mix',leadThin:state.lead==='thin'||state.lead==='mix'}); return oc.startRendering(); }
 async function wavOut(){ const b=await render(44100), L=b.getChannelData(0), Rr=b.getChannelData(1), n=L.length, buf=new ArrayBuffer(44+n*4), v=new DataView(buf), w=(o,s)=>{ for(let i=0;i<s.length;i++) v.setUint8(o+i,s.charCodeAt(i)); };
   w(0,'RIFF'); v.setUint32(4,36+n*4,true); w(8,'WAVEfmt '); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,2,true); v.setUint32(24,44100,true); v.setUint32(28,176400,true); v.setUint16(32,4,true); v.setUint16(34,16,true); w(36,'data'); v.setUint32(40,n*4,true);
   for(let i=0;i<n;i++){ v.setInt16(44+i*4,Math.max(-1,Math.min(1,L[i]))*32767,true); v.setInt16(46+i*4,Math.max(-1,Math.min(1,Rr[i]))*32767,true); } return new Blob([buf],{type:'audio/wav'}); }
@@ -883,7 +912,7 @@ const restruct=()=>{ renderParts(); prepare(); };
 chips($('genre'),[{id:'aa',name:'어른아이',note:'어른아이 곡의 코드 버릇'},{id:'folk',name:'통기타 포크',note:'기타 한 대'},{id:'pop',name:'어쿠스틱 팝',note:'통기타 + 베이스 + 드럼'},{id:'rock',name:'모던 락',note:'일렉 기타 + 베이스 + 드럼'}],'genre',()=>{ state.tempo=0; prepare(); });
 chips($('tpl'),TPL,'tpl',restruct); chips($('style'),[{id:'auto',name:'알아서'}].concat(AA.map(a=>({id:a.id,name:a.name+'처럼'}))),'style',()=>{ state.chordOv={}; prepare(); });
 chips($('ginst'),[{id:'auto',name:'알아서'},{id:'gm',name:'통기타',note:'마틴'},{id:'gb',name:'할로바디 기타'},{id:'g',name:'부드러운 통기타'}],'ginst');
-const leadChips=()=>chips($('lead'),(SAMP.b||BUF.bora.length?[{id:'hum',name:'허밍'}]:[]).concat([{id:'thin',name:'듬성듬성'},{id:'gtr',name:'글자마다'},{id:'off',name:'반주만'}]),'lead',()=>{}); leadChips();
+const leadChips=()=>chips($('lead'),(SAMP.b||BUF.bora.length?[{id:'mix',name:'기타 먼저, 허밍은 뒤에'},{id:'hum',name:'허밍'}]:[]).concat([{id:'thin',name:'듬성듬성'},{id:'gtr',name:'글자마다'},{id:'off',name:'반주만'}]),'lead',()=>{}); leadChips();
 chips($('acc'),[{id:'sparse',name:'여백 있게'},{id:'arp',name:'아르페지오'}],'acc');
 chips($('space'),[{id:'near',name:'가깝게'},{id:'wide',name:'넓게'},{id:'far',name:'아주 넓게'}],'space',()=>{});
 chips($('swing'),[{id:'auto',name:'알아서'},{id:'off',name:'반듯하게'},{id:'on',name:'흔들리게'}],'swing'); chips($('mood'),MOODS,'mood'); chips($('gsel'),[{id:'auto',name:'알아서'},{id:'arp',name:'아르페지오'},{id:'strum',name:'스트로크'},{id:'mix',name:'벌스는 아르페지오, 후렴은 스트로크'}],'gtr');
@@ -916,9 +945,9 @@ function autoLines(text){ const out=[]; text.replace(/\r/g,'').replace(/([.!?…
 function makeFromFeel(){ const lines=autoLines($('feel').value); if(!lines.length){ $('feelNote').textContent='한 줄만 적어 주세요.'; return false; } $('feelNote').textContent=lines.length>24?'길어서 앞의 24줄만 노래로 만들었어요.':'';
   const L=lines.slice(0,24), n=L.length, put=(k,arr)=>{ state.parts[k]={lines:arr.slice(),emph:[],pat:'auto'}; };
   state.feel=$('feel').value; state.pristine=false; state.chordOv={}; state.lseed={}; state.seeds={}; state.hist=[]; state.song=newNo(); state.made=true;
-  if(n<=4){ state.tpl='short'; put('s',L); state.form=n<=2?[{id:'intro',v:'short'},{id:'s',v:''},{id:'s',v:''},{id:'outro',v:''}]:[{id:'intro',v:'short'},{id:'s',v:''},{id:'outro',v:''}]; }
-  else if(n<=8){ const h=Math.ceil(n/2); state.tpl='thru'; put('t1',L.slice(0,h)); put('t3',L.slice(h)); state.form=[{id:'intro',v:'short'},{id:'t1',v:''},{id:'t3',v:''},{id:'outro',v:''}]; }
-  else { const a=Math.ceil(n/3), b2=Math.ceil((n-a)/2); state.tpl='thru'; put('t1',L.slice(0,a)); put('t2',L.slice(a,a+b2)); put('t3',L.slice(a+b2)); state.form=[{id:'intro',v:'short'},{id:'t1',v:''},{id:'t2',v:''},{id:'t3',v:''},{id:'outro',v:''}]; }
+  if(n<=4){ state.tpl='short'; put('s',L); state.form=[{id:'intro',v:'short'},{id:'s',v:'quiet'},{id:'s',v:''},{id:'outro',v:''}]; }
+  else if(n<=8){ const h=Math.ceil(n/2); state.tpl='thru'; put('t1',L.slice(0,h)); put('t3',L.slice(h)); state.form=[{id:'intro',v:'short'},{id:'t1',v:'quiet'},{id:'t3',v:''},{id:'outro',v:''}]; }
+  else { const a=Math.ceil(n/3), b2=Math.ceil((n-a)/2); state.tpl='thru'; put('t1',L.slice(0,a)); put('t2',L.slice(a,a+b2)); put('t3',L.slice(a+b2)); state.form=[{id:'intro',v:'short'},{id:'t1',v:'quiet'},{id:'t2',v:''},{id:'t3',v:''},{id:'outro',v:''}]; }
   chips($('tpl'),TPL,'tpl',restruct); restruct(); showLv(); return true; }
 const LVTXT=['조금 더 만져 보기','깊이 들어가기','간단히 보기'];
 function showLv(){ document.body.dataset.lv=state.lv; $('player').hidden=!state.made; $('deeper').textContent=LVTXT[state.lv]; draw(-1); }
