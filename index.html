@@ -215,6 +215,20 @@ img.room.off{opacity:0;transition:opacity 1.2s}.lampoff img.room.off{opacity:1}
 .stage.isday.lampoff:not(.gl) .glow{opacity:0}
 
 /* 찻잔·시계·소리 섞기 패널 */
+
+.breath{position:relative;height:190px;display:grid;place-items:center;margin:4px 0}
+.breath i{position:absolute;width:74px;height:120px;border-radius:80% 0 80% 0;background:linear-gradient(140deg,#8fb98a,#3f6b4a);opacity:.85;transform-origin:50% 100%;transform:rotate(var(--a)) scale(.72);box-shadow:inset -6px -8px 14px rgba(0,0,0,.25)}
+.breath i:nth-child(1){--a:-34deg}.breath i:nth-child(2){--a:0deg;background:linear-gradient(140deg,#a5cc9c,#4b7a55)}.breath i:nth-child(3){--a:34deg}
+.breath.go i{animation:brLeaf 10s ease-in-out infinite}
+@keyframes brLeaf{0%,100%{transform:rotate(var(--a)) scale(.72);opacity:.7}50%{transform:rotate(calc(var(--a)*1.35)) scale(1.06);opacity:1}}
+.breath span{position:relative;z-index:1;font-family:var(--f-serif);font-size:19px;letter-spacing:.12em;color:#fff;text-shadow:0 1px 10px rgba(0,0,0,.8)}
+@media (prefers-reduced-motion:reduce){.breath.go i{animation:none}}
+.wnote{position:relative;height:150px;margin:6px 0}
+.wh{position:absolute;inset:0;background:#efe6d2;background-image:repeating-linear-gradient(transparent 0 29px,rgba(90,70,50,.18) 29px 30px);box-shadow:0 10px 22px rgba(0,0,0,.45);overflow:hidden;transition:transform 1.3s cubic-bezier(.4,0,.7,1),opacity 1.3s ease-in}
+.wh b{position:absolute;left:0;top:0;width:100%;height:150px;padding:16px 20px;font:400 24px/30px 'Nanum Pen Script','Gowun Batang',serif;color:#33261f;white-space:pre-wrap;word-break:break-all;box-sizing:border-box}
+.wh.a{clip-path:polygon(0 0,52% 0,47% 18%,54% 37%,46% 58%,53% 80%,48% 100%,0 100%)}.wh.b{clip-path:polygon(52% 0,100% 0,100% 100%,48% 100%,53% 80%,46% 58%,54% 37%,47% 18%)}
+.wnote.rip .wh.a{transform:translate(-34%,70%) rotate(-24deg);opacity:0}.wnote.rip .wh.b{transform:translate(34%,80%) rotate(21deg);opacity:0}
+.tlog{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.tlog button{width:16px;height:16px;border-radius:50%;box-shadow:0 0 0 1px rgba(255,255,255,.28)}.tlog span{margin-left:8px;font-size:12px;color:var(--muted)}
 .snd.mixb{padding:6px 14px;border:1px solid var(--hair);border-radius:999px;letter-spacing:.14em;color:var(--ink);background:rgba(13,10,19,.35);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .mxbar{display:flex;height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.06);gap:2px}.mxbar i{display:block;min-width:6px;transition:flex .5s var(--ease)}.mxbar i.none{flex:1;background:transparent}
 .mxr{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1.6fr) 34px;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--hair)}#mxRows{display:flex;flex-direction:column}#mxRows .mxr:last-child{border-bottom:1px solid var(--hair)}
@@ -613,7 +627,7 @@ body.lite .grade .grain,body.lite .steam i,body.lite .flake,body.lite .record i:
 .songov iframe{background:transparent!important}
 .songov{transition:opacity .5s ease,backdrop-filter .5s}
 
-[data-p="plant"],[data-p="mailbox"]{display:none!important}
+[data-p="mailbox"]{display:none!important}
 .greet .s:empty{display:none}
 
 #roomDim{position:fixed;inset:0;z-index:9;background:#04020a;opacity:0;transition:opacity .25s linear;pointer-events:none}
@@ -821,7 +835,7 @@ body.hasnote .hs[data-p="mailbox"]{display:block!important}
   <button class="hs pl" data-z="0.95" style="left:36.8%;top:67.5%;--w:5%" data-p="drawer"><span class="lb">걱정 맡기기</span></button>
   <button class="hs pl" data-z="0.8" style="left:86%;top:73.5%;--w:8%" data-p="phone"><span class="lb">기분 번호 전화</span></button>
   <button class="hs pl" data-z="0.96" style="left:26.5%;top:62%;--w:6%" data-p="guitar"><span class="lb">기타로 노래 짓기</span></button>
-  <button class="hs pl" data-z="0.95" style="left:59.2%;top:51.5%;--w:4%" data-p="plant"><span class="lb">시들지 않는 화분</span></button>
+  <button class="hs pl" data-z="0.95" style="left:59.2%;top:51.5%;--w:4%" data-p="plant"><span class="lb">숨 고르기</span></button>
   <button class="hs pl" data-z="0.75" style="left:28%;top:10.5%;--w:6%" data-a="proj"><span class="lb" id="lbProj">프로젝터</span></button>
   <canvas class="fx" id="fx" aria-hidden="true"></canvas>
  </div></div>
@@ -1296,19 +1310,23 @@ $('rmShuf').onclick=rmAct(()=>{ S.shuf=!S.shuf; LS.set('shuf',S.shuf); });
 $('rmVol').oninput=e=>{ S.vol=+e.target.value; LS.set('vol',S.vol); try{ songEl.volume=Math.min(1,S.vol*(window.__slf==null?1:window.__slf)*songGain()); radioEl.volume=S.vol; clearInterval(fadeT); }catch(_){} try{ if(YTp&&YTp.setVolume) YTp.setVolume(Math.round(S.vol*100)); }catch(_){} rmShow(); };
 $('rmTog').onclick=e=>{ e.stopPropagation(); const r=$('remote'); r.classList.toggle('open'); rmShow(); };
 ['pointerdown','pointermove'].forEach(ev=>$('remote').addEventListener(ev,()=>rmShow()));
-function openPlant(){
-  const W=LS.get('water',{d:[]}), today=new Date().toISOString().slice(0,10), done=W.d.includes(today), n=W.d.length;
-  show(`<h2>물 주기</h2><p>${done?'오늘은 벌써 물을 줬어요. 잎이 반짝이고 있어요.':'다녀간 날마다 물 한 잔. 화분이 당신이 온 날을 기억해요.'}</p>
-   <div class="row"><button class="ok" id="wGo">${done?'한 번 더 바라보기':'물 주기'}</button></div>
-   <small id="wN">${n?`지금까지 ${n}번 물을 줬어요${n>=2?` · 처음 준 날 ${W.d[0].slice(5).replace('-','월 ')}일`:''}`:'아직 물을 준 적이 없어요'}</small>`);
-  $('wGo').onclick=()=>{ if(!done&&!W.d.includes(today)){ W.d.push(today); W.d=W.d.slice(-400); LS.set('water',W); }
-    blip('paper'); const b=document.querySelector('[data-p="plant"]'); if(b){ b.classList.remove('sprk'); void b.offsetWidth; b.classList.add('sprk'); setTimeout(()=>b.classList.remove('sprk'),3200); }
-    const k=W.d.length; $('wN').textContent=`지금까지 ${k}번 물을 줬어요`; $('wGo').textContent='한 번 더 바라보기'; setTimeout(closePanel,900); };
-}
+function openPlant(){ blip('paper'); const mine=!SN||SN.kind!=='wave';
+  show(`<h2>숨 고르기</h2><p>잎이 부풀면 들이쉬고, 가라앉으면 내쉬어요. 다섯 번 세는 동안 들이쉬고 다섯 번 세는 동안 내쉬는, 1분에 여섯 번의 느린 숨이에요.</p>
+   <div class="breath" id="brBox"><i></i><i></i><i></i><span id="brT">준비</span></div>
+   <div class="row"><button class="ok" id="brGo">바람 소리와 함께 시작</button><button class="chip" id="brQ">소리 없이</button></div><small id="brN">몇 번이든 좋아요. 그만하고 싶으면 그냥 닫으면 돼요.</small>`);
+  let iv=0, n=0, t0=0; const box=$('brBox'), lab=$('brT');
+  const run=snd=>{ clearInterval(iv); if(snd){ window.__slPanel=true; if(SN) sleepSound('none'); sleepSound('wave'); } t0=performance.now()+(snd?250:0); n=0; box.classList.remove('go'); void box.offsetWidth; box.classList.add('go'); $('brGo').textContent='다시 맞추기';
+    iv=setInterval(()=>{ const t=(performance.now()-t0)/1000; if(t<0) return; const ph=t%10, k=Math.floor(t/10); lab.textContent=ph<5?'들이쉬고':'내쉬고'; if(k!==n){ n=k; $('brN').textContent=`${n}번 숨을 골랐어요.`; } },200); };
+  $('brGo').onclick=()=>run(true); $('brQ').onclick=()=>run(false);
+  onLeave=()=>{ clearInterval(iv); const was=window.__slPanel; window.__slPanel=false; if(was&&mine&&SN&&SN.kind==='wave'){ sleepSound('none'); resumeMusic(); } else if(was){ HOLD=null; } }; }
+function ripSound(){ const c=actx(); if(!c||!AU.on) return; const t=c.currentTime; [0,.09,.2].forEach((d,i)=>{ const s=c.createBufferSource(); s.buffer=noise(.35,false); const f=c.createBiquadFilter(); f.type='bandpass'; f.Q.value=.7; f.frequency.setValueAtTime(2600-i*500,t+d); f.frequency.exponentialRampToValueAtTime(900,t+d+.3); const g=c.createGain(); g.gain.setValueAtTime(.0001,t+d); g.gain.exponentialRampToValueAtTime(.16,t+d+.02); g.gain.exponentialRampToValueAtTime(.0001,t+d+.3); s.connect(f).connect(g).connect(AU.out); s.start(t+d); s.stop(t+d+.36); }); }
 function openDrawer(){
   const kept=LS.get('worry',null);
   if(kept){ show(`<h2>걱정 맡기기</h2><p>서랍에 넣어둔 한 줄이 있어요. 내일 아침에 꺼내드릴게요.</p><button class="ok" id="wOut">지금 꺼내기</button>`);
-    $('wOut').onclick=()=>{ LS.del('worry'); show(`<h2>어제의 걱정</h2><p>“${kept.v.replace(/</g,'&lt;')}”</p><p>오늘은 어때요? 그대로 두고 가도 괜찮아요.</p>`); }; }
+    $('wOut').onclick=()=>{ LS.del('worry'); penFont(); const tx=kept.v.replace(/</g,'&lt;');
+      show(`<h2>어제의 걱정</h2><div class="wnote" id="wNote"><span class="wh a"><b>${tx}</b></span><span class="wh b"><b>${tx}</b></span></div><p id="wAsk">오늘은 어때요? 다 읽었으면 찢어 버려도 돼요.</p><div class="row" id="wBtns"><button class="ok" id="wRip">찢어 버리기</button><button class="chip" id="wKeep">하루 더 맡겨 두기</button></div>`);
+      $('wRip').onclick=()=>{ ripSound(); $('wNote').classList.add('rip'); $('wBtns').hidden=true; setTimeout(()=>{ const n=$('wNote'); if(n) n.remove(); const a=$('wAsk'); if(a) a.textContent='사라졌어요. 오늘 밤은 조금 가볍게.'; },1500); };
+      $('wKeep').onclick=()=>{ LS.set('worry',kept); closePanel(); roomSay('서랍에 다시 넣어 뒀어요'); }; }; }
   else { show(`<h2>걱정 맡기기</h2><p>머릿속 걱정을 한 줄로 적어 서랍에 넣어요. 내일 아침에 돌려드릴게요.</p><label for="wTxt" class="sr" hidden>걱정 한 줄</label><textarea id="wTxt" rows="3" placeholder="오늘 머릿속을 맴도는 한 줄"></textarea><button class="ok" id="wIn">서랍에 넣고 잠그기</button>`);
     $('wIn').onclick=()=>{ const v=$('wTxt').value.trim(); if(!v) return; LS.set('worry',{v,at:Date.now()}); openDrawer(); }; }
 }
@@ -1696,11 +1714,12 @@ function openTea(pick){ blip('paper'); if(pick==null&&(!TEA_L||!TEA_L.length)){ 
   const t=pick!=null?TEAS.find(x=>x.id===pick):TEA_L[TEA_I%TEA_L.length], brew=ALM.find(a=>a.id==='tea'); teaSeen(t.id);
   show(`<h2>차 한 잔</h2><p class="tea-why">${escH(pick!=null?'찻장에서 꺼낸 차':TEA_WHY)}</p>${teaCard(t)}
    <div class="row" id="tBtns">${brew?`<button class="ok" id="tStop">그만 우리기 · <span id="tLeft"></span></button>`:t.s?`<button class="ok" id="tBrew">물 붓고 우리기</button>`:''}<button class="chip" id="tKet">${KT?'불 끄기':'물 올리기'}</button><button class="chip" id="tNext">다른 차</button></div>
+   ${(()=>{ const j=LS.get('teaLog',[]).map(x=>({t:TEAS.find(y=>y.id===x.id),at:x.at})).filter(x=>x.t).slice(0,12); return j.length?`<label class="sl">요즘 우린 차</label><div class="tlog">${j.map(x=>`<button type="button" data-tea="${x.t.id}" title="${x.t.n}" aria-label="${x.t.n}" style="background:${x.t.c}"></button>`).join('')}<span>${escH(j[0].t.n)}${j.length>1?` 외 ${j.length-1}잔`:''}</span></div>`:''; })()}
    <label class="sl">찻장 · ${TEAS.length}가지</label>${TEAG.map(([g,nm])=>`<details class="tshelf"${t.g===g?' open':''}><summary>${nm} <small>${TEAS.filter(x=>x.g===g).length}</small></summary><div class="chips">${TEAS.filter(x=>x.g===g).map(x=>`<button class="chip" data-tea="${x.id}" aria-pressed="${x.id===t.id}"><i style="background:${x.c}"></i>${x.n}</button>`).join('')}</div></details>`).join('')}
    <small>광고가 아니에요. 받은 것도, 어디서 사라는 이야기도 없어요. 차는 약이 아니니 몸에 맞지 않으면 쉬어 가세요. 저녁 6시부터는 카페인 없는 차만 권해요(이 휴대폰의 시각 기준).</small>`);
   $('tKet').onclick=()=>{ toggleKettle(); $('tKet').textContent=KT?'불 끄기':'물 올리기'; };
   $('tNext').onclick=()=>{ if(pick!=null){ TEA_L=teaRank(); TEA_I=0; } else TEA_I++; openTea(); };
-  if($('tBrew')) $('tBrew').onclick=()=>{ if(KT) toggleKettle(); pour(); const c=(t.n.charCodeAt(t.n.length-1)-0xAC00)%28; almAdd({id:'tea',kind:'tea',at:Date.now()+t.s*1000,msg:`${t.n}${c>0?'이':'가'} 다 우러났어요. 이제 건져 주세요.`}); openTea(pick); };
+  if($('tBrew')) $('tBrew').onclick=()=>{ if(KT) toggleKettle(); pour(); const c=(t.n.charCodeAt(t.n.length-1)-0xAC00)%28; { const j=LS.get('teaLog',[]); j.unshift({id:t.id,at:Date.now()}); LS.set('teaLog',j.slice(0,40)); } almAdd({id:'tea',kind:'tea',at:Date.now()+t.s*1000,msg:`${t.n}${c>0?'이':'가'} 다 우러났어요. 이제 건져 주세요.`}); openTea(pick); };
   if($('tStop')) $('tStop').onclick=()=>{ almDel('tea'); openTea(pick); };
   document.querySelectorAll('[data-tea]').forEach(b=>b.onclick=()=>openTea(b.dataset.tea)); almUI(); }
 function pour(){ const c=actx(); if(!c||!AU.on) return; const t=c.currentTime, s=c.createBufferSource(); s.buffer=noise(2.2,false); const f=c.createBiquadFilter(); f.type='bandpass'; f.Q.value=1.2; f.frequency.setValueAtTime(900,t); f.frequency.linearRampToValueAtTime(1700,t+2); const g=c.createGain(); g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.12,t+.15); g.gain.setValueAtTime(.12,t+1.6); g.gain.exponentialRampToValueAtTime(.0001,t+2.2); s.connect(f).connect(g).connect(AU.out); s.start(t); s.stop(t+2.3); }
