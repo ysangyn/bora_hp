@@ -143,6 +143,7 @@ a{color:inherit}
 .cov .ca small{display:block;font-size:11.5px;letter-spacing:.14em;opacity:.8}
 .cov .cm{margin:0;font-size:10.5px;letter-spacing:.44em;opacity:.72}
 .cui{position:absolute;left:0;right:0;bottom:calc(46px + env(safe-area-inset-bottom));z-index:7;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding:0 16px}
+.cui .stamps{flex-basis:100%;order:-1;margin:0 0 4px;padding:14px 16px 10px;border:0;border-radius:16px;background:rgba(20,14,26,.72);color:#efe8f4;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);max-width:420px;margin-inline:auto}
 .btn{min-height:46px;padding:0 22px;border-radius:999px;border:1px solid rgba(239,230,220,.3);background:rgba(14,11,19,.6);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-size:14px;letter-spacing:.04em;cursor:pointer}
 .btn.pri{background:var(--lamp);border-color:var(--lamp);color:#22160c;font-weight:600}
 .btn:disabled{opacity:.55;cursor:default}
@@ -186,7 +187,7 @@ a{color:inherit}
       <i class="shadow" aria-hidden="true"></i>
     </div>
   </div>
-  <div class="cui" id="cui"><button class="btn pri" type="button" id="goB" disabled>펼치는 중…</button><button class="btn" type="button" id="fromStart" hidden>처음부터</button></div>
+  <div class="cui" id="cui"><button class="btn pri" type="button" id="goB" disabled>펼치는 중…</button><button class="btn" type="button" id="fromStart" hidden>처음부터</button><div class="stamps" id="bkStamps" hidden></div></div>
   <div class="rbot" id="rbot" hidden><span id="pChap"></span><div class="prog" aria-hidden="true"><i id="progI"></i></div><span id="pNum"></span></div>
   <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-label="차례와 설정"><div class="sh-in" id="shIn"></div></div>
   <div id="say" role="status"></div>
@@ -261,7 +262,13 @@ function coloHTML() {
 }
 function srcName(u) { try { const h = new URL(u).hostname; return /wikisource/.test(h) ? '위키문헌' : /gongu/.test(h) ? '공유마당' : /gutenberg/.test(h) ? '프로젝트 구텐베르크' : h.replace(/^www\./, ''); } catch (e) { return '출처'; } }
 
+function endStamps(on = true) {   // 다 읽은 뒤에만: 주인장에게만 가는 도장
+  const sp = $('#bkStamps'); if (!sp) return; const n = sp.cloneNode(false); n.hidden = true; n.removeAttribute('data-ready');
+  if (on && book && !PREVIEW && window.boraStamps) { n.dataset.k = 'book:' + book.id; n.dataset.t = 'read,comfort'; n.dataset.q = '다 읽으셨네요. 도장 하나 남겨 주실래요?'; }
+  sp.replaceWith(n); if (n.dataset.k) window.boraStamps.mount(n);
+}
 async function openReader(meta) {
+  endStamps(false);
   busy = true; closed = true; cur = 0; pagDone = false; book = null; META = meta; job++; pages = [];
   readV.dataset.paper = SET.paper; $('#rTitle').textContent = meta.t; $('#sheet').hidden = true; $('#rbot').hidden = true; $('#cui').hidden = false;
   readV.hidden = false; void readV.offsetWidth; shelfV.classList.add('out'); readV.classList.remove('out', 'ui-off');
@@ -385,7 +392,7 @@ function afterTurn() {
   $('#progI').style.width = (atEnd ? 100 : Math.min(100, charPos(P) / book.total * 100)).toFixed(1) + '%';
   if (P) $('#live').textContent = P.n + '쪽';
   if (!PREVIEW) { if (!P || atEnd) LS.del('bora_bk_' + book.id); else LS.set('bora_bk_' + book.id, { c: P.c, p: P.p, o: P.o, n: P.n, t: Date.now() }); }
-  if (atEnd) { $('#cui').hidden = false; goB.disabled = false; goB.textContent = '책장에 다시 꽂기'; goB.onclick = toShelf; fromStart.hidden = true; }
+  if (atEnd) { $('#cui').hidden = false; goB.disabled = false; goB.textContent = '책장에 다시 꽂기'; goB.onclick = toShelf; fromStart.hidden = true; endStamps(); }
   else if (!closed) $('#cui').hidden = true;
   stacks();
 }
@@ -514,5 +521,6 @@ async function boot() {
 boot();
 })();
 </script>
+<script src="../assets/stamps.js" defer></script>
 </body>
 </html>

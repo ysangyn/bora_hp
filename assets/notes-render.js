@@ -57,6 +57,7 @@ export const bar = (root, here) => `<header class="bar">
 
 export const foot = root => `<footer class="foot"><a href="${root}">보라다방</a> · 어른아이 · <a href="${root}rss.xml">RSS</a></footer>
 <script src="${root}assets/notes.js?v=${SITE.v}" defer></script>
+<script src="${root}assets/stamps.js?v=${SITE.v}" defer></script>
 </body>
 </html>
 `;
@@ -99,6 +100,7 @@ ${bar(root, 'notes')}
   <div class="body">
 ${fixSrc(p.body, root)}
   </div>
+  <div class="stamps" data-k="note:${esc(p.id)}" data-t="read,comfort" hidden></div>
   <div class="share" aria-label="나누기">
     <button type="button" data-share="native">공유하기</button>
     <button type="button" data-share="copy">링크 복사</button>

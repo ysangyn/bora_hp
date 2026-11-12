@@ -101,10 +101,12 @@ ${bar(root, 'music')}
   ${t.lyr ? `<section class="slyr"><h2 class="lab">가사</h2><div class="lyr">${lyr(t.lyr)}</div></section>` : ''}
   ${t.mv ? `<section class="smv"><h2 class="lab">영상</h2>${yt(t.mv, t.t)}</section>` : ''}
   ${t.credit ? `<p class="scredit">${esc(t.credit)}</p>` : ''}
+  <div class="stamps" data-k="song:${esc(a.id)}/${i + 1}" data-t="more,comfort" data-q="이 노래가 마음에 닿았다면 도장 하나 남겨 주세요" hidden></div>
   <nav class="pn" aria-label="다른 곡">${pn(pv, 'prev', '앞 곡')}${pn(nx, 'next', '다음 곡')}</nav>
   <a class="door" href="${root}"><span>방에 들어가기</span><small>비 오는 창가, 오래된 노래가 있는 작은 다방</small></a>
 </main>
 <script src="${root}assets/music.js?v=${SITE.v}" defer></script>
+<script src="${root}assets/stamps.js?v=${SITE.v}" defer></script>
 ${foot(root)}`;
 }
 
