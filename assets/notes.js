@@ -63,3 +63,16 @@
     if (c) { items.forEach(li => li.hidden = li.dataset.c !== c); if (items.length && items.every(li => li.hidden)) { const p = document.createElement('p'); p.className = 'empty'; p.textContent = '이 분류의 노트는 아직 없어요.'; $('.items').after(p); } }
   }
 })();
+
+// 방 위에 덮어 열렸을 때(사진첩·노트를 방에서 열면): 방으로 가는 링크(로고·문)는 덮개만 닫는다 → 방의 노래·빗소리가 끊기지 않게
+(() => {
+  let host = null; try { if (window.parent !== window && window.parent.location.origin === location.origin) host = window.parent; } catch (e) {}
+  if (!host) return;
+  document.documentElement.classList.add('in-room');
+  const dir = host.location.pathname.replace(/[^/]*$/, ''), rooms = [dir, dir + 'index.html', dir + 'a.html'];
+  document.addEventListener('click', e => {
+    const a = e.target.closest && e.target.closest('a[href]'); if (!a || a.target === '_blank' || e.metaKey || e.ctrlKey) return;
+    let u; try { u = new URL(a.href, location.href); } catch (er) { return; }
+    if (u.origin === location.origin && rooms.includes(u.pathname)) { e.preventDefault(); host.postMessage({ bora: 'page-close' }, location.origin); }
+  }, true);
+})();
