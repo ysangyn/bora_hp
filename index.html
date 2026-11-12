@@ -650,7 +650,9 @@ body.lite .grade .grain,body.lite .steam i,body.lite .flake,body.lite .record i:
 .remote[data-m=sleep] .rb,.remote[data-m=sleep] .rv{display:none!important}
 .remote[data-m=sleep] .rsl #rmSlT{display:none}
 
-.beam .hs:not([data-a=proj]){pointer-events:none!important;opacity:0!important}
+/* 영상이 도는 동안: 화면(창) 위에 있는 점만 끄고, 나머지 소품은 그대로 누를 수 있게 */
+.beam .hs[data-a=rain],.beam .hs[data-a=wopen],.beam .hs[data-a=curtain]{pointer-events:none!important;opacity:0!important}
+.beam .hs:not([data-a=proj]){opacity:.55}
 .beam .proj,.beam .proj iframe{pointer-events:auto!important}
 
 #bNotes{position:relative;font-size:11.5px;letter-spacing:.22em;color:var(--muted);padding:10px 2px;text-shadow:0 1px 10px rgba(0,0,0,.7);text-decoration:none;transition:color .3s}#bNotes:hover{color:var(--ink)}
