@@ -565,7 +565,10 @@ function humTrack(song,sro,from,to,R,PRE){ const V=BUF.bora.map(prepVoice).sort(
     let off, rel2; if(g.phraseEnd){ off=end; rel2=.32; } else if(g.contigNext){ off=end-Math.min(.1,(end-ts[ts.length-1])*.25); rel2=.07; } else { off=end-.02; rel2=.14; }
     const sc=(g.phrase?14:6)+R()*8, att=g.phrase?.09:.05, start=ts[0]-.05, stop=off+rel2;
     if(g.phrase&&ts[0]>.9) breaths.push(ts[0]);
-    const vi=ns.map(n=>{ let best=0; V.forEach((v,i)=>{ if(Math.abs(v.m-n.m)<Math.abs(V[best].m-n.m)) best=i; }); return best; });
+    const near=m=>{ let best=0; V.forEach((v,i)=>{ if(Math.abs(v.m-m)<Math.abs(V[best].m-m)) best=i; }); return best; };
+    // 한 숨에 부르는 음들은 녹음 한 개로 이어 부른다(음마다 녹음이 바뀌면 소리 색이 번갈아 바뀌어 '발음'이 달라진다)
+    const ms=ns.map(n=>n.m).sort((p,q)=>p-q), mid=(ms[0]+ms[ms.length-1])/2, one=ms[ms.length-1]-ms[0]<=4, g1=near(mid);
+    const vi=ns.map(n=>one&&Math.abs(V[g1].m-n.m)<=3?g1:near(n.m));
     const noteAt=t=>{ let j=0; for(let k=1;k<ns.length;k++) if(t>=ts[k]-.035) j=k; return j; };
     const centsAt=t=>{ const j=noteAt(t); let c=100*ns[j].m;
       if(j===0){ const x=smooth((t-start)/(att+.1)); c-=sc*(1-x); }
