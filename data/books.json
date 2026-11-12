@@ -1,1 +1,30 @@
-[]
+[
+ {
+  "id": "daudet-byeol",
+  "t": "별",
+  "a": "알퐁스 도데",
+  "tr": "보라다방",
+  "y": "",
+  "kind": "novel",
+  "src": "https://fr.wikisource.org/wiki/Les_%C3%89toiles",
+  "srcN": "원문: 『풍차 방앗간 편지』의 「Les Étoiles」",
+  "color": "#23314f",
+  "n": 5365,
+  "ch": 1,
+  "v": "2026-11-12T04:40:16Z"
+ },
+ {
+  "id": "wilde-prince",
+  "t": "행복한 왕자",
+  "a": "오스카 와일드",
+  "tr": "보라다방",
+  "y": "1888",
+  "kind": "fairy",
+  "src": "https://www.gutenberg.org/ebooks/902",
+  "srcN": "원문: The Happy Prince and Other Tales (프로젝트 구텐베르크)",
+  "color": "#7a5a2a",
+  "n": 9195,
+  "ch": 1,
+  "v": "2026-11-12T04:40:16Z"
+ }
+]

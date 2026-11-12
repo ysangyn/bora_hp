@@ -173,7 +173,7 @@ a{color:inherit}
   <header class="top"><a class="logo" href="../">보라다방</a><button class="tbtn" type="button" id="toRoom" hidden>방으로</button><a class="tbtn" id="roomLink" href="../">방에 들어가기</a></header>
   <div class="intro"><p class="k">책장</p><h1>잠이 오지 않는 밤에 꺼내 읽는 책</h1><p>오래 사랑받아 온 이야기들이에요. 책등을 누르면 한 권 꺼낼 수 있어요.</p></div>
   <div class="case"><div class="shelves" id="shelves"></div></div>
-  <p class="note">저작권이 끝났거나 누구나 쓸 수 있게 공개된 글을 옮겨 실었어요. 읽던 쪽은 이 기기에만 기억해 둬요.</p>
+  <p class="note">저작권이 끝났거나 누구나 쓸 수 있게 공개된 글을 싣고, 외국 작품은 원문에서 새로 우리말로 옮겼어요. 읽던 쪽은 이 기기에만 기억해 둬요.</p>
 </section>
 
 <section class="view out" id="readV" hidden data-paper="cream" aria-label="책 읽기">
@@ -257,7 +257,7 @@ const coverHTML = m => { const c = m.color || '#5b2430'; return `<div class="cov
 const titleHTML = () => `<div class="tp"><p class="tk">${esc(KIND[book.kind] || '책')}</p><h1>${esc(book.t)}</h1>${book.a ? `<p class="ta">${esc(book.a)}</p>` : ''}${book.tr ? `<p class="ttr">${esc(book.tr)} 옮김</p>` : ''}<p class="orn" aria-hidden="true">❦</p><p class="tm">보라다방 책장</p></div>`;
 function coloHTML() {
   const rows = [['지은이', book.a], ['옮긴이', book.tr], ['처음 나온 해', book.y], ['가져온 곳', book.src ? `<a href="${esc(book.src)}" target="_blank" rel="noopener">${esc(book.srcN || srcName(book.src))}</a>` : esc(book.srcN || '')]].filter(r => r[1]);
-  return `<div class="cp"><b>${esc(book.t)}</b>${rows.length ? `<dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${k === '가져온 곳' ? v : esc(v)}</dd>`).join('')}</dl>` : ''}<p>저작권이 끝났거나 누구나 쓸 수 있게 공개된 글을 그대로 옮겨 실었어요.</p><p>보라다방 책장</p></div>`;
+  return `<div class="cp"><b>${esc(book.t)}</b>${rows.length ? `<dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${k === '가져온 곳' ? v : esc(v)}</dd>`).join('')}</dl>` : ''}<p>${book.tr ? '저작권이 끝난 원작을 새로 우리말로 옮겼어요.' : '저작권이 끝났거나 누구나 쓸 수 있게 공개된 글을 그대로 옮겨 실었어요.'}</p><p>보라다방 책장</p></div>`;
 }
 function srcName(u) { try { const h = new URL(u).hostname; return /wikisource/.test(h) ? '위키문헌' : /gongu/.test(h) ? '공유마당' : /gutenberg/.test(h) ? '프로젝트 구텐베르크' : h.replace(/^www\./, ''); } catch (e) { return '출처'; } }
 
