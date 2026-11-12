@@ -25,7 +25,7 @@ export function head({ title, desc, url, image, type, root, extra = '' }) {
   return `<!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
+<meta charset="utf-8"><script>/* 예전 주소(github.io)로 오면 새 주소로 */if(location.hostname.endsWith("github.io"))location.replace("https://bora-hp.web.app"+location.pathname.replace(/^\\/bora_hp/,"")+location.search+location.hash)</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}">
