@@ -215,6 +215,25 @@ img.room.off{opacity:0;transition:opacity 1.2s}.lampoff img.room.off{opacity:1}
 .stage.isday.lampoff:not(.gl) .glow{opacity:0}
 
 /* 찻잔·시계·소리 섞기 패널 */
+
+.way{display:flex;flex-direction:column;gap:8px;padding:16px 0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}.way b{font-family:var(--f-serif);font-weight:300;font-size:23px;line-height:1.4;letter-spacing:.02em;word-break:keep-all}.way p{font-size:14px!important;line-height:1.8!important}
+.way.mini{cursor:pointer;padding:12px 0;gap:3px}.way.mini b{font-size:17px}.way.mini small{color:var(--accent)}
+.nightov{position:fixed;inset:0;z-index:70;background:linear-gradient(180deg,#0b0a1c,#12112a 55%,#0c0f1c);opacity:0;pointer-events:none;transition:opacity .8s;overflow:hidden;cursor:pointer}.nightov.on{opacity:1;pointer-events:auto}
+.nightov::after{content:"";position:absolute;inset:0;background:#02020a;opacity:var(--nd,0);transition:opacity 4s linear;pointer-events:none}
+.ns-x{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);text-align:center;font-size:11px;letter-spacing:.1em;color:rgba(230,225,245,.35);padding:0 20px}
+.ns-sky i{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.6;animation:nsTw 5s ease-in-out infinite alternate}.ns-sky i:nth-child(1){left:14%;top:16%}.ns-sky i:nth-child(2){left:68%;top:11%;animation-delay:1.2s}.ns-sky i:nth-child(3){left:40%;top:24%;animation-delay:2.1s}.ns-sky i:nth-child(4){left:84%;top:27%;animation-delay:.6s}.ns-sky i:nth-child(5){left:26%;top:8%;animation-delay:3s}
+@keyframes nsTw{from{opacity:.2}to{opacity:.8}}
+.ns-hill{position:absolute;left:-20%;right:-20%;bottom:-18vh;height:52vh;border-radius:50% 50% 0 0/100% 100% 0 0;background:linear-gradient(180deg,#232a4a,#141831)}
+.ns-fence{position:absolute;left:50%;bottom:34vh;width:92px;height:54px;margin-left:-46px}.ns-fence i{position:absolute;bottom:0;width:6px;height:54px;border-radius:3px 3px 0 0;background:#6f5a48}.ns-fence i:nth-child(1){left:6px}.ns-fence i:nth-child(2){left:43px}.ns-fence i:nth-child(3){right:6px}.ns-fence b{position:absolute;left:0;right:0;height:5px;border-radius:3px;background:#7d6652}.ns-fence b:nth-of-type(1){top:12px}.ns-fence b:nth-of-type(2){top:32px}
+.ns-run{position:absolute;left:0;right:0;bottom:34vh;height:0}
+.sheep{position:absolute;left:0;bottom:0;width:66px;height:46px;animation:shRun 6s linear both}
+.sheep i{position:absolute;left:4px;top:0;width:52px;height:36px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fbf8f1,#d9d3c6);box-shadow:-12px 6px 0 -6px #e9e4d8,12px 5px 0 -5px #e9e4d8,0 -8px 0 -7px #f3efe6}
+.sheep b{position:absolute;right:-4px;top:8px;width:20px;height:17px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:#3a3340}
+.sheep u{position:absolute;bottom:0;width:4px;height:13px;border-radius:2px;background:#3a3340}.sheep u:nth-of-type(1){left:18px}.sheep u:nth-of-type(2){left:40px}
+@keyframes shRun{0%{transform:translate(-80px,0)}38%{transform:translate(calc(50vw - 120px),0);animation-timing-function:cubic-bezier(.3,.6,.5,1)}50%{transform:translate(calc(50vw - 33px),-84px) rotate(-6deg);animation-timing-function:cubic-bezier(.5,0,.7,.4)}62%{transform:translate(calc(50vw + 54px),0)}100%{transform:translate(calc(100vw + 40px),0)}}
+.ns-count{position:absolute;left:0;right:0;top:22vh;margin:0;text-align:center;font-family:var(--f-serif);font-weight:300;font-size:25px;letter-spacing:.12em;color:rgba(240,236,250,.8)}
+.ns-word{position:absolute;left:0;right:0;top:42vh;margin:0;text-align:center;font-family:var(--f-serif);font-weight:300;font-size:44px;letter-spacing:.2em;color:#efeaf8;opacity:0;transform:translateY(8px);transition:opacity 1.3s,transform 1.3s}.ns-word.in{opacity:.9;transform:none}
+@media (prefers-reduced-motion:reduce){.sheep{animation-timing-function:linear}.ns-sky i{animation:none}}
 .tea-brew .tb{font-family:var(--f-num);font-style:italic;font-weight:500;font-size:21px;letter-spacing:.02em;line-height:1.1;color:var(--ink)}
 .tmore{display:flex;flex-direction:column;gap:9px;padding:13px 15px;border-radius:10px;background:color-mix(in srgb,var(--tc) 14%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 30%,transparent)}
 .tmore small{font-size:10.5px;letter-spacing:.18em;color:var(--faint)}.tmore p{margin:0;font-size:13px;line-height:1.7;color:var(--muted)}.tmore p b{display:block;font-family:var(--f-serif);font-weight:400;font-size:15px;color:var(--ink);margin-bottom:1px}
@@ -1883,15 +1902,54 @@ function openMix(){ blip('paper');
    <label class="sl">바로 섞어 보기</label><div class="chips">${MIXP.map((p,i)=>`<button class="chip" data-mp="${i}">${p.n}</button>`).join('')}<button class="chip" data-mp="-1">모두 끄기</button></div>
    <label class="sl">나만의 자리</label><div class="chips" id="mxSaved"></div>
    <div class="row"><input id="mxName" maxlength="14" placeholder="이 소리에 이름 붙이기" aria-label="자리 이름"><button class="ok" id="mxSave">간직하기</button></div>
-   <div class="row"><button class="chip" id="mxSleep">이 소리로 잠들기</button></div>
+   <div class="row"><button class="chip" id="mxSleep">이 소리로 잠들기</button><button class="chip" id="mxWays">세계의 잠 청하는 법</button></div>
    <small>노래·라디오는 턴테이블과 라디오에서 그대로 틀 수 있어요. 심포니는 기타 반주가 있어서 노래·라디오와 함께 켜지 않아요. 간직한 자리는 이 기기에만 저장돼요.</small>`);
   window.__slPanel=false;
   document.querySelectorAll('[data-mx]').forEach(r=>{ r.oninput=()=>{ mixSet(r.dataset.mx,+r.value,true); mixUI(); }; });
   document.querySelectorAll('[data-nz]').forEach(b=>b.onclick=()=>{ LS.set('mixNoise',b.dataset.nz); sleepSound(b.dataset.nz); setTimeout(()=>{ if(SN) SN.g.gain.setTargetAtTime(SN.base*MX.noise,AU.ctx.currentTime,.4); mixUI(); },80); });
   document.querySelectorAll('[data-mp]').forEach(b=>b.onclick=()=>{ const i=+b.dataset.mp; mixApply(i<0?{}:MIXP[i].v); });
   $('mxSave').onclick=()=>{ const n=$('mxName').value.trim()||'나의 자리', a=LS.get('mixSaved',[]).filter(p=>p.n!==n); a.unshift({n,v:mixNow()}); LS.set('mixSaved',a.slice(0,6)); $('mxName').value=''; mixUI(); roomSay(`‘${n}’ 자리를 간직했어요`); };
-  $('mxSleep').onclick=()=>openSleep(); mixUI(); }
+  $('mxSleep').onclick=()=>openSleep(); $('mxWays').onclick=e=>{ e.stopPropagation(); openWays(); }; mixUI(); }
 $('bMix').addEventListener('click',e=>{ e.stopPropagation(); openMix(); });
+/* ---------- 세계의 잠 청하는 법: 오늘 밤의 방법 하나, 양 세기, 낱말 띄우기 ---------- */
+// 효능을 말하지 않고 '이 나라에서는 이렇게 해요'로만 소개한다. go=이 방에서 이어지는 것
+const WAYS=[
+ {id:'sheep',cc:'GB US IE AU NZ',land:'영국 · 미국',t:'양을 세요',d:'울타리를 넘는 양을 한 마리씩 세는 오래된 방법이에요. 이 방에서는 세는 일을 방이 대신 해 드려요.',b:'양 세기 시작',go:()=>nightShow('sheep')},
+ {id:'doll',cc:'GT MX',land:'과테말라',t:'걱정을 인형에게 맡겨요',d:'손가락만 한 작은 인형에게 걱정을 하나씩 말하고 베개 밑에 넣어 둬요. 밤사이 인형이 걱정을 대신 맡아 준다고 해요.',b:'서랍에 걱정 맡기기',go:()=>openDrawer()},
+ {id:'tisane',cc:'FR BE CH',land:'프랑스',t:'저녁을 물리고 허브차를 마셔요',d:'식당에서도 식사가 끝나면 커피 대신 린덴이나 레몬버베나를 권해요. 하루를 닫는 인사 같은 차예요.',b:'린덴 꽃차 보기',go:()=>openTea('linden')},
+ {id:'haldi',cc:'IN PK BD NP LK',land:'인도',t:'노란 우유를 데워요',d:'우유에 강황을 넣어 데운 ‘할디 두드’. 할머니가 잠자리에 들기 전 건네주던 한 잔이에요.',b:'골든 밀크 만드는 법',go:()=>openTea('golden')},
+ {id:'foot',cc:'CN KR TW HK',land:'중국 · 한국',t:'따뜻한 물에 발을 담가요',d:'자기 전 대야에 따뜻한 물을 받아 발을 담그는 오랜 습관이에요. 주전자에 물을 올리는 것부터가 준비예요.',b:'물 올리기',go:()=>{ if(!KT) toggleKettle(); roomSay('주전자에 물을 올렸어요'); closePanel(); }},
+ {id:'air',cc:'DE AT NL DK SE NO',land:'독일 · 북유럽',t:'창을 열어 찬 공기를 들여요',d:'자기 전 창을 활짝 열어 방 공기를 바꾸고, 서늘한 방에서 두꺼운 이불을 덮고 자요.',b:'창문 열기',go:()=>{ if(!AMB.open) toggleWindow(); closePanel(); }},
+ {id:'sauna',cc:'FI EE',land:'핀란드',t:'저녁 사우나를 해요',d:'뜨겁게 데웠다가 천천히 식는 몸으로 잠자리에 들어요. 이 방에서는 차 한 잔으로 몸을 데워 볼까요.',b:'오늘 밤 차 고르기',go:()=>openTea()},
+ {id:'yutanpo',cc:'JP',land:'일본',t:'뜨거운 물주머니를 이불에 넣어요',d:'‘유탄포’라는 물주머니를 발치에 넣고 자요. 겨울밤의 오랜 풍경이에요.',b:'호지차 한 잔',go:()=>openTea('hoji')},
+ {id:'breath',cc:'',land:'어디서나',t:'숨을 천천히 골라요',d:'다섯을 세며 들이쉬고 다섯을 세며 내쉬어요. 화분의 잎이 박자를 맞춰 줘요.',b:'숨 고르기',go:()=>openPlant()},
+ {id:'words',cc:'CA',land:'캐나다',t:'상관없는 낱말을 하나씩 떠올려요',d:'우산, 귤, 계단처럼 서로 이어지지 않는 것들을 천천히 떠올려요. 캐나다의 한 연구자가 제안한 방법이에요. 방이 낱말을 하나씩 띄워 드릴게요.',b:'낱말 띄우기 시작',go:()=>nightShow('words')},
+];
+function wayToday(){ const cc=(S.place&&S.place.cc||'').toUpperCase(), day=Math.floor((Date.now()-6*3600e3-new Date().getTimezoneOffset()*60000)/864e5), m=WAYS.filter(w=>cc&&(' '+w.cc+' ').includes(' '+cc+' ')); return m.length&&day%2===0?m[day%m.length]:WAYS[day%WAYS.length]; }
+function openWays(pick){ blip('paper'); const w=pick?WAYS.find(x=>x.id===pick):wayToday();
+  show(`<h2>세계의 잠 청하는 법</h2><p class="tea-why">${pick?'':'오늘 밤의 방법 하나 · '}${escH(w.land)}</p>
+   <div class="way"><b>${escH(w.t)}</b><p>${escH(w.d)}</p></div>
+   <div class="row"><button class="ok" id="wyGo">${escH(w.b)}</button></div>
+   <label class="sl">다른 나라의 밤</label><div class="chips">${WAYS.map(x=>`<button class="chip" data-way="${x.id}" aria-pressed="${x.id===w.id}">${escH(x.land)}</button>`).join('')}</div>
+   <small>약이나 치료가 아니라, 나라마다 전해 오는 밤의 습관을 소개하는 자리예요.</small>`);
+  $('wyGo').onclick=e=>{ e.stopPropagation(); w.go(); };
+  document.querySelectorAll('[data-way]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); openWays(b.dataset.way); }); }
+const NWORDS='우산 귤 계단 단추 연필 조약돌 손수건 풍선 종이배 모자 찻잔 구름 자전거 양말 창문 열쇠 사과 담요 등대 나뭇잎 편지 의자 우체통 달력 실타래 접시 도토리 기차표 장화 촛불 솔방울 엽서 주전자 그네 비누 책갈피 조개 빗자루 호두 목도리 유리병 종이학 나침반 벤치 감자 물뿌리개 털실 바람개비 식빵 지우개 방울 돌담 숟가락 안경 우유병 깃털 수첩 고무줄 화분 성냥갑 모래 손전등 바구니 느티나무 연못 리본 다리미 우표 고양이 발자국 밤송이 이불 등불 호박 사다리 달 모퉁이 소금 종 빨래집게 단풍 꿀단지 솜 오르골 처마 돛단배 감나무'.split(' ');
+const KNUM=['','한','두','세','네','다섯','여섯','일곱','여덟','아홉','열'];
+function knum(n){ if(n<=10) return KNUM[n]; if(n<20) return '열'+KNUM[n-10]; const T=['','열','스물','서른','마흔','쉰','예순','일흔','여든','아흔']; return n<100?(n%10?T[Math.floor(n/10)]+KNUM[n%10]:['','열','스무','서른','마흔','쉰','예순','일흔','여든','아흔'][n/10]):String(n); }
+let NIGHT=null;
+function nightShow(mode){ closePanel(); nightStop(); if(!AU.on) setAudio(true);
+  let o=$('nightOv'); if(!o){ o=document.createElement('div'); o.id='nightOv'; o.className='nightov'; o.setAttribute('role','dialog'); o.setAttribute('aria-label','잠 청하기'); document.body.appendChild(o); o.addEventListener('click',()=>nightStop()); }
+  o.innerHTML=mode==='sheep'?`<div class="ns-sky"><i></i><i></i><i></i><i></i><i></i></div><div class="ns-hill"></div><div class="ns-fence"><i></i><i></i><i></i><b></b><b></b></div><div class="ns-run" id="nsRun"></div><p class="ns-count" id="nsT">양이 오고 있어요</p><span class="ns-x">화면을 누르면 방으로 돌아가요</span>`
+    :`<p class="ns-word" id="nsW"></p><span class="ns-x">떠오르는 대로 그려 보다가, 다음 낱말로 넘어가요 · 화면을 누르면 방으로</span>`;
+  o.className='nightov m-'+mode; requestAnimationFrame(()=>o.classList.add('on')); window.__covered=true;
+  const st={mode,n:0,t:0,dim:0}; NIGHT=st;
+  if(mode==='sheep'){ const step=()=>{ if(NIGHT!==st) return; st.n++; const run=$('nsRun'), sh=document.createElement('div'); sh.className='sheep'; sh.innerHTML='<i></i><b></b><u></u><u></u>'; const dur=5.2+Math.min(4,st.n*.08); sh.style.animationDuration=dur+'s'; run.appendChild(sh); setTimeout(()=>sh.remove(),dur*1000+200);
+      setTimeout(()=>{ if(NIGHT!==st) return; $('nsT').textContent=`양 ${knum(st.n)} 마리`; sheepBell(st.n); },dur*480);
+      o.style.setProperty('--nd',Math.min(.7,st.n*.012).toFixed(3)); st.t=setTimeout(step,(dur*.72+Math.min(3,st.n*.05))*1000); }; st.t=setTimeout(step,900); }
+  else { const order=NWORDS.slice().sort(()=>Math.random()-.5); const step=()=>{ if(NIGHT!==st) return; const w=$('nsW'); w.classList.remove('in'); setTimeout(()=>{ if(NIGHT!==st) return; w.textContent=order[st.n%order.length]; st.n++; void w.offsetWidth; w.classList.add('in'); },1400); o.style.setProperty('--nd',Math.min(.6,st.n*.012).toFixed(3)); st.t=setTimeout(step,8000+Math.min(6000,st.n*150)); }; step(); } }
+function nightStop(){ const o=$('nightOv'); if(NIGHT){ clearTimeout(NIGHT.t); NIGHT=null; } if(o){ o.classList.remove('on'); setTimeout(()=>{ if(!NIGHT) o.innerHTML=''; },700); } window.__covered=false; }
+function sheepBell(n){ const c=actx(); if(!c||!AU.on) return; const t=c.currentTime+.02, f=[1318.5,1174.7,987.8,1046.5][n%4]; [[f,.05],[f*2.01,.018]].forEach(([q,a])=>{ const o=c.createOscillator(), g=c.createGain(); o.type='sine'; o.frequency.value=q; g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(a*Math.max(.35,1-n*.01),t+.008); g.gain.exponentialRampToValueAtTime(.0001,t+1.1); o.connect(g).connect(AU.out); o.start(t); o.stop(t+1.2); }); }
 function openClock(){ blip('paper');
   show(`<h2>시계</h2><div class="ck2"><div><small>이 휴대폰</small><b id="ckHere"></b></div><div><small>창밖 ${escH(S.place.name)}</small><b id="ckThere"></b></div></div>
    <label class="sl">알림 맞추기</label>
@@ -2010,6 +2068,7 @@ function wireDim(){ document.querySelectorAll('.dmr').forEach(el=>el.oninput=()=
     if(el.dataset.k==='lamp'&&!S.lamp&&DIM.lamp>.35) toggleLamp(); }); }
 function openSleep(){ if(SL){ show(`<h2>잠들기</h2><p>${Math.max(1,Math.ceil((SL.dur-(Date.now()-SL.t0))/60000))}분 뒤에 불빛과 소리가 다 꺼져요.</p><div class="row"><button class="ok" id="slX">그만두기</button></div>`); $('slX').onclick=()=>{ sleepStop(true); closePanel(); }; return; }
   show(`<h2>잠들기</h2><p>안락의자에 기대면, 스탠드 불빛과 방 안의 소리가 함께 아주 천천히 줄어들다 꺼져요. 잠드는 소리를 고르는 동안엔 듣던 노래·라디오·영상이 잠깐 멈춰요. 심포니는 기타 반주가 있어서 고르면 노래·라디오는 꺼진 채로 두고, 노이즈·바람이나 ‘지금 소리 그대로’를 고르면 이 창을 닫을 때 듣던 것이 다시 이어져요.</p>
+   <div class="way mini" id="slWay"><small>오늘 밤의 방법 하나 · ${escH(wayToday().land)}</small><b>${escH(wayToday().t)}</b></div>
    <label class="sl">잠드는 소리</label>
    <div class="row"><button class="chip" data-sn="sym">보라다방 심포니</button><button class="chip" data-sn="pink">핑크 노이즈</button><button class="chip" data-sn="brown">브라운 노이즈</button><button class="chip" data-sn="wave">숨 고르기 바람</button><button class="chip" data-sn="none">지금 소리 그대로</button></div>
    <small>심포니는 끄는 시간을 정하지 않으면 계속 이어져요. 통기타가 아주 느리게 끝없이 새로 연주하고, 시계 초침·주전자 기포·바람·빗소리가 그 박자에 맞춰 들어와요. 같은 소절이 되풀이되지 않고, 시간이 갈수록 음이 성글어져요. 핑크 노이즈은 낮은 소리 쪽이 두꺼워 백색 소음보다 부드럽게 들려요. 브라운 노이즈은 더 낮고 묵직하고, 숨 고르기 바람은 10초에 한 번 불어왔다 잦아들어서 1분에 여섯 번, 느린 숨의 빠르기예요. 소리는 작게, 냉장고 소리쯤이 알맞아요.</small>
@@ -2018,6 +2077,7 @@ function openSleep(){ if(SL){ show(`<h2>잠들기</h2><p>${Math.max(1,Math.ceil(
    ${dimUI()}
    <label class="sl">얼마 뒤에 꺼질까요</label>
    <div class="row"><button class="chip" data-m="15">15분</button><button class="chip" data-m="30">30분</button><button class="chip" data-m="60">1시간</button><button class="chip" data-m="0">끄지 않고 계속</button></div>`);
+  $('slWay').onclick=e=>{ e.stopPropagation(); openWays(); };
   window.__slPanel=true; SLK=SYM?'sym':null; onLeave=()=>{ window.__slPanel=false; if(SLK==='sym'||SYM) HOLD=null; else resumeMusic(); };
   document.querySelectorAll('[data-sn]').forEach(b=>b.onclick=()=>sleepSound(b.dataset.sn)); upSleepSnd(); document.querySelectorAll('[data-wo]').forEach(b=>b.onclick=()=>{ if((b.dataset.wo==='1')!==AMB.open) toggleWindow(); }); upWin();
   wireDim(); document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{ if(!AU.on) setAudio(true); if(+b.dataset.m) sleepStart(+b.dataset.m); else { sleepStop(true); closePanel(); } }); }
