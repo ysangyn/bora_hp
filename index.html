@@ -238,7 +238,7 @@ img.room.off{opacity:0;transition:opacity 1.2s}.lampoff img.room.off{opacity:1}
 .board:hover .pol,.board:focus-visible .pol{transform:rotate(calc(var(--r,0deg)*.4)) translateY(-.12cqw)}
 .zoomed .board{pointer-events:none}
 .gal{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.gal img{width:100%;aspect-ratio:1;object-fit:cover;display:block;border-radius:2px}
+.gal img{width:100%;aspect-ratio:1;object-fit:cover;display:block;border-radius:2px;cursor:zoom-in}
 .panel label.ok{display:inline-flex;align-items:center}
 /* 물건 = 메뉴: 가까이 가면 작은 점이 밝아진다 */
 .hs{position:absolute;z-index:6;transform:translate(-50%,-50%);width:var(--w,8%);aspect-ratio:1;border-radius:50%;transition:opacity .4s}
@@ -1305,35 +1305,36 @@ const SAMPLE=['img/s1.jpg','img/s2.jpg','img/s3.jpg']; let PH=LS.get('photos',nu
 function renderBoard(){ document.querySelectorAll('#board .ph').forEach((el,i)=>{ el.style.backgroundImage=PH[i]?`url(${PH[i]})`:'none'; }); }
 function shrink(file){ return new Promise(res=>{ const im=new Image(), u=URL.createObjectURL(file); im.onload=()=>{ const k=Math.min(1,720/Math.max(im.width,im.height)), c=document.createElement('canvas'); c.width=Math.round(im.width*k); c.height=Math.round(im.height*k); c.getContext('2d').drawImage(im,0,0,c.width,c.height); URL.revokeObjectURL(u); res(c.toDataURL('image/jpeg',.82)); }; im.onerror=()=>{ URL.revokeObjectURL(u); res(null); }; im.src=u; }); }
 const escH=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
-function openBoardView(){ const L=window.__ownPhotos||[]; if(!L.length) return; blip('paper');
+function openBoardView(){ const own=window.__ownPhotos||[], local=!own.length, L=local?PH.map((src,i)=>({id:'l'+i,title:'',date:'',items:[{src}]})):own; if(!L.length) return; blip('paper');
   if(!$('penFont')){ const l=document.createElement('link'); l.id='penFont'; l.rel='stylesheet'; l.href='https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap'; document.head.appendChild(l); }
   let o=$('bvOv'); if(!o){ o=document.createElement('div'); o.id='bvOv'; o.className='bvov'; o.setAttribute('role','dialog'); o.setAttribute('aria-modal','true'); o.setAttribute('aria-label','코르크보드'); o.tabIndex=-1; document.body.appendChild(o);
     o.addEventListener('click',e=>{ if(e.target===o) closeBoardView(); });
     document.addEventListener('keydown',e=>{ if(e.key!=='Escape'||!o.classList.contains('on')) return; const lb=$('bvLb'); if(lb&&!lb.hidden) lb.hidden=true; else closeBoardView(); }); }
   const ymd=d=>{ const x=new Date(d); return isNaN(x)?'':`${x.getFullYear()}. ${String(x.getMonth()+1).padStart(2,'0')}. ${String(x.getDate()).padStart(2,'0')}`; }, PIN=['#c0564a','#d9b45a','#5a7ac0','#5aa07a'];
-  o.innerHTML=`<div class="bv-cork">${L.map((st,i)=>`<button type="button" class="bv-pol" data-i="${i}" style="--r:${((i*37)%9)-4}deg;--pin:${PIN[i%4]}" aria-label="${escH(st.title)} 크게 보기"><img src="${escH(st.items[0].src)}" alt="" decoding="async"><span>${escH(st.title)}</span></button>`).join('')}</div>
-    <div class="bv-act"><button type="button" class="pri" id="bvAll">사진첩 전체 보기</button><button type="button" id="bvX">방으로</button></div>
+  o.innerHTML=`<div class="bv-cork">${L.map((st,i)=>`<button type="button" class="bv-pol" data-i="${i}" style="--r:${((i*37)%9)-4}deg;--pin:${PIN[i%4]}" aria-label="${escH(st.title||'사진 '+(i+1))} 크게 보기"><img src="${escH(st.items[0].src)}" alt="" decoding="async"><span>${escH(st.title)}</span></button>`).join('')}</div>
+    <div class="bv-act">${local?'<button type="button" class="pri" id="bvUp">내 사진 꽂기</button>':'<button type="button" class="pri" id="bvAll">사진첩 전체 보기</button>'}<button type="button" id="bvX">방으로</button></div>
     <div class="bv-lb" id="bvLb" hidden><button type="button" class="bv-card" id="bvCard" aria-label="사진 뒤집기"><span class="bv-face bv-front"><img alt=""><span></span></span><span class="bv-face bv-back"><p></p><small></small></span></button><span class="bv-hint">사진을 누르면 뒷면의 메모가 보여요</span></div>`;
   o.querySelectorAll('.bv-pol').forEach(b=>b.onclick=ev=>{ const st=L[+b.dataset.i], it=st.items[0], c=$('bvCard'); c.classList.remove('flip');
     c.querySelector('.bv-front img').src=it.src; c.querySelector('.bv-front img').alt=it.alt||st.title; c.querySelector('.bv-front span').textContent=st.title;
-    c.querySelector('.bv-back p').textContent=it.memo||st.caption||st.title; c.querySelector('.bv-back small').textContent='— '+ymd(st.date)+', 어른아이'; $('bvLb').hidden=false; blip('paper'); if(!ev.detail) c.focus(); });
+    c.querySelector('.bv-back p').textContent=local?(PH===SAMPLE?'예시로 꽂아 둔 사진이에요.':'이 휴대폰에만 꽂아 둔 사진이에요.'):(it.memo||st.caption||st.title); c.querySelector('.bv-back small').textContent=local?'':'— '+ymd(st.date)+', 어른아이'; $('bvLb').hidden=false; blip('paper'); if(!ev.detail) c.focus(); });
   $('bvCard').onclick=e=>{ e.stopPropagation(); $('bvCard').classList.toggle('flip'); };
   $('bvLb').onclick=e=>{ if(e.target.id==='bvLb') $('bvLb').hidden=true; };
-  $('bvAll').onclick=()=>{ closeBoardView(true); openOver('photos/','사진첩'); };
+  if(local) $('bvUp').onclick=()=>{ closeBoardView(true); openGalleryUp(); }; else $('bvAll').onclick=()=>{ closeBoardView(true); openOver('photos/','사진첩'); };
   $('bvX').onclick=()=>closeBoardView();
-  LS.set('boardSeenIds',L.map(x=>x.id)); const bd=$('board'); if(bd) bd.classList.remove('fresh');
+  if(!local) LS.set('boardSeenIds',L.map(x=>x.id)); const bd=$('board'); if(bd) bd.classList.remove('fresh');
   requestAnimationFrame(()=>o.classList.add('on')); o.focus({preventScroll:true}); }
 function closeBoardView(keepZoom){ const o=$('bvOv'); if(!o) return; o.classList.remove('on'); if(!keepZoom) closeZoom(); else setTimeout(closeZoom,400); }
-function openGallery(){ if(window.__ownPhotos&&window.__ownPhotos.length){ openBoardView(); return; }
-  const mine=PH!==SAMPLE;
+function openGallery(){ openBoardView(); }
+function openGalleryUp(){ const mine=PH!==SAMPLE;
   show(`<h2>사진첩</h2><p>코르크보드에 내 사진을 꽂아 둘 수 있어요. <b>이 휴대폰(브라우저)에만 보이고</b>, 다른 손님에게는 보이지 않아요.</p>
-   <div class="gal">${PH.map((p,i)=>`<img src="${p}" alt="사진 ${i+1}">`).join('')}</div>
+   <div class="gal">${PH.map((p,i)=>`<img src="${p}" alt="사진 ${i+1}" data-i="${i}" tabindex="0" role="button">`).join('')}</div>
    <div class="row"><label class="ok" for="gFile" tabindex="0">사진 올리기</label><input type="file" id="gFile" accept="image/*" multiple hidden>${mine?'<button class="chip" id="gReset">예시 사진으로 되돌리기</button>':''}</div>
    <small id="gOut">${mine?'':'지금 보이는 건 예시 사진이에요. '}이 시안에서는 올린 사진이 이 브라우저에만 저장돼요. 실제 홈페이지에서는 주인장이 올리면 모든 손님에게 보여요.</small>`);
   $('gFile').onchange=async e=>{ const fs=[...e.target.files].slice(0,6); if(!fs.length) return; $('gOut').textContent='사진을 줄이는 중…';
     const out=(await Promise.all(fs.map(shrink))).filter(Boolean); if(!out.length){ $('gOut').textContent='사진을 읽지 못했어요. 다른 파일로 해 보세요.'; return; }
-    PH=[...out,...(mine?PH:[])].slice(0,9); LS.set('photos',PH); renderBoard(); openGallery(); };
-  if(mine) $('gReset').onclick=()=>{ LS.del('photos'); PH=SAMPLE; renderBoard(); openGallery(); };
+    PH=[...out,...(mine?PH:[])].slice(0,9); LS.set('photos',PH); renderBoard(); openGalleryUp(); };
+  if(mine) $('gReset').onclick=()=>{ LS.del('photos'); PH=SAMPLE; renderBoard(); openGalleryUp(); };
+  panel.querySelectorAll('.gal img').forEach(im=>im.onclick=()=>{ closePanel(); openBoardView(); setTimeout(()=>{ const b=document.querySelector(`.bv-pol[data-i="${im.dataset.i}"]`); if(b) b.click(); },60); });
 }
 function tickClock(){ let h,m,sec; const now=new Date();
   if(S.w&&S.w.tz){ const p=new Intl.DateTimeFormat('en-US',{hour:'numeric',minute:'numeric',second:'numeric',hourCycle:'h23',timeZone:S.w.tz}).formatToParts(now); const g=k=>+p.find(x=>x.type===k).value; h=g('hour'); m=g('minute'); sec=g('second'); }
