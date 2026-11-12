@@ -549,7 +549,8 @@ function prepVoice(v){ if(VCACHE.has(v)) return VCACHE.get(v); const x=v.buf.get
   while(e+1.25*T<n){ const k=am(e+.8*T,e+1.2*T); T=Math.max(.85*T0,Math.min(1.18*T0,.8*T+.2*(k-e))); ep.push(k); e=k; }
   e=seed; T=T0; while(e-1.25*T>0){ const k=am(e-1.2*T,e-.8*T); T=Math.max(.85*T0,Math.min(1.18*T0,.8*T+.2*(e-k))); ep.unshift(k); e=k; }
   const per=new Float32Array(ep.length); for(let i=0;i<ep.length;i++){ const l=i?ep[i]-ep[i-1]:ep[1]-ep[0], r=i<ep.length-1?ep[i+1]-ep[i]:l; per[i]=(l+r)/2; }
-  const out={x,sr,ep:Int32Array.from(ep),per,a,b,m:v.m}; VCACHE.set(v,out); return out; }
+  const ps=Array.from(per).sort((p1,p2)=>p1-p2), pm=ps[ps.length>>1]||T0;   // 이 녹음의 보통 주기(실제 목소리의 주기 흔들림을 살릴 기준)
+  const out={x,sr,ep:Int32Array.from(ep),per,pm,a,b,m:v.m}; VCACHE.set(v,out); return out; }
 const smooth=x=>x<=0?0:x>=1?1:x*x*(3-2*x);
 function humTrack(song,sro,from,to,R,PRE){ const V=BUF.bora.map(prepVoice).sort((p,q)=>p.m-q.m); if(!V.length) return null;
   const rel=s=>song.time(s)-song.time(from)+PRE, N=song.notes.filter(n=>!n.inst&&n.abs>=from&&n.abs<to); if(!N.length) return null;
@@ -580,11 +581,11 @@ function humTrack(song,sro,from,to,R,PRE){ const V=BUF.bora.map(prepVoice).sort(
       a*=smooth((t-start)/(att+.05)); if(t>off) a*=1-smooth((t-off)/rel2); return a; };
     let t=Math.max(0,start*sro), ptr=R()*.6;
     while(t<stop*sro&&t<len-1){ const tt=t/sro, c=centsAt(tt)+(R()-.5)*3, f=440*Math.pow(2,(c/100-69)/12), Tt=sro/f, amp=ampAt(tt);
-      if(amp>.0005){ const v=V[vi[noteAt(tt)]], ratio=v.sr/sro, L2=v.b-v.a, p=(ptr*v.sr)%(2*L2), pos=v.a+(p<L2?p:2*L2-p);
-        let lo=0, hi=v.ep.length-1; while(hi-lo>1){ const m=(lo+hi)>>1; if(v.ep[m]<pos) lo=m; else hi=m; } const k=Math.abs(v.ep[lo]-pos)<Math.abs(v.ep[hi]-pos)?lo:hi, e=v.ep[k];
+      let jr=1; if(amp>.0005){ const v=V[vi[noteAt(tt)]], ratio=v.sr/sro, L2=v.b-v.a, p=(ptr*v.sr)%(2*L2), pos=v.a+(p<L2?p:2*L2-p);
+        let lo=0, hi=v.ep.length-1; while(hi-lo>1){ const m=(lo+hi)>>1; if(v.ep[m]<pos) lo=m; else hi=m; } const k=Math.abs(v.ep[lo]-pos)<Math.abs(v.ep[hi]-pos)?lo:hi, e=v.ep[k]; jr=Math.max(.985,Math.min(1.015,v.per[k]/v.pm));   // 녹음 속 주기 흔들림을 그대로
         const H=Math.max(2,Math.round(Math.max(v.per[k]/ratio,Tt))), w0=amp*Tt/H, ti=Math.round(t);
         for(let i=-H;i<=H;i++){ const o=ti+i; if(o<0||o>=len) continue; const si=e+i*ratio, s0=Math.floor(si), fr=si-s0; if(s0<0||s0+1>=v.x.length) continue; out[o]+=w0*(.5+.5*Math.cos(Math.PI*i/H))*(v.x[s0]+(v.x[s0+1]-v.x[s0])*fr); } }
-      t+=Tt; ptr+=Tt/sro; } });
+      t+=Tt*jr; ptr+=Tt/sro; } });
   return {pcm:out,breaths}; }
 
 
