@@ -581,7 +581,10 @@ function humPlan(song){ if(song._hp) return song._hp; const lyr=song.secs.map((s
     for(let d=3;d<=5;d++) if(tones.includes((n.m+d)%12)){ m=n.m+d; break; } if(!m||m>72) return; harm.push(Object.assign({},n,{m,anchor:false,em:false,quiet:true,wordEnd:true,harm:true})); });
   return (song._hp={isHum,harm}); }
 function humTrack(song,sro,from,to,R,PRE,NS){ const V=BUF.bora.map(prepVoice).sort((p,q)=>p.m-q.m); if(!V.length) return null;
-  const rel=s=>song.time(s)-song.time(from)+PRE, N=(NS||song.notes).filter(n=>!n.inst&&n.abs>=from&&n.abs<to); if(!N.length) return null;
+  const rel=s=>song.time(s)-song.time(from)+PRE, N=(NS||song.notes).filter(n=>!n.inst&&n.abs>=from&&n.abs<to).map(n=>Object.assign({},n)); if(!N.length) return null;
+  // 허밍은 글자를 발음하지 못하니, 빠르게 지나가는 글자마다 음을 바꾸면 꺾는 소리(멜리스마)처럼 들린다.
+  // 그래서 낱말 안의 짧은 음은 그 낱말이 내려앉는 음으로 미리 맞추고, 글자 자리는 숨결(세기)로만 짚는다.
+  for(let i=0;i<N.length;i++){ if(N[i].len>.75) continue; let j=i; while(j<N.length-1&&!N[j].wordEnd&&N[j].len<=.75&&Math.abs(N[j+1].abs-(N[j].abs+N[j].len))<.01) j++; if(j>i&&N[j].len>.75||N[j].wordEnd||N[j].end) for(let q=i;q<j;q++) N[q].m=N[j].m; i=Math.max(i,j-1); }
   const groups=[]; let g=null;
   N.forEach((n,i)=>{ const pv=N[i-1], contig=!!pv&&Math.abs(n.abs-(pv.abs+pv.len))<.01, t=rel(n.abs), te=rel(n.abs+n.len);
     if(g&&contig&&!pv.wordEnd&&te-g.t0<2.4) g.notes.push(n); else { g={notes:[n],t0:t,phrase:!pv||n.abs-(pv.abs+pv.len)>=1.5,contigPrev:contig}; groups.push(g); } g.t1=te; });
@@ -672,7 +675,7 @@ function schedule(c,song,t0,opt){ const R=rng(song.seed+99), nodes=[], from=opt.
     s.start(t); nodes.push(s); ring[e.s]={g,s,t}; });
   if(song.genre==='lofi') scheduleLofi(c,song,T,master,comp,rev,R,nodes,from,to); else if(song.band) scheduleBand(c,song,T,master,rev,R,nodes,from,to,opt);
   // 허밍: 낱말 하나는 한 호흡으로 이어 부르고(음 사이를 미끄러지며), 음마다 사람처럼 닿고·떨고·내려놓는다
-  if(opt.hum&&BUF.bora.length){ const PRE=.6, H=humTrack(song,c.sampleRate,from,to,R,PRE,opt.mix?song.notes.filter(HP.isHum):null), H2=HP.harm.length&&!window.__noHarm?humTrack(song,c.sampleRate,from,to,rng(song.seed+7),PRE,HP.harm):null;
+  if(opt.hum&&BUF.bora.length){ const PRE=.6, H=humTrack(song,c.sampleRate,from,to,R,PRE,opt.mix?song.notes.filter(HP.isHum):null), H2=HP.harm.length&&window.__harm?humTrack(song,c.sampleRate,from,to,rng(song.seed+7),PRE,HP.harm):null;
     if(H){ const hb=c.createBuffer(1,H.pcm.length,c.sampleRate); hb.copyToChannel(H.pcm,0); const hbus=c.createGain(); hbus.gain.value=1.2*(song.genre==='rock'?1.2:song.genre==='pop'?1.1:1);
       const hp=c.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=100; const body=c.createBiquadFilter(); body.type='peaking'; body.frequency.value=260; body.Q.value=.9; body.gain.value=1.5; const pres=c.createBiquadFilter(); pres.type='peaking'; pres.frequency.value=3000; pres.Q.value=.9; pres.gain.value=2; const air=c.createBiquadFilter(); air.type='lowpass'; air.frequency.value=9000;
       const vc=c.createDynamicsCompressor(); vc.threshold.value=-24; vc.ratio.value=3; vc.attack.value=.012; vc.release.value=.18; const vs=c.createGain(); vs.gain.value=.5;

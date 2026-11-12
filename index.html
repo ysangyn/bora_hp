@@ -215,11 +215,20 @@ img.room.off{opacity:0;transition:opacity 1.2s}.lampoff img.room.off{opacity:1}
 .stage.isday.lampoff:not(.gl) .glow{opacity:0}
 
 /* 찻잔·시계 패널 */
-.tea{border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:14px 0;display:flex;flex-direction:column;gap:10px}
-.tea-hd{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}.tea-hd b{font-family:var(--f-serif);font-weight:400;font-size:21px;letter-spacing:.03em}.tea-hd span{font-size:11.5px;letter-spacing:.08em;color:var(--accent)}
-.tea dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13px}.tea dt{color:var(--faint);white-space:nowrap}.tea dd{margin:0;color:var(--ink);word-break:keep-all;line-height:1.6}
-.tea details{font-size:13px}.tea summary{cursor:pointer;color:var(--muted);padding:6px 0;letter-spacing:.04em}.tea details p{margin:4px 0 6px;font-size:13px;line-height:1.7}.tea details b{color:var(--ink);font-weight:500;margin-right:6px}.tea .care{color:var(--accent)}
-.tea-why{font-size:12.5px!important;color:var(--accent)!important}
+.tea{border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:18px 0 16px;display:flex;flex-direction:column;gap:13px}
+.tea-top{display:flex;align-items:center;gap:18px}
+.cup{position:relative;flex:0 0 auto;width:82px;height:82px;border-radius:50%;background:radial-gradient(circle at 34% 28%,#fffdf6,#e9e1d2 58%,#c9bfae);box-shadow:0 10px 22px rgba(0,0,0,.45),inset 0 -3px 6px rgba(0,0,0,.18)}
+.cup i{position:absolute;inset:9px;border-radius:50%;background:radial-gradient(circle at 36% 30%,rgba(255,255,255,.5),transparent 26%),radial-gradient(circle at 50% 55%,var(--tc),color-mix(in srgb,var(--tc) 72%,#1a0f08) 92%);box-shadow:inset 0 3px 7px rgba(0,0,0,.35)}
+.cup b{position:absolute;left:38%;bottom:70%;width:22%;height:70%;border-radius:50%;background:radial-gradient(ellipse at 50% 80%,rgba(255,255,255,.34),transparent 68%);filter:blur(4px);opacity:0;animation:steam 4.6s ease-in infinite;pointer-events:none}.cup b+b{left:52%;animation-delay:2.1s}
+.tea-hd{display:flex;flex-direction:column;gap:3px;min-width:0}.tea-hd b{font-family:var(--f-serif);font-weight:300;font-size:27px;letter-spacing:.03em;line-height:1.25;word-break:keep-all}
+.tea-o{font-size:10.5px;letter-spacing:.2em;color:var(--faint)}.tea-k{font-size:11.5px;letter-spacing:.06em;color:var(--accent)}
+.tea-line{font-family:var(--f-serif)!important;font-size:16px!important;line-height:1.75!important;color:var(--ink)!important;letter-spacing:.02em}
+.tea-brew{display:flex;gap:26px;flex-wrap:wrap;padding:11px 0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);font-size:13.5px;color:var(--ink)}.tea-brew span{display:flex;flex-direction:column;gap:2px}.tea-brew small{font-size:10px;letter-spacing:.18em;color:var(--faint)}
+.tea dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:9px 16px;font-size:13px}.tea dt{color:var(--faint);white-space:nowrap;font-size:11.5px;letter-spacing:.08em;padding-top:2px}.tea dd{margin:0;color:var(--muted);word-break:keep-all;line-height:1.7}.tea dd.care{color:var(--accent)}
+.tea details{font-size:13px}.tea summary,.tshelf summary{cursor:pointer;color:var(--muted);padding:6px 0;letter-spacing:.04em}.tea details p{margin:4px 0 6px;font-size:13px;line-height:1.7}.tea details b{color:var(--ink);font-weight:500;margin-right:6px}
+.tea-why{font-size:12.5px!important;color:var(--accent)!important;line-height:1.7}
+.tshelf{border-top:1px solid var(--hair)}.tshelf:last-of-type{border-bottom:1px solid var(--hair)}.tshelf summary{padding:11px 0;font-family:var(--f-serif);font-size:14.5px;color:var(--ink);list-style:none;display:flex;justify-content:space-between}.tshelf summary::-webkit-details-marker{display:none}.tshelf summary small{color:var(--faint);font-family:var(--f-num);font-style:italic;font-size:14px}.tshelf .chips{padding:2px 0 14px}
+.panel .chip i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:-1px;box-shadow:0 0 0 1px rgba(255,255,255,.25)}
 .ck2{display:grid;grid-template-columns:1fr 1fr;gap:12px;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:12px 0}.ck2 div{display:flex;flex-direction:column;gap:2px}.ck2 b{font-family:var(--f-num);font-style:italic;font-weight:500;font-size:30px;letter-spacing:.04em}
 .alist{display:flex;flex-direction:column}.arow{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--hair);font-size:13px}.arow b{font-family:var(--f-num);font-style:italic;font-size:19px}.arow span{flex:1;color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .alm-msg{font-size:16px!important;color:var(--ink)!important;line-height:1.7}
@@ -860,7 +869,11 @@ function applyRoom(){
   document.querySelectorAll('[data-a="curtain"] .lb').forEach(l=>l.textContent=(S.curtain===true||stage.classList.contains('cinema'))?'블라인드 올리기':'블라인드 내리기');
 }
 function toggleCurtain(){ if(typeof PJ!=='undefined'&&PJ){ projOff(); setTimeout(applyRoom,600); return; } blip('curtain'); S.curtain = S.curtain===true ? false : true; LS.set('curtain',S.curtain); if(S.curtain){ S.visit=false; applyWindow(); radioOff(true); } applyRoom(); }
-function toggleLamp(){ blip('switch'); S.lamp=!S.lamp; setTimeout(humSet,0); stage.classList.toggle('lampoff',!S.lamp); $('lbLamp').textContent=S.lamp?'스탠드 끄기':'스탠드 켜기'; }
+function toggleLamp(){ blip('switch'); S.lamp=!S.lamp; setTimeout(humSet,0); stage.classList.toggle('lampoff',!S.lamp); $('lbLamp').textContent=S.lamp?'스탠드 끄기':'스탠드 켜기';
+  // 불을 켰는데 방 밝기·스탠드 불빛을 낮춰 둔 채라면 켠 티가 안 난다: 켤 때는 밝기도 되돌린다
+  if(S.lamp&&typeof DIM!=='undefined'){ let ch=false; if(DIM.room<.6){ DIM.room=1; ch=true; } if(DIM.lamp<.35){ DIM.lamp=1; ch=true; } const sd=$('sleepDim'); if(sd&&!(typeof SL!=='undefined'&&SL)) sd.style.opacity=0;
+    if(ch){ LS.set('dim',DIM); document.querySelectorAll('.dmr').forEach(x=>{ x.value=DIM[x.dataset.k]; }); document.querySelectorAll('.dmv').forEach(x=>{ x.textContent=Math.round(DIM[x.dataset.k]*100)+'%'; }); roomSay('낮춰 둔 밝기도 다시 올렸어요'); } }
+  if(typeof applyDim==='function') applyDim(); }
 
 /* ---------- 소리: 전부 코드로 합성 (파일 없음) ---------- */
 const AU={ctx:null,out:null,on:false,rain:null,vinyl:null};
@@ -1550,51 +1563,117 @@ function toggleKettle(){ const c=actx(); if(!c) return; if(!AU.on) setAudio(true
   KT={g,srcs,bub,mea}; stage.classList.add('boil'); upKettle(); }
 function upKettle(){ almUI(); const b=$('tKet'); if(b) b.textContent=KT?'불 끄기':'물 올리기'; }
 /* ---------- 찻잔: 지금 이 방에 어울리는 차 + 우리기 타이머 ---------- */
-// caf 0 카페인 없음 · 1 조금 · 2 보통 · 3 많은 편. bs=티백 우리는 초. tg: night(늦은 밤에도) warm(춥거나 비 올 때) cool(더울 때) am(아침) cc(창밖 나라)
+// 찻장. caf 0 없음 · 1 조금 · 2 보통 · 3 많은 편. s=머그 한 잔 우리는 초(0이면 타이머 없음). c=찻물 빛깔.
+// tg: rain cold hot am day far(낯선 차) + 창밖 나라 코드. g=찻장 칸: sleep(하루를 닫는 차) grain(구수한 차) dabang(다방의 차) leaf(잎차) far(먼 나라의 차)
 const TEAS=[
- {id:'chamo',n:'캐모마일',k:'꽃차',caf:0,bs:300,w:'갓 끓은 물(100°C) 200ml',bag:'티백 하나, 5분. 잔에 받침을 덮어 두면 향이 덜 날아가요.',leaf:'말린 꽃 1~2작은술, 5~7분',taste:'사과를 닮은 달큰한 꽃향에, 끝맛이 살짝 쌉쌀해요.',tip:'꿀 반 작은술이나 레몬 한 조각이 잘 어울려요. 너무 오래 두면 풀 맛이 올라와요.',story:'유럽에서 저녁 찻잔에 오래 올라온 꽃이에요. 이름은 그리스 말로 ‘땅의 사과’라는 뜻이에요.',care:'국화과 꽃가루에 예민하면 피하는 게 좋아요.',br:[['트와이닝스','캐모마일만 넣은 티백이 흔해요. 꽃 맛이 깔끔하게 나요.'],['셀레셜 시즈닝스 슬리피타임','캐모마일에 스피어민트·레몬그라스·린덴꽃 등을 섞은 미국 블렌드라, 캐모마일만 넣은 것보다 산뜻해요.']],tg:{night:1,cc:['GB','FR','DE']}},
- {id:'rooi',n:'루이보스',k:'허브차',caf:0,bs:360,w:'갓 끓은 물(100°C) 200ml',bag:'티백 하나, 5~7분. 오래 둬도 덜 떫어요.',leaf:'1작은술, 5분 넘게',taste:'붉은 빛깔에 구수하고 은근히 달아요. 나무 향이 살짝 나요.',tip:'진하게 우려 데운 우유를 반쯤 부으면 카페인 없는 밀크티가 돼요.',story:'남아프리카공화국 세더버그 산지에서 자라는 ‘붉은 덤불’이에요. 그곳에선 아이부터 어른까지 늘 마셔요.',br:[['고르는 법','상자에 산지(세더버그)를 적어 둔 것, 바닐라·카라멜 향을 넣은 것 등 갈래가 많아요. 처음엔 아무것도 넣지 않은 것부터 마셔 보세요.']],tg:{night:1,warm:1,cc:['ZA']}},
- {id:'bori',n:'보리차',k:'곡물차',caf:0,bs:300,w:'뜨거운 물이나 찬물',bag:'뜨거운 물엔 티백 하나 5분, 찬물 1리터엔 티백 하나 넣고 냉장고에서 1~2시간.',leaf:'볶은 보리 한 줌을 물 2리터에 넣고 끓으면 약한 불로 5~10분',taste:'고소하고 구수해요. 볶은 정도에 따라 진하기가 달라요.',tip:'주전자에 끓여 두면 물 대신 하루 내내 마시기 좋아요.',story:'한국 집집마다 보리차를 끓여 물병에 담아 두던 시절이 있었지요. 많은 사람에게 ‘집의 맛’이에요.',br:[['고르는 법','볶은 알곡, 티백, 찬물용 티백이 있어요. 알곡을 끓이면 가장 구수하고, 찬물용은 여름에 편해요.']],tg:{night:1,cool:1,warm:1,cc:['KR']}},
- {id:'dung',n:'둥굴레차',k:'곡물·뿌리차',caf:0,bs:240,w:'갓 끓은 물 200ml',bag:'티백 하나, 3~5분',leaf:'볶은 둥굴레 한 큰술을 물 1리터에 넣고 10분쯤 끓이기',taste:'볶은 뿌리 특유의 구수함 뒤로 은근한 단맛이 남아요.',tip:'보리차와 반씩 섞어 끓여도 좋아요.',story:'볶은 둥굴레 뿌리차로, 사무실 탕비실 단골 티백 가운데 하나예요.',br:[['동서식품','현미녹차와 함께 오래 팔려 온 국내 티백 차예요. 어디서든 구하기 쉬워요.']],tg:{night:1,warm:1,cc:['KR']}},
- {id:'corn',n:'옥수수차',k:'곡물차',caf:0,bs:300,w:'뜨거운 물이나 찬물',bag:'티백 하나, 5분. 찬물에 넣어 두어도 돼요.',leaf:'볶은 옥수수 알 한 줌을 물 2리터에 넣고 끓이기',taste:'볶은 옥수수의 달큰한 구수함이에요. 옥수수수염을 섞으면 더 산뜻해요.',tip:'보리차보다 단맛이 있어 아이들도 좋아해요.',story:'옥수수수염을 섞은 옥수수수염차는 병 음료로도 흔히 보여요.',br:[['광동제약 옥수수수염차','병에 든 옥수수수염차로 잘 알려졌어요. 집에서 우린 것보다 맛이 가볍고 고르게 나요.']],tg:{night:1,cool:1,cc:['KR']}},
- {id:'meme',n:'메밀차',k:'곡물차',caf:0,bs:240,w:'갓 끓은 물 200ml',bag:'알곡 1큰술이나 티백 하나, 3~5분. 두세 번 다시 우려도 돼요.',leaf:'볶은 쓴메밀 알곡 1큰술',taste:'볶은 견과 같은 고소함에 끝이 깔끔해요.',tip:'우리고 남은 알곡은 밥 지을 때 넣어도 고소해요.',story:'쓴메밀(타타리 메밀)을 볶아 만들어요. 노란 빛깔이 곱게 우러나요.',care:'메밀에 예민한 사람은 마시면 안 돼요.',br:[],tg:{night:1,warm:1}},
- {id:'mint',n:'페퍼민트',k:'허브차',caf:0,bs:300,w:'갓 끓은 물 200ml',bag:'티백 하나, 5분',leaf:'말린 잎 1작은술, 5분',taste:'입안이 시원해지는 박하 향이에요.',tip:'얼음 넣은 잔에 진하게 우려 부으면 여름 차가 돼요.',story:'식사 뒤 입가심으로 많이 마셔요. 박하 향은 방 안 공기까지 바꿔 줘요.',br:[['트와이닝스','영국 차 회사로, 박하 티백도 오래 만들어 왔어요.']],tg:{night:1,cool:1}},
- {id:'hibi',n:'히비스커스',k:'꽃차',caf:0,bs:300,w:'갓 끓은 물 200ml',bag:'티백 하나, 5분',leaf:'말린 꽃받침 1작은술, 5분',taste:'루비 빛깔에 새콤해요. 크랜베리를 닮았어요.',tip:'꿀을 조금 넣거나, 진하게 우려 얼음에 부으면 맛있어요.',story:'이집트와 멕시코 등에서는 차갑게 마시는 일상 음료예요.',care:'신맛이 강해서 빈속엔 연하게 드세요.',br:[],tg:{night:1,cool:1}},
- {id:'ginger',n:'생강차',k:'청차',caf:0,bs:0,w:'뜨거운 물 200ml',bag:'생강청 2~3작은술을 넣고 잘 저어요.',leaf:'얇게 저민 생강 서너 쪽을 물에 넣고 10분 끓이고 꿀 한 숟갈',taste:'코끝이 찡하게 맵고, 꿀이 그 매운맛을 감싸요.',tip:'대추 두세 알이나 계피 한 조각을 같이 끓이면 맛이 둥글어져요.',story:'추운 날 몸을 데우려고 오래 마셔 온 차예요.',care:'매운맛이 세서 속이 예민하면 연하게 드세요.',br:[['담터','가루를 물에 타는 생강차·율무차로 잘 알려진 국내 회사예요.'],['녹차원','꿀에 재운 생강·유자 같은 청을 만드는 국내 회사예요.']],tg:{night:1,warm:1,cc:['KR']}},
- {id:'yuja',n:'유자차',k:'청차',caf:0,bs:0,w:'뜨거운 물 200ml',bag:'유자청 2~3큰술을 넣고 저어요.',leaf:'—',taste:'새콤달콤하고 향이 진해요. 씹히는 껍질이 맛있어요.',tip:'뜨거운 물을 먼저 붓고 청을 넣으면 향이 더 살아요. 탄산수에 타면 여름 에이드가 돼요.',story:'고흥·거제 같은 남해안에서 많이 나는 유자를 껍질째 썰어 설탕이나 꿀에 재워요.',br:[['녹차원','꿀유자차가 잘 알려져 있어요.']],tg:{night:1,warm:1,cc:['KR','JP']}},
- {id:'jujube',n:'대추차',k:'달인 차',caf:0,bs:0,w:'물 1리터',bag:'대추청이 있으면 2큰술을 뜨거운 물에 타요.',leaf:'말린 대추 열 알 남짓을 물 1리터에 넣고 약한 불로 30분 넘게 달이기',taste:'진하고 달큰해요. 오래 달일수록 걸쭉해져요.',tip:'잣 몇 알을 띄우면 찻집 대추차가 돼요.',story:'오래 달여야 맛이 나는 차라, 시간을 들여 끓이는 것부터가 쉼이에요.',br:[],tg:{night:1,warm:1,cc:['KR']}},
- {id:'kuk',n:'국화차',k:'꽃차',caf:0,bs:240,w:'조금 식힌 물(90°C) 200ml',bag:'말린 꽃 3~5송이, 3~5분. 두세 번 다시 우려도 돼요.',leaf:'말린 감국 3~5송이',taste:'맑고 쌉싸름한 국화 향이에요.',tip:'잔에 꽃이 피어나는 걸 보려면 유리잔이 좋아요.',story:'가을에 따서 말린 노란 감국으로 만들어요.',care:'국화과 꽃가루에 예민하면 피하는 게 좋아요.',br:[],tg:{night:1,cc:['KR','CN']}},
- {id:'hoji',n:'호지차',k:'볶은 녹차',caf:1,bs:90,w:'갓 끓은 물 200ml',bag:'티백 하나, 1~2분',leaf:'1큰술, 30초~1분. 두세 번 다시 우려요.',taste:'커피콩처럼 볶은 향이 나고, 녹차보다 쓴맛이 적어요.',tip:'우유에 진하게 우리면 호지차 라테가 돼요.',story:'녹차 잎을 센 불에 볶은 일본 차예요. 카페인이 적은 편이지만 아주 없지는 않아요.',br:[],tg:{warm:1,cc:['JP']}},
- {id:'genmai',n:'현미녹차',k:'녹차',caf:1,bs:90,w:'조금 식힌 물(80~90°C) 200ml',bag:'티백 하나, 1~2분',leaf:'1큰술, 1분',taste:'볶은 현미의 고소함이 녹차의 쌉쌀함을 덜어 줘요.',tip:'끓는 물을 바로 부으면 쓴맛이 나요. 잠깐 식혀 부으세요.',story:'녹차에 볶은 현미를 섞은 차예요. 한국에선 가장 흔한 녹차 티백이기도 해요.',br:[['동서식품','오래 팔려 온 현미녹차 티백으로, 많은 사람이 처음 마셔 본 녹차예요.']],tg:{cc:['KR','JP']}},
- {id:'green',n:'녹차',k:'녹차',caf:2,bs:90,w:'식힌 물(70~80°C) 200ml',bag:'티백 하나, 1~2분',leaf:'잎 2~3g, 1~2분. 두세 번 다시 우려요.',taste:'풋풋하고 맑아요. 좋은 잎은 끝에 단맛이 남아요.',tip:'끓는 물을 다른 잔에 한 번 옮겨 부으면 알맞게 식어요. 오래 두면 써져요.',story:'제주, 전남 보성, 경남 하동 등에서 많이 나요. 일찍 딴 잎일수록 여리고 맛이 부드러워요.',br:[['오설록','아모레퍼시픽이 1979년부터 제주에 차밭을 일궈 만든 차 브랜드예요. 세작·말차와, 향을 입힌 블렌드가 많아요.']],tg:{am:1,cc:['KR','JP','CN']}},
- {id:'oolong',n:'우롱차',k:'반발효차',caf:2,bs:180,w:'뜨거운 물(90~95°C) 200ml',bag:'티백 하나, 3분',leaf:'잎 4~5g, 첫 잔 1분. 다섯 번 넘게 다시 우려요.',taste:'꽃향과 볶은 향 사이 어딘가예요. 우릴 때마다 맛이 달라져요.',tip:'잎이 동그랗게 말린 것은 다 풀릴 때까지 여러 번 우려 보세요.',story:'대만 고산 우롱, 중국 철관음이 유명해요. 녹차와 홍차 사이쯤 발효해요.',br:[],tg:{cc:['TW','CN','HK']}},
- {id:'eng',n:'잉글리시 브렉퍼스트',k:'홍차',caf:3,bs:240,w:'갓 끓은 물(100°C) 200ml',bag:'티백 하나, 3~5분',leaf:'1작은술, 3~4분',taste:'진하고 몰트 향이 나요. 우유와 잘 어울려요.',tip:'우유를 넣을 거면 4~5분 진하게 우리세요.',story:'영국에서 아침 식사와 함께 마시는 진한 홍차 블렌드예요.',br:[['트와이닝스','1706년 런던의 작은 찻집에서 시작한 영국 차 회사예요.'],['립톤','노란 상자 ‘옐로 라벨’ 티백으로 세계 어디서나 보이는 홍차예요.']],tg:{am:1,cc:['GB','IE']}},
- {id:'earl',n:'얼그레이',k:'홍차',caf:3,bs:180,w:'갓 끓은 물(100°C) 200ml',bag:'티백 하나, 3~4분. 오래 두면 떫어요.',leaf:'1작은술, 3분',taste:'홍차에 베르가못(시트러스) 향을 입혔어요. 화사하고 향긋해요.',tip:'레몬보다 우유가 향을 더 둥글게 해 줘요.',story:'베르가못 향을 입힌 홍차예요. 이름은 19세기 영국 그레이 백작에게서 왔다고 전해요.',br:[['트와이닝스','얼그레이로 가장 널리 알려진 회사 가운데 하나예요.'],['마리아주 프레르','1854년 파리에서 시작했어요. 천 가지 넘는 차를 다루고, ‘마르코 폴로’ 같은 향 블렌드가 유명해요.'],['다만 프레르','1692년부터 이어져 온 프랑스 차 회사로, 과일·꽃 향을 입힌 블렌드가 많아요.']],tg:{cc:['GB','FR']}},
+// ── 하루를 닫는 차: 꽃·풀 ──
+{id:'chamo',g:'sleep',n:'캐모마일',o:'이집트 · 유럽의 들판',k:'꽃차',caf:0,c:'#e2b93b',w:'갓 끓은 물',s:300,line:'사과 향이 나는 작은 꽃. 하루의 마지막 장을 덮는 차.',taste:'달큰한 꽃향에 끝이 살짝 쌉쌀해요.',how:'티백 하나를 5분. 잔에 받침을 덮어 두면 향이 덜 날아가요. 꿀 반 작은술이 잘 어울려요.',story:'이름은 그리스 말로 ‘땅의 사과’. 유럽에서 저녁 찻잔에 가장 오래 올라온 꽃이에요.',care:'국화과 꽃가루에 예민하면 피하는 게 좋아요.',br:[['트와이닝스','캐모마일만 넣은 티백. 꽃 맛이 깔끔해요.'],['셀레셜 시즈닝스 슬리피타임','캐모마일에 스피어민트·레몬그라스·린덴꽃 등을 섞은 미국 블렌드라 더 산뜻해요.']],tg:'GB FR DE EG'},
+{id:'linden',g:'sleep',n:'린덴 꽃차',o:'프랑스 · 유럽의 가로수',k:'꽃차',caf:0,c:'#d9c46a',w:'한 김 식힌 물(95°C)',s:360,line:'여름 저녁 가로수 아래에서 나던 꿀 냄새.',taste:'은은한 꿀 향과 풀 내음, 아주 순해요.',how:'말린 꽃 1큰술을 5~7분. 오래 우려도 쓰지 않아요.',story:'프랑스에서는 ‘티욀’이라 부르고, 저녁 식탁을 물린 뒤 마셔요. 프루스트의 소설에서 마들렌을 적셔 먹던 차가 바로 이 차예요.',tg:'far FR DE'},
+{id:'verveine',g:'sleep',n:'레몬버베나',o:'프랑스의 저녁',k:'허브차',caf:0,c:'#cfd27a',w:'한 김 식힌 물(95°C)',s:300,line:'레몬 껍질을 손끝으로 문지른 듯한 맑은 향.',taste:'레몬 향이 나지만 시지 않고 부드러워요.',how:'말린 잎 1큰술을 5분. 꿀 없이도 향만으로 충분해요.',story:'프랑스 식당에서 저녁을 마치면 커피 대신 “베르벤?” 하고 물어요. 하루를 닫는 인사 같은 차예요.',tg:'far FR ES'},
+{id:'lemonbalm',g:'sleep',n:'레몬밤',o:'지중해의 텃밭',k:'허브차',caf:0,c:'#c9cf7c',w:'한 김 식힌 물(90~95°C)',s:300,line:'민트의 사촌인데 성격은 훨씬 순해요.',taste:'풋풋한 레몬 향에 민트의 서늘함이 살짝.',how:'말린 잎 1큰술을 5분. 생잎이 있다면 한 줌을 그대로 우려도 좋아요.',story:'벌이 좋아해서 그리스 말로 ‘꿀벌’이라는 뜻의 멜리사라고도 불러요.',tg:'far GR IT'},
+{id:'lavender',g:'sleep',n:'라벤더',o:'프로방스의 보랏빛 언덕',k:'꽃차',caf:0,c:'#b9a6cf',w:'한 김 식힌 물(95°C)',s:210,line:'보라색 밭 한가운데 서 있는 기분.',taste:'향이 진하고 끝이 쌉쌀해요. 연하게 우릴수록 좋아요.',how:'말린 꽃 반 작은술만, 3~4분. 욕심내어 많이 넣으면 비누 맛이 나요. 캐모마일과 섞으면 둥글어져요.',story:'7월의 프로방스는 언덕이 온통 보라색이에요. 그 향을 말려 겨울까지 두고 마셔요.',care:'향이 세니 처음엔 아주 조금만 넣어 보세요.',tg:'far FR'},
+{id:'rose',g:'sleep',n:'장미 봉오리차',o:'중국 산둥 · 이란',k:'꽃차',caf:0,c:'#e3b0a8',w:'조금 식힌 물(85~90°C)',s:240,line:'잔 속에서 봉오리가 천천히 풀려요.',taste:'장미 향이 코끝에 먼저 닿고, 맛은 맑고 순해요.',how:'봉오리 대여섯 개를 3~5분. 유리잔에 우리면 보는 맛이 있어요.',story:'이란과 터키에서는 장미를 음식과 차에 두루 써요. 꿀 한 방울을 넣으면 향이 더 또렷해져요.',tg:'far IR TR CN'},
+{id:'osman',g:'sleep',n:'계화차',o:'중국 구이린',k:'꽃차',caf:0,c:'#e8c15a',w:'조금 식힌 물(85~90°C)',s:180,line:'가을 골목 어디선가 나던 그 달콤한 꽃 냄새.',taste:'살구를 닮은 달콤한 향이에요.',how:'말린 꽃 1작은술을 3분. 우롱차에 조금 섞어 마시기도 해요.',story:'금목서의 작은 주황 꽃이에요. 가을에 나무 한 그루가 온 동네를 향기로 채워요.',tg:'far CN TW'},
+{id:'kuk',g:'sleep',n:'국화차',o:'가을 들녘',k:'꽃차',caf:0,c:'#e6cf5e',w:'조금 식힌 물(90°C)',s:240,line:'물 위에 작은 가을이 피어요.',taste:'맑고 쌉싸름한 국화 향.',how:'말린 감국 3~5송이를 3~5분. 두세 번 다시 우려도 돼요.',story:'서리 내리기 전에 딴 노란 감국을 말려요. 중국에서는 항저우의 흰 국화를 즐겨 마셔요.',care:'국화과 꽃가루에 예민하면 피하는 게 좋아요.',tg:'KR CN'},
+{id:'lotus',g:'sleep',n:'연잎차',o:'절집 연못',k:'잎차(허브)',caf:0,c:'#c8c27a',w:'뜨거운 물(90~100°C)',s:240,line:'비 갠 연못가의 풀 냄새.',taste:'구수하면서 맑아요. 떫은맛이 거의 없어요.',how:'덖은 연잎 1큰술을 3~5분.',story:'절에서 오래 마셔 온 차예요. 여름에 딴 잎을 잘게 썰어 덖어요.',tg:'KR VN'},
+{id:'tulsi',g:'sleep',n:'툴시',o:'인도의 마당',k:'허브차',caf:0,c:'#cda95a',w:'갓 끓은 물',s:300,line:'인도 집 마당마다 한 그루씩 있는 풀.',taste:'정향과 박하 사이 어딘가, 따뜻한 향신료 느낌.',how:'티백이나 말린 잎 1작은술을 5분.',story:'‘홀리 바질’이라고도 해요. 인도에서는 마당에 심어 두고 아침마다 물을 주는 귀한 풀이에요.',tg:'far IN cold'},
+{id:'greekmt',g:'sleep',n:'그리스 산차',o:'그리스의 돌산',k:'허브차',caf:0,c:'#d8c56b',w:'갓 끓은 물',s:420,line:'양치기들이 산에서 꺾어 끓이던 차.',taste:'꽃과 흙과 약한 레몬 향. 순하고 둥글어요.',how:'줄기째 서너 대를 5~7분 우리거나 3분 끓여요. 꿀과 레몬을 곁들여요.',story:'그리스 말로 ‘산의 차’. 해발 천 미터 넘는 돌산에서 자라는 풀이에요.',tg:'far GR cold'},
+{id:'lemongrass',g:'sleep',n:'레몬그라스',o:'태국의 부엌',k:'허브차',caf:0,c:'#d6d07a',w:'갓 끓은 물',s:360,line:'똠얌 향의 주인공, 차로 마시면 뜻밖에 순해요.',taste:'레몬 사탕 같은 향, 맛은 맑아요.',how:'말린 줄기 1큰술을 5~7분. 생강 한 쪽을 같이 넣으면 겨울 차, 얼음에 부으면 여름 차예요.',story:'태국에서는 식사 뒤에 차갑게 내주곤 해요.',tg:'far TH VN hot'},
+{id:'bpea',g:'sleep',n:'버터플라이피',o:'태국',k:'꽃차',caf:0,c:'#4a57c4',w:'한 김 식힌 물(95°C)',s:240,line:'파란 찻물에 레몬을 떨어뜨리면 보라색이 돼요.',taste:'맛은 아주 순하고, 콩깍지 같은 풋내가 살짝 나요.',how:'말린 꽃 5~6송이를 3~5분. 파랗게 우러나면 레몬즙을 몇 방울 떨어뜨려 보세요.',story:'태국 말로 ‘안찬’. 산성을 만나면 빛깔이 변해서, 보라다방에 가장 어울리는 차일지도 몰라요.',tg:'far TH hot'},
+{id:'hibi',g:'sleep',n:'히비스커스',o:'이집트 · 멕시코',k:'꽃차',caf:0,c:'#b3223a',w:'갓 끓은 물',s:300,line:'루비 빛깔의 새콤한 한 잔.',taste:'크랜베리를 닮은 신맛.',how:'말린 꽃받침 1작은술을 5분. 꿀을 넣거나, 진하게 우려 얼음에 부어요.',story:'이집트에서는 ‘카르카데’, 멕시코에서는 ‘하마이카’라고 불러요. 두 나라 모두 차갑게 마시는 일상 음료예요.',care:'신맛이 강해서 빈속엔 연하게 드세요.',tg:'far EG MX hot'},
+{id:'rosehip',g:'sleep',n:'로즈힙',o:'북유럽의 들장미',k:'열매차',caf:0,c:'#c9503a',w:'갓 끓은 물',s:480,line:'꽃이 진 자리에 남은 붉은 열매.',taste:'새콤하고 과일 같아요. 히비스커스와 자주 섞어요.',how:'말린 열매 1큰술을 7~10분. 오래 우릴수록 맛이 나요.',story:'스웨덴에서는 이 열매로 달콤한 수프를 끓여 겨울에 먹어요.',tg:'far SE NO FI cold'},
+{id:'mint',g:'sleep',n:'페퍼민트',o:'어느 집 창가 화분',k:'허브차',caf:0,c:'#c5cf86',w:'갓 끓은 물',s:300,line:'방 안 공기까지 바꾸는 향.',taste:'입안이 시원해지는 박하 향.',how:'티백 하나를 5분. 진하게 우려 얼음에 부으면 여름 차예요.',story:'식사 뒤 입가심으로 많이 마셔요.',br:[['트와이닝스','박하 티백을 오래 만들어 온 영국 차 회사예요.']],tg:'hot'},
+{id:'rooi',g:'sleep',n:'루이보스',o:'남아프리카 세더버그',k:'허브차',caf:0,c:'#b5532a',w:'갓 끓은 물',s:360,line:'붉은 덤불에서 온, 밤에도 마시는 ‘홍차’.',taste:'구수하고 은근히 달아요. 나무 향이 살짝.',how:'티백 하나를 5~7분. 오래 둬도 덜 떫어요. 데운 우유를 반쯤 부으면 카페인 없는 밀크티.',story:'남아공 세더버그 산지에서만 자라요. 그곳에선 아이부터 어른까지 늘 마셔요.',tg:'ZA cold rain'},
+{id:'honeybush',g:'sleep',n:'허니부시',o:'남아프리카 케이프',k:'허브차',caf:0,c:'#c26a2e',w:'갓 끓은 물',s:360,line:'꽃에서 꿀 냄새가 나서 붙은 이름.',taste:'루이보스보다 달고 부드러워요. 꿀과 살구 느낌.',how:'1작은술을 5~7분. 아무것도 넣지 않아도 달큰해요.',story:'루이보스의 사촌이에요. 노란 꽃이 필 때 덤불 전체에서 꿀 향이 나요.',tg:'far ZA cold'},
+{id:'golden',g:'sleep',n:'골든 밀크',o:'인도의 부엌',k:'우유차',caf:0,c:'#e6b12e',w:'우유나 두유 200ml',s:0,line:'할머니가 데워 주던 노란 우유.',taste:'고소한 우유에 흙 내음 같은 강황, 후추의 따뜻함.',how:'우유에 강황 반 작은술, 후추 한 꼬집, 꿀을 넣고 약한 불에서 5분 데워요. 계피를 조금 넣어도 좋아요.',story:'인도에서는 ‘할디 두드’라고 해요. 찻잎은 없지만, 잠자리에 들기 전 마시는 한 잔으로 오래 사랑받았어요.',tg:'far IN cold'},
+{id:'sakura',g:'sleep',n:'벚꽃차',o:'일본의 봄',k:'꽃차',caf:0,c:'#f0d5d0',w:'조금 식힌 물(80~90°C)',s:120,line:'잔 속에 꽃 한 송이가 다시 피어요.',taste:'은은한 꽃향에 짭짤함이 살짝.',how:'소금에 절인 벚꽃 한두 송이를 물에 살짝 헹군 뒤 따뜻한 물을 부어요.',story:'일본에서는 ‘사쿠라유’라 하고, 혼례 같은 기쁜 날에 내는 차예요.',tg:'far JP'},
+// ── 구수한 차: 곡물·뿌리·잎 ──
+{id:'bori',g:'grain',n:'보리차',o:'집의 주전자',k:'곡물차',caf:0,c:'#b9772e',w:'뜨거운 물이나 찬물',s:300,line:'물병에 담겨 있던, 집의 맛.',taste:'고소하고 구수해요.',how:'볶은 보리 한 줌을 물 2리터에 넣고 끓으면 약한 불로 5~10분. 티백은 뜨거운 물에 5분, 찬물엔 한두 시간.',story:'집집마다 보리차를 끓여 두던 시절이 있었지요. 일본에서도 ‘무기차’라 부르며 여름 내내 마셔요.',tg:'KR JP hot cold'},
+{id:'corn',g:'grain',n:'옥수수차',o:'강원도',k:'곡물차',caf:0,c:'#d19a3a',w:'뜨거운 물이나 찬물',s:300,line:'볶은 옥수수의 달큰한 김.',taste:'보리차보다 달고 순해요. 수염을 섞으면 더 산뜻해요.',how:'티백 하나를 5분. 볶은 알을 끓이면 더 진해요.',story:'옥수수수염을 섞은 옥수수수염차는 병 음료로도 흔해요.',br:[['광동제약 옥수수수염차','병에 든 옥수수수염차로 잘 알려졌어요. 집에서 우린 것보다 가볍고 고른 맛.']],tg:'KR hot'},
+{id:'dung',g:'grain',n:'둥굴레차',o:'산자락',k:'뿌리차',caf:0,c:'#b8823a',w:'갓 끓은 물',s:240,line:'구수함 뒤에 숨어 있는 단맛.',taste:'볶은 뿌리의 구수함, 끝에 은근한 단맛.',how:'티백 하나를 3~5분. 보리차와 반씩 섞어 끓여도 좋아요.',story:'볶은 둥굴레 뿌리로 만들어요. 사무실 탕비실의 단골이기도 해요.',br:[['동서식품','오래 팔려 온 국내 티백. 어디서든 구하기 쉬워요.']],tg:'KR cold'},
+{id:'meme',g:'grain',n:'메밀차',o:'봉평 · 일본',k:'곡물차',caf:0,c:'#d9b24a',w:'갓 끓은 물',s:240,line:'볶은 견과 같은 고소함.',taste:'고소하고 끝이 깔끔해요.',how:'볶은 쓴메밀 알곡 1큰술을 3~5분. 두세 번 다시 우려요. 남은 알곡은 밥 지을 때 넣어요.',story:'일본에서는 ‘소바차’라 부르고 메밀국숫집에서 내줘요.',care:'메밀에 예민한 사람은 마시면 안 돼요.',tg:'KR JP'},
+{id:'kuromame',g:'grain',n:'검은콩차',o:'일본 단바',k:'곡물차',caf:0,c:'#8a5a4a',w:'갓 끓은 물',s:300,line:'우리고 남은 콩은 집어 먹어요.',taste:'볶은 콩의 고소함과 단맛.',how:'볶은 검은콩 1큰술을 5분. 찻물이 연한 보랏빛으로 우러나요.',story:'일본에서는 ‘구로마메차’. 다 우린 콩은 그대로 간식이 돼요.',care:'콩에 예민하면 피하세요.',tg:'far JP KR cold'},
+{id:'hyeonmi',g:'grain',n:'현미차',o:'솥 바닥',k:'곡물차',caf:0,c:'#c99a4a',w:'갓 끓은 물',s:240,line:'숭늉을 닮은 구수함.',taste:'누룽지 향이 나요.',how:'볶은 현미 1큰술을 3~5분.',story:'밥 짓고 남은 누룽지에 물을 부어 마시던 숭늉의 먼 친척이에요.',tg:'KR cold'},
+{id:'yulmu',g:'grain',n:'율무차',o:'자판기 앞',k:'곡물차',caf:0,c:'#d9c8a8',w:'뜨거운 물 150ml',s:0,line:'종이컵을 두 손으로 감싸던 겨울.',taste:'고소하고 걸쭉해요. 견과가 씹혀요.',how:'율무 가루 두세 숟갈을 뜨거운 물에 풀어요. 우유에 타면 더 고소해요.',story:'자판기와 다방의 단골 메뉴였지요.',br:[['담터','가루를 타 마시는 율무차·생강차로 잘 알려진 국내 회사예요.']],care:'견과가 든 제품이 많아요.',tg:'KR cold'},
+{id:'gyeol',g:'grain',n:'결명자차',o:'할머니 댁 주전자',k:'씨앗차',caf:0,c:'#8c4a26',w:'물 1리터',s:300,line:'보리차보다 짙은 갈색의 구수함.',taste:'볶은 씨앗의 구수함, 커피를 닮은 쌉쌀함이 살짝.',how:'볶은 결명자 1큰술을 물 1리터에 넣고 10분 끓여요. 티백은 5분.',story:'보리차와 섞어 끓여 두는 집이 많았어요.',tg:'KR'},
+{id:'ueong',g:'grain',n:'우엉차',o:'밭',k:'뿌리차',caf:0,c:'#b98a4a',w:'갓 끓은 물',s:240,line:'흙 냄새가 고소함으로 바뀌는 순간.',taste:'구수하고 살짝 달아요.',how:'말려 볶은 우엉 대여섯 조각을 3~5분.',story:'얇게 썬 우엉을 말려 볶으면 차가 돼요.',tg:'KR JP cold'},
+{id:'gamnip',g:'grain',n:'감잎차',o:'늦봄의 감나무',k:'잎차(허브)',caf:0,c:'#c9b35a',w:'식힌 물(80°C)',s:150,line:'어린 감잎에서 나는 뜻밖의 단맛.',taste:'순하고 살짝 달아요.',how:'말린 잎 1큰술을 2~3분. 너무 뜨거운 물엔 떫어져요.',story:'5~6월의 어린 잎을 따서 쪄 말려요.',tg:'KR'},
+{id:'ppong',g:'grain',n:'뽕잎차',o:'누에 치던 마을',k:'잎차(허브)',caf:0,c:'#b9bd5e',w:'뜨거운 물(90°C)',s:180,line:'녹차를 닮았지만 카페인은 없어요.',taste:'풋풋하고 구수해요.',how:'덖은 잎 1큰술을 3분.',story:'누에가 먹는 그 잎을 덖어 만들어요.',tg:'KR'},
+{id:'ssuk',g:'grain',n:'쑥차',o:'이른 봄 들판',k:'잎차(허브)',caf:0,c:'#b3b45a',w:'뜨거운 물(90°C)',s:180,line:'쑥떡 찌던 날의 부엌 냄새.',taste:'쌉쌀하고 향이 진해요.',how:'말린 쑥 1작은술을 3분. 꿀이 잘 어울려요.',story:'이른 봄 어린 쑥을 말려 두고 일 년 내내 마셔요.',care:'향이 세니 연하게, 임신 중이면 쉬어 가세요.',tg:'KR cold'},
+{id:'kombu',g:'grain',n:'다시마차',o:'일본 홋카이도',k:'해초차',caf:0,c:'#c8c9a0',w:'뜨거운 물 150ml',s:0,line:'차라기보다 맑은 국물 한 모금.',taste:'짭짤하고 감칠맛이 나요.',how:'가루 1작은술을 뜨거운 물에 풀어요. 매실을 넣은 ‘우메코부차’도 있어요.',story:'일본에서는 ‘곤부차’. 달지 않은 차가 당기는 밤에 좋아요.',care:'소금기가 있어요.',tg:'far JP cold'},
+// ── 다방의 차: 청·달임 ──
+{id:'ssanghwa',g:'dabang',n:'쌍화차',o:'옛날 다방',k:'달인 차',caf:0,c:'#4a2a1e',w:'뜨거운 물',s:0,line:'다방 하면 떠오르는 그 까만 차.',taste:'진하고 쌉쌀하고 달아요. 계피와 감초 향.',how:'시판 쌍화차를 데워 대추채와 잣을 띄워요. 옛 다방에서는 달걀노른자를 띄웠어요.',story:'작약·당귀·계피·감초 같은 약재를 달여 만들어요. 1970~80년대 다방의 대표 메뉴였지요.',care:'약재가 들어가니 몸 상태에 따라, 약을 드시는 분은 먼저 확인하세요.',tg:'KR cold rain'},
+{id:'ginger',g:'dabang',n:'생강차',o:'겨울 부엌',k:'청차',caf:0,c:'#d9a84a',w:'뜨거운 물 200ml',s:0,line:'코끝이 찡하고 속이 훈훈해져요.',taste:'맵고, 꿀이 그 매운맛을 감싸요.',how:'생강청 2~3작은술을 풀어요. 저민 생강을 10분 끓이고 꿀을 넣어도 돼요. 대추나 계피가 잘 어울려요.',story:'추운 날 몸을 데우려고 오래 마셔 온 차예요.',care:'매운맛이 세서 속이 예민하면 연하게.',br:[['담터','가루를 타 마시는 생강차.'],['녹차원','꿀에 재운 생강청.']],tg:'KR cold rain snow'},
+{id:'yuja',g:'dabang',n:'유자차',o:'고흥 · 거제',k:'청차',caf:0,c:'#e8b72e',w:'뜨거운 물 200ml',s:0,line:'병뚜껑을 여는 순간 겨울이 환해져요.',taste:'새콤달콤, 씹히는 껍질.',how:'물을 먼저 붓고 유자청 2~3큰술을 넣으면 향이 더 살아요. 탄산수에 타면 여름 에이드.',story:'남해안의 유자를 껍질째 썰어 설탕이나 꿀에 재워요.',br:[['녹차원','꿀유자차가 잘 알려져 있어요.']],tg:'KR JP cold snow'},
+{id:'jujube',g:'dabang',n:'대추차',o:'찻집 아랫목',k:'달인 차',caf:0,c:'#7a2f1e',w:'물 1리터',s:0,line:'오래 달일수록 깊어지는 단맛.',taste:'진하고 달큰하고 걸쭉해요.',how:'말린 대추 열 알 남짓을 약한 불로 30분 넘게 달여요. 잣을 띄우면 찻집 대추차.',story:'시간을 들여 끓이는 것부터가 쉼인 차예요.',tg:'KR cold snow'},
+{id:'mogwa',g:'dabang',n:'모과차',o:'늦가을 마당',k:'청차',caf:0,c:'#e3c24a',w:'뜨거운 물 200ml',s:0,line:'못생긴 열매의 가장 고운 향.',taste:'향긋하고 새콤달콤, 끝이 살짝 떫어요.',how:'모과청 2~3큰술을 풀어요.',story:'모과는 생으로는 못 먹어도 향만은 과일 가운데 으뜸이에요. 방에 두기만 해도 향이 퍼져요.',tg:'KR cold'},
+{id:'omija',g:'dabang',n:'오미자차',o:'문경',k:'열매차',caf:0,c:'#c7324a',w:'찬물',s:0,line:'한 모금에 다섯 가지 맛.',taste:'시고 달고 쓰고 맵고 짠, 그래도 결국 새콤해요.',how:'말린 오미자 한 줌을 찬물 1리터에 하룻밤 우려요. 뜨거운 물에 우리면 떫고 시어져요. 꿀을 넣어요.',story:'이름 그대로 다섯 가지 맛이 나는 열매예요. 붉은 빛이 고와서 화채로도 내요.',tg:'KR hot'},
+{id:'maesil',g:'dabang',n:'매실차',o:'광양',k:'청차',caf:0,c:'#d9c36a',w:'물 200ml',s:0,line:'여름 부엌 항아리에서 익어 가던 것.',taste:'새콤달콤하고 뒷맛이 개운해요.',how:'매실청 하나에 물 넷. 찬물도 따뜻한 물도 좋아요.',story:'6월의 풋매실을 설탕에 재워 백 일을 기다려요.',tg:'KR hot'},
+{id:'sujeong',g:'dabang',n:'수정과',o:'명절 뒤',k:'달인 차',caf:0,c:'#8a3a22',w:'물 2리터',s:0,line:'계피 향이 나는 차가운 겨울.',taste:'달고 맵싸해요. 곶감이 풀어지며 걸쭉해져요.',how:'계피와 생강을 따로 끓여 합치고 설탕을 넣어 식혀요. 곶감과 잣을 띄워 차게 마셔요.',story:'설날 상을 물린 뒤 내는 후식이에요.',tg:'KR cold snow'},
+// ── 잎차: 녹·백·우롱·홍·흑 ──
+{id:'hoji',g:'leaf',n:'호지차',o:'교토',k:'볶은 녹차',caf:1,c:'#a8622a',w:'갓 끓은 물',s:90,line:'찻집 앞을 지날 때 나던 볶는 냄새.',taste:'커피콩처럼 볶은 향, 쓴맛은 적어요.',how:'티백은 1~2분, 잎은 30초~1분. 우유에 진하게 우리면 호지차 라테.',story:'녹차 잎을 센 불에 볶은 일본 차예요. 카페인이 적은 편이지만 아주 없지는 않아요.',tg:'JP cold rain'},
+{id:'kuki',g:'leaf',n:'쿠키차',o:'일본 시즈오카',k:'줄기차',caf:1,c:'#c9c46a',w:'식힌 물(80°C)',s:60,line:'잎이 아니라 줄기로 만든 차.',taste:'달고 풋풋하고 가벼워요.',how:'1큰술을 1분. 짧게 우려요.',story:'녹차를 만들 때 골라낸 줄기와 잎맥을 모은 차예요. 잎차보다 카페인이 적은 편이에요.',tg:'far JP'},
+{id:'genmai',g:'leaf',n:'현미녹차',o:'탕비실 · 일본',k:'녹차',caf:1,c:'#c5b84a',w:'조금 식힌 물(80~90°C)',s:90,line:'가장 흔해서 가장 편한 녹차.',taste:'볶은 현미의 고소함이 쌉쌀함을 덜어 줘요.',how:'티백 하나를 1~2분. 끓는 물을 바로 부으면 써요.',story:'녹차에 볶은 현미를 섞은 차. 일본에서는 ‘겐마이차’예요.',br:[['동서식품','오래 팔려 온 현미녹차 티백. 많은 사람이 처음 마셔 본 녹차예요.']],tg:'KR JP'},
+{id:'sejak',g:'leaf',n:'세작',o:'하동 · 보성 · 제주',k:'녹차',caf:2,c:'#c3c95a',w:'식힌 물(70~75°C)',s:100,line:'곡우 지나 딴, 참새 혀만 한 잎.',taste:'풋풋하고 맑고, 끝에 단맛이 남아요.',how:'잎 2~3g을 1분 30초~2분. 끓는 물을 다른 잔에 한 번 옮겨 부으면 알맞게 식어요.',story:'잎이 참새 혀를 닮았다고 ‘작설’이라고도 해요. 더 일찍 딴 것은 ‘우전’이에요.',br:[['오설록','아모레퍼시픽이 1979년부터 제주에 차밭을 일궈 만든 브랜드. 세작·말차와 향 블렌드가 많아요.']],tg:'KR am day'},
+{id:'longjing',g:'leaf',n:'용정차',o:'항저우 서호',k:'녹차',caf:2,c:'#cdd06a',w:'식힌 물(80°C)',s:150,line:'납작한 잎에서 나는 군밤 향.',taste:'볶은 밤과 콩 같은 고소함.',how:'유리잔에 잎 3g을 넣고 2~3분. 잎이 서서 가라앉는 걸 보며 마셔요.',story:'솥에 손으로 눌러 덖어서 잎이 납작해요. 청명 전에 딴 것을 가장 귀하게 쳐요.',tg:'far CN am day'},
+{id:'sencha',g:'leaf',n:'센차',o:'일본 우지 · 시즈오카',k:'녹차',caf:2,c:'#b9cc4a',w:'식힌 물(70~80°C)',s:60,line:'찐 잎의 바다 내음.',taste:'풀과 김을 닮은 감칠맛.',how:'잎 1큰술을 1분. 마지막 한 방울까지 따라요.',story:'일본 녹차는 덖지 않고 쪄서 만들어요. 그래서 빛깔이 더 푸르고 맛이 달라요.',tg:'JP am day'},
+{id:'gyokuro',g:'leaf',n:'교쿠로',o:'일본 우지',k:'녹차',caf:3,c:'#a9c44a',w:'미지근한 물(50~60°C)',s:120,line:'그늘에서 자란 잎의 국물 같은 단맛.',taste:'진한 감칠맛. 차라기보다 맑은 국물 같아요.',how:'잎 1큰술에 물은 60ml만, 2분. 아주 적은 양을 천천히 마셔요.',story:'따기 전 스무 날쯤 빛을 가려 키워요. 쓴맛 대신 단맛이 차올라요.',tg:'far JP am'},
+{id:'matcha',g:'leaf',n:'말차',o:'교토 우지 · 제주',k:'가루 녹차',caf:3,c:'#7fa83a',w:'식힌 물(70~80°C) 70ml',s:0,line:'잎을 통째로 마시는 초록.',taste:'쌉쌀하고 진하고 크림 같아요.',how:'가루 1작은술을 체에 내리고 물을 부어 차선으로 거품이 일 때까지 저어요. 우유에 풀면 말차 라테.',story:'그늘에서 키운 잎을 맷돌에 갈아요.',tg:'JP KR am'},
+{id:'jasmine',g:'leaf',n:'재스민차',o:'중국 푸저우',k:'꽃 향 녹차',caf:2,c:'#d9d27a',w:'식힌 물(80~85°C)',s:150,line:'밤에 피는 꽃의 향을 잎에 옮겼어요.',taste:'꽃향이 진하고 맛은 맑아요.',how:'진주처럼 말린 것은 대여섯 알을 2~3분.',story:'찻잎 곁에 밤새 재스민 꽃을 두어 향을 입혀요. 꽃은 다시 골라내요.',tg:'CN day'},
+{id:'silver',g:'leaf',n:'백호은침',o:'푸젠 푸딩',k:'백차',caf:1,c:'#e6dca0',w:'식힌 물(80~85°C)',s:240,line:'솜털 덮인 싹만 모은 차.',taste:'아주 맑고 달아요. 멜론 같은 향.',how:'싹 3g을 3~5분. 느긋하게 우려요.',story:'덖지도 비비지도 않고 그대로 말려요. 가장 손을 덜 댄 차예요.',tg:'far CN day'},
+{id:'baimudan',g:'leaf',n:'백모단',o:'푸젠 푸딩',k:'백차',caf:1,c:'#e3cf88',w:'조금 식힌 물(85~90°C)',s:180,line:'‘흰 모란’이라는 이름의 순한 차.',taste:'꽃과 마른 풀, 끝에 꿀.',how:'잎 3g을 3분.',story:'싹 하나에 잎 두 장을 함께 따요. 백호은침보다 맛이 또렷해요.',tg:'far CN day'},
+{id:'tgy',g:'leaf',n:'철관음',o:'푸젠 안시',k:'우롱차',caf:2,c:'#d9c85a',w:'뜨거운 물(95°C)',s:90,line:'동그랗게 말린 잎이 난꽃 향으로 풀려요.',taste:'꽃향이 화사하고 뒷맛이 달아요.',how:'잎 5g을 1분, 대여섯 번 다시 우려요. 머그라면 3분.',story:'잎을 흔들어 가장자리만 살짝 발효시켜요. 녹차와 홍차 사이의 차예요.',tg:'CN TW day'},
+{id:'obeauty',g:'leaf',n:'동방미인',o:'대만 신주',k:'우롱차',caf:2,c:'#d98a3a',w:'조금 식힌 물(85~90°C)',s:150,line:'벌레가 다녀간 잎에서 꿀 향이 나요.',taste:'꿀과 익은 과일 향.',how:'잎 3g을 2~3분.',story:'여름에 작은 매미충이 잎을 빨면, 잎이 스스로를 지키려고 달콤한 향을 만들어요. 그래서 농약 없이 키워요.',tg:'far TW day'},
+{id:'dhp',g:'leaf',n:'대홍포',o:'푸젠 무이산',k:'우롱차',caf:2,c:'#b9622a',w:'갓 끓은 물',s:60,line:'바위틈에서 자란 차의 구운 향.',taste:'볶은 견과와 구운 과일, 돌 같은 여운.',how:'잎 5g을 30초~1분, 여러 번 우려요. 머그라면 2분.',story:'무이산 바위 절벽에서 자라 ‘암차’라고 불러요. 숯불에 오래 쬐어 말려요.',tg:'far CN day cold'},
+{id:'dancong',g:'leaf',n:'봉황단총',o:'광둥 차오저우',k:'우롱차',caf:2,c:'#dba84a',w:'뜨거운 물(95°C)',s:45,line:'꽃과 과일 향을 흉내 내는 차.',taste:'복숭아, 난꽃, 꿀. 나무마다 향이 달라요.',how:'잎 5g을 아주 짧게, 20~40초씩 여러 번.',story:'‘한 그루씩 따로 딴다’는 뜻이에요. 향을 넣지 않았는데도 꽃향이 나요.',tg:'far CN day'},
+{id:'darj',g:'leaf',n:'다즐링 봄차',o:'인도 히말라야 기슭',k:'홍차',caf:2,c:'#d9a23a',w:'조금 식힌 물(85~90°C)',s:180,line:'안개 낀 산비탈의 첫 잎.',taste:'홍차인데 풋풋해요. 머스캣 포도를 닮은 향.',how:'잎 3g을 3분. 우유 없이 마셔요.',story:'3~4월에 딴 첫물차예요. 해발 2천 미터 안팎의 가파른 비탈에서 자라요.',tg:'far IN am day'},
+{id:'assam',g:'leaf',n:'아삼',o:'인도 브라마푸트라 강가',k:'홍차',caf:3,c:'#8a2f1a',w:'갓 끓은 물',s:240,line:'우유를 만나야 완성되는 진한 홍차.',taste:'몰트와 흑설탕 같은 진한 맛.',how:'잎 3g을 3~4분. 우유를 넉넉히 넣어요.',story:'낮고 더운 강가 평원에서 자라요. 밀크티와 브렉퍼스트 블렌드의 뼈대예요.',tg:'IN am'},
+{id:'uva',g:'leaf',n:'실론 우바',o:'스리랑카 고지대',k:'홍차',caf:3,c:'#a8401e',w:'갓 끓은 물',s:180,line:'박하처럼 시원한 바람이 부는 산의 홍차.',taste:'또렷하고 상쾌해요. 살짝 박하 느낌.',how:'잎 3g을 3분. 레몬도 우유도 잘 어울려요.',story:'스리랑카 동쪽 산지의 차예요. 여름 계절풍이 불 때 딴 것이 향이 가장 좋아요.',tg:'far LK am day'},
+{id:'keemun',g:'leaf',n:'기문',o:'안후이 치먼',k:'홍차',caf:2,c:'#9a3a1e',w:'뜨거운 물(90~95°C)',s:180,line:'난꽃 향이 난다는 중국 홍차.',taste:'부드럽고 달아요. 꽃과 과일 사이.',how:'잎 3g을 3분.',story:'영국 브렉퍼스트 블렌드에 향을 더하던 차예요.',tg:'far CN day'},
+{id:'lapsang',g:'leaf',n:'정산소종',o:'푸젠 무이산',k:'훈연 홍차',caf:2,c:'#8a3a1a',w:'뜨거운 물(95°C)',s:180,line:'모닥불 곁에서 마시는 차.',taste:'소나무 연기 향. 좋아하는 사람은 아주 좋아해요.',how:'잎 3g을 3분. 비 오는 날 유난히 어울려요.',story:'소나무 장작 연기로 말려요. 서양에서는 ‘랍상소우총’이라 불러요.',tg:'far CN rain cold day'},
+{id:'dianhong',g:'leaf',n:'전홍',o:'윈난',k:'홍차',caf:2,c:'#b5521e',w:'뜨거운 물(90~95°C)',s:180,line:'금빛 싹이 섞인, 군고구마 향의 홍차.',taste:'달고 부드러워요. 떫은맛이 적어요.',how:'잎 3g을 3분.',story:'윈난의 큰 잎 차나무로 만들어요. 금빛 솜털 싹이 많을수록 달아요.',tg:'far CN day cold'},
+{id:'eng',g:'leaf',n:'잉글리시 브렉퍼스트',o:'영국의 아침 식탁',k:'홍차',caf:3,c:'#8a2a14',w:'갓 끓은 물',s:240,line:'하루를 여는 진한 한 잔.',taste:'진하고 몰트 향. 우유와 잘 어울려요.',how:'티백 하나를 3~5분. 우유를 넣을 거면 진하게.',story:'아삼·실론·케냐 홍차를 섞은 아침용 블렌드예요.',br:[['트와이닝스','1706년 런던의 찻집에서 시작한 영국 차 회사.'],['립톤','노란 상자 ‘옐로 라벨’ 티백으로 세계 어디서나 보여요.']],tg:'GB IE am'},
+{id:'earl',g:'leaf',n:'얼그레이',o:'영국',k:'홍차',caf:3,c:'#9a3a18',w:'갓 끓은 물',s:180,line:'홍차에 베르가못 향수를 한 방울.',taste:'화사한 시트러스 향.',how:'티백 하나를 3~4분. 오래 두면 떫어요. 우유가 향을 둥글게 해요.',story:'이름은 19세기 영국 그레이 백작에게서 왔다고 전해요.',br:[['트와이닝스','얼그레이로 가장 널리 알려진 회사 가운데 하나.'],['마리아주 프레르','1854년 파리에서 시작. 천 가지 넘는 차를 다루고 향 블렌드가 유명해요.'],['다만 프레르','1692년부터 이어져 온 프랑스 차 회사. 과일·꽃 향 블렌드가 많아요.']],tg:'GB FR day'},
+{id:'jaeksal',g:'leaf',n:'하동 잭살',o:'하동 화개',k:'발효차',caf:2,c:'#a84a22',w:'갓 끓은 물',s:180,line:'지리산 자락 할머니들의 홍차.',taste:'달고 구수해요. 떫은맛이 적어요.',how:'잎 3g을 3분. 주전자에 끓여 마시기도 해요.',story:'찻잎을 비벼 아랫목에서 띄워 만들던 하동의 옛 발효차예요. 감기 기운이 있으면 끓여 마시곤 했대요.',tg:'KR day cold'},
+{id:'puer',g:'leaf',n:'보이 숙차',o:'윈난',k:'흑차',caf:2,c:'#4a2416',w:'갓 끓은 물',s:120,line:'오래된 책과 젖은 흙의 냄새.',taste:'흙과 나무 향, 쓴맛 없이 둥글어요.',how:'첫 물은 5초 만에 따라 버리고, 다음부터 10~20초씩 여러 번. 머그라면 2~3분.',story:'찻잎을 쌓아 발효시킨 뒤 떡처럼 눌러 두고 묵혀요. 기름진 식사 뒤에 마시는 차예요.',tg:'CN HK day rain'},
+// ── 먼 나라의 차 ──
+{id:'chai',g:'far',n:'마살라 차이',o:'인도의 길모퉁이',k:'향신료 밀크티',caf:3,c:'#b9824a',w:'물과 우유 반반',s:0,line:'기차역 흙잔에 담아 주던 달고 매운 차.',taste:'달고 진하고, 생강과 카다몬이 훅 올라와요.',how:'물에 생강·카다몬·계피·정향을 넣어 끓이다가 홍차를 넣고 2~3분, 우유와 설탕을 넣어 한 번 더 끓여 걸러요.',story:'인도 어디서나 ‘차이왈라’가 끓여 팔아요. 집집마다 향신료 배합이 달라요.',tg:'far IN cold rain am'},
+{id:'turk',g:'far',n:'터키 차이',o:'흑해 리제',k:'홍차',caf:3,c:'#a52a14',w:'갓 끓은 물',s:0,line:'튤립 모양 유리잔에 담긴 붉은 차.',taste:'진하고 깔끔해요. 각설탕을 곁들여요.',how:'위아래 두 층 주전자의 위쪽에서 진하게 15분 뜸 들이고, 잔에 따른 뒤 아래쪽 뜨거운 물로 농도를 맞춰요.',story:'터키 사람들은 세계에서 차를 가장 많이 마시는 축에 들어요. 하루에도 몇 잔씩, 손잡이 없는 작은 잔으로요.',tg:'far TR day'},
+{id:'morocco',g:'far',n:'모로코 민트티',o:'마라케시',k:'민트 녹차',caf:2,c:'#c9b84a',w:'갓 끓은 물',s:210,line:'높이 들어 따르는 달콤한 환대.',taste:'박하 향이 가득하고 아주 달아요.',how:'동글게 말린 녹차 1작은술에 생 스피어민트 한 줌, 설탕을 넣고 3~4분. 높은 데서 따라 거품을 내요.',story:'손님이 오면 세 잔을 내는 게 예의래요.',tg:'far MA hot day'},
+{id:'kahwa',g:'far',n:'카슈미르 카와',o:'카슈미르',k:'향신료 녹차',caf:1,c:'#e0b84a',w:'끓는 물',s:0,line:'사프란 몇 가닥이 물들인 금빛.',taste:'카다몬과 계피 향, 아몬드의 고소함.',how:'물에 카다몬·계피·사프란을 넣고 끓이다 녹차를 조금 넣어 잠깐 우려요. 잔에 아몬드 조각을 넣고 꿀을 타요.',story:'눈 많은 카슈미르의 겨울 차예요. ‘사모바르’라는 구리 주전자에 끓여요.',tg:'far IN PK cold snow'},
+{id:'butter',g:'far',n:'티베트 버터차',o:'티베트 고원',k:'소금 밀크티',caf:2,c:'#c9a57a',w:'진하게 끓인 차',s:0,line:'달지 않고 짭짤한, 높은 곳의 차.',taste:'짭짤하고 기름져요. 차보다 국물에 가까워요.',how:'진하게 끓인 차에 버터와 소금, 우유를 넣고 세게 섞어요.',story:'티베트 말로 ‘포차’. 춥고 건조한 고원에서 하루 종일 마셔요. 손님 잔이 비면 바로 채워 줘요.',tg:'far CN NP cold snow'},
+{id:'hkmilk',g:'far',n:'홍콩 밀크티',o:'홍콩 차찬텡',k:'밀크티',caf:3,c:'#b98a5a',w:'갓 끓은 물',s:0,line:'비단 스타킹처럼 생긴 거름망으로 내린 차.',taste:'아주 진하고 매끈해요.',how:'여러 홍차를 섞어 진하게 우리고, 달지 않은 연유를 부어요.',story:'긴 천 거름망에 여러 번 부어 내려서 ‘실크스타킹 밀크티’라고 불러요.',tg:'far HK am day'},
+{id:'thai',g:'far',n:'타이 아이스티',o:'방콕의 노점',k:'밀크티',caf:3,c:'#d9742a',w:'갓 끓은 물',s:0,line:'주황빛 차에 연유가 구름처럼 번져요.',taste:'달고 진하고 향신료 향이 나요.',how:'홍차를 아주 진하게 우려 설탕과 연유를 넣고, 얼음 가득한 잔에 부어요.',story:'태국 말로 ‘차옌’. 더운 날 비닐봉지에 담아 들고 다녀요.',tg:'far TH hot'},
+{id:'caravan',g:'far',n:'러시안 캐러밴',o:'차 길 위',k:'홍차 블렌드',caf:3,c:'#8a3216',w:'갓 끓은 물',s:210,line:'낙타 등에 실려 초원을 건넌 차.',taste:'은은한 연기 향에 몰트의 단맛.',how:'잎 3g을 3~4분. 잼 한 숟갈을 곁들이는 게 러시아식이에요.',story:'옛날 중국 차는 낙타 대상에 실려 반년 넘게 걸려 러시아에 닿았어요. 밤마다 피운 모닥불 연기가 뱄다는 이야기에서 나온 블렌드예요.',tg:'far RU cold snow day'},
+{id:'mate',g:'far',n:'마테',o:'아르헨티나 · 우루과이',k:'잎차(허브)',caf:3,c:'#a9a84a',w:'식힌 물(70~80°C)',s:240,line:'한 통을 돌려 가며 나눠 마시는 차.',taste:'풀과 볏짚, 쌉쌀해요.',how:'1큰술을 3~5분. 끓는 물은 쓴맛을 내니 한 김 식혀요.',story:'박으로 만든 통에 담아 ‘봄비야’라는 쇠 빨대로 마셔요. 친구끼리 한 통을 돌려 마시는 게 우정의 표시예요.',care:'카페인이 꽤 있어요. 너무 뜨겁게 마시지 않는 게 좋아요.',tg:'far AR UY BR am'},
 ];
-const CAF=['카페인 없음','카페인 조금','카페인 보통','카페인 많은 편'];
-let TEA_I=0, TEA_L=null;
-function teaRank(){ const now=new Date(), h=now.getHours(), mo=now.getMonth()+1, w=S.w||{}, cc=(S.place&&S.place.cc||'').toUpperCase();
-  const late=h>=18||h<5, aft=h>=15&&h<18, am=h>=5&&h<11, wet=w.kind==='rain'||w.kind==='snow', cold=(w.temp!=null&&w.temp<10)||mo===12||mo<=2, hot=(w.temp!=null&&w.temp>=25)||(mo>=6&&mo<=8&&w.temp==null);
-  const cap=late?0:aft?1:3, why=[];
-  why.push(`${h<12?'오전':'오후'} ${h%12||12}시`);
-  if(S.place&&S.place.name) why.push(`창밖 ${S.place.name}${w.kind==='snow'?'엔 눈':w.kind==='rain'?'엔 비':w.temp!=null?` ${Math.round(w.temp)}°C`:''}`);
-  const L=TEAS.filter(t=>t.caf<=cap).map(t=>{ let s=Math.random()*1.2; const g=t.tg||{};
-    if((wet||cold)&&g.warm) s+=2; if(hot&&g.cool) s+=2; if(am&&g.am) s+=2; if(late&&g.night) s+=1; if(g.cc&&g.cc.includes(cc)) s+=2.2; return {t,s}; }).sort((a,b)=>b.s-a.s).map(x=>x.t);
-  return {L,why:why.join(' · ')+(late?' · 늦은 시간이라 카페인 없는 차로 골랐어요':aft?' · 카페인이 적은 차로 골랐어요':'에 맞춰 골랐어요')}; }
-function teaCard(t){ const e=escH;
-  return `<div class="tea"><div class="tea-hd"><b>${e(t.n)}</b><span>${e(t.k)} · ${CAF[t.caf]}</span></div><p>${e(t.taste)}</p>
-   <dl><dt>물</dt><dd>${e(t.w)}</dd><dt>우리기</dt><dd>${e(t.bag)}</dd>${t.leaf&&t.leaf!=='—'?`<dt>잎·알곡</dt><dd>${e(t.leaf)}</dd>`:''}<dt>맛있게</dt><dd>${e(t.tip)}</dd></dl>
-   <details><summary>알려진 이야기</summary><p>${e(t.story)}</p>${t.care?`<p class="care">${e(t.care)}</p>`:''}</details>
+const CAF=['카페인 없음','카페인 조금','카페인 보통','카페인 많은 편'], TEAG=[['sleep','하루를 닫는 차'],['grain','구수한 차'],['dabang','다방의 차'],['leaf','잎차'],['far','먼 나라의 차']];
+let TEA_I=0, TEA_L=null, TEA_WHY='';
+// 지금 이 방에 어울리는 차: 휴대폰 시각(카페인), 창밖 날씨·나라, 계절을 보고 고르되, 요 며칠 본 차는 뒤로 미룬다
+function teaRank(){ const now=new Date(), h=now.getHours(), mo=now.getMonth()+1, w=S.w||{}, cc=(S.place&&S.place.cc||'').toUpperCase(), seen=LS.get('teaSeen',[]);
+  const late=h>=18||h<5, aft=h>=15&&h<18, am=h>=5&&h<11, wet=w.kind==='rain', snow=w.kind==='snow', cold=(w.temp!=null?w.temp<10:(mo===12||mo<=2)), hot=(w.temp!=null?w.temp>=25:(mo>=6&&mo<=8)), cap=late?0:aft?1:3;
+  const day=Math.floor((now.getTime()-now.getTimezoneOffset()*60000)/864e5), R=(()=>{ let x=(day*2654435761+h*40503)>>>0||1; return ()=>{ x^=x<<13; x>>>=0; x^=x>>17; x^=x<<5; x>>>=0; return x/4294967296; }; })();
+  const L=TEAS.filter(t=>t.caf<=cap).map(t=>{ const g=' '+(t.tg||'')+' '; let s=R()*2.4;
+    if(wet&&g.includes(' rain ')) s+=2.2; if(snow&&g.includes(' snow ')) s+=2.6; if((cold||snow)&&g.includes(' cold ')) s+=1.6; if(hot&&g.includes(' hot ')) s+=2.2; if(am&&g.includes(' am ')) s+=1.8; if(!late&&!am&&g.includes(' day ')) s+=.8;
+    if(cc&&g.includes(' '+cc+' ')) s+=2.4; if(late&&t.g==='sleep') s+=.9; if(g.includes(' far ')) s+=.5; const k=seen.indexOf(t.id); if(k>=0) s-=4.5-k*.25; return {t,s}; }).sort((a,b)=>b.s-a.s).map(x=>x.t);
+  const hh=`${h<5?'새벽':h<12?'아침':h<18?'낮':h<22?'저녁':'밤'} ${h%12||12}시`, pn=S.place&&S.place.name, sky=snow?'엔 눈이 와요':wet?'엔 비가 와요':w.temp!=null?`은 ${Math.round(w.temp)}°C`:'';
+  TEA_WHY=hh+(pn?`, 창밖 ${pn}${sky||''}`:'')+(late?'. 카페인 없는 차로 골랐어요.':aft?'. 카페인이 적은 차로 골랐어요.':'.'); return L; }
+function teaSeen(id){ const a=LS.get('teaSeen',[]).filter(x=>x!==id); a.unshift(id); LS.set('teaSeen',a.slice(0,14)); }
+function teaCard(t){ const e=escH, tm=t.s?(t.s>=60?(Math.round(t.s/6)/10)+'분':t.s+'초'):'';
+  return `<div class="tea" style="--tc:${t.c}"><div class="tea-top"><div class="cup" aria-hidden="true"><i></i><b></b><b></b></div><div class="tea-hd"><span class="tea-o">${e(t.o)}</span><b>${e(t.n)}</b><span class="tea-k">${e(t.k)} · ${CAF[t.caf]}</span></div></div>
+   <p class="tea-line">${e(t.line)}</p>
+   <div class="tea-brew"><span><small>물</small>${e(t.w)}</span>${tm?`<span><small>시간</small>${tm}</span>`:''}</div>
+   <dl><dt>맛</dt><dd>${e(t.taste)}</dd><dt>우리기</dt><dd>${e(t.how)}</dd><dt>이야기</dt><dd>${e(t.story)}</dd>${t.care?`<dt>조심</dt><dd class="care">${e(t.care)}</dd>`:''}</dl>
    ${t.br&&t.br.length?`<details><summary>브랜드마다 이렇게 달라요</summary>${t.br.map(([a,b])=>`<p><b>${e(a)}</b> ${e(b)}</p>`).join('')}</details>`:''}</div>`; }
-function openTea(pick){ blip('paper'); const R=teaRank(); if(!TEA_L||pick==null){ TEA_L=R.L; TEA_I=0; }
-  const t=pick!=null?TEAS.find(x=>x.id===pick):TEA_L[TEA_I%TEA_L.length], brew=ALM.find(a=>a.id==='tea');
-  show(`<h2>차 한 잔</h2><p class="tea-why">${escH(pick!=null?'찻장에서 고른 차':R.why)}</p>${teaCard(t)}
-   <div class="row" id="tBtns">${brew?`<button class="ok" id="tStop">그만 우리기 · <span id="tLeft"></span></button>`:t.bs?`<button class="ok" id="tBrew">물 붓고 우리기 · ${t.bs>=60?Math.round(t.bs/60*10)/10+'분':t.bs+'초'}</button>`:''}<button class="chip" id="tKet">${KT?'불 끄기':'물 올리기'}</button>${pick==null?'<button class="chip" id="tNext">다른 차</button>':''}</div>
-   <label class="sl">찻장</label><div class="chips">${TEAS.map(x=>`<button class="chip" data-tea="${x.id}" aria-pressed="${x.id===t.id}">${x.n}</button>`).join('')}</div>
-   <small>광고가 아니에요. 받은 것도, 어디서 사라는 이야기도 없어요. 차는 약이 아니니, 몸에 맞지 않으면 쉬어 가세요. 시간은 이 휴대폰의 지금 시각을 따라요.</small>`);
+function openTea(pick){ blip('paper'); if(pick==null&&(!TEA_L||!TEA_L.length)){ TEA_L=teaRank(); TEA_I=0; } if(!TEA_WHY) teaRank();
+  const t=pick!=null?TEAS.find(x=>x.id===pick):TEA_L[TEA_I%TEA_L.length], brew=ALM.find(a=>a.id==='tea'); teaSeen(t.id);
+  show(`<h2>차 한 잔</h2><p class="tea-why">${escH(pick!=null?'찻장에서 꺼낸 차':TEA_WHY)}</p>${teaCard(t)}
+   <div class="row" id="tBtns">${brew?`<button class="ok" id="tStop">그만 우리기 · <span id="tLeft"></span></button>`:t.s?`<button class="ok" id="tBrew">물 붓고 우리기</button>`:''}<button class="chip" id="tKet">${KT?'불 끄기':'물 올리기'}</button><button class="chip" id="tNext">다른 차</button></div>
+   <label class="sl">찻장 · ${TEAS.length}가지</label>${TEAG.map(([g,nm])=>`<details class="tshelf"${t.g===g?' open':''}><summary>${nm} <small>${TEAS.filter(x=>x.g===g).length}</small></summary><div class="chips">${TEAS.filter(x=>x.g===g).map(x=>`<button class="chip" data-tea="${x.id}" aria-pressed="${x.id===t.id}"><i style="background:${x.c}"></i>${x.n}</button>`).join('')}</div></details>`).join('')}
+   <small>광고가 아니에요. 받은 것도, 어디서 사라는 이야기도 없어요. 차는 약이 아니니 몸에 맞지 않으면 쉬어 가세요. 저녁 6시부터는 카페인 없는 차만 권해요(이 휴대폰의 시각 기준).</small>`);
   $('tKet').onclick=()=>{ toggleKettle(); $('tKet').textContent=KT?'불 끄기':'물 올리기'; };
-  if($('tNext')) $('tNext').onclick=()=>{ TEA_I++; openTea(); };
-  if($('tBrew')) $('tBrew').onclick=()=>{ if(KT) toggleKettle(); pour(); almAdd({id:'tea',kind:'tea',at:Date.now()+t.bs*1000,msg:`${t.n}가 다 우러났어요. 티백을 건져 주세요.`.replace(/([가-힣])가 다/,(m,c)=>((c.charCodeAt(0)-0xAC00)%28?c+'이':c+'가')+' 다')}); openTea(pick); };
+  $('tNext').onclick=()=>{ if(pick!=null){ TEA_L=teaRank(); TEA_I=0; } else TEA_I++; openTea(); };
+  if($('tBrew')) $('tBrew').onclick=()=>{ if(KT) toggleKettle(); pour(); const c=(t.n.charCodeAt(t.n.length-1)-0xAC00)%28; almAdd({id:'tea',kind:'tea',at:Date.now()+t.s*1000,msg:`${t.n}${c>0?'이':'가'} 다 우러났어요. 이제 건져 주세요.`}); openTea(pick); };
   if($('tStop')) $('tStop').onclick=()=>{ almDel('tea'); openTea(pick); };
   document.querySelectorAll('[data-tea]').forEach(b=>b.onclick=()=>openTea(b.dataset.tea)); almUI(); }
 function pour(){ const c=actx(); if(!c||!AU.on) return; const t=c.currentTime, s=c.createBufferSource(); s.buffer=noise(2.2,false); const f=c.createBiquadFilter(); f.type='bandpass'; f.Q.value=1.2; f.frequency.setValueAtTime(900,t); f.frequency.linearRampToValueAtTime(1700,t+2); const g=c.createGain(); g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.12,t+.15); g.gain.setValueAtTime(.12,t+1.6); g.gain.exponentialRampToValueAtTime(.0001,t+2.2); s.connect(f).connect(g).connect(AU.out); s.start(t); s.stop(t+2.3); }
@@ -1730,12 +1809,12 @@ function sleepStop(restore){ clearInterval(sleepStart.iv); SL=null; window.SLP=0
 function sleepEnd(){ sleepStop(false); if(SN) sleepSound('none'); symStop(); if(S.playing) songStop(); if(S.radio) radioOff(); if(typeof PJ!=='undefined'&&PJ) projOff(); if(KT) toggleKettle(); if(S.snd) toggleRainSound(); if(S.lamp) toggleLamp();
   setTimeout(()=>{ slVol(1); },4000); const wake=()=>{ $('sleepDim').style.opacity=0; removeEventListener('pointerdown',wake); }; addEventListener('pointerdown',wake); }
 const DIM=Object.assign({room:1,lamp:1},LS.get('dim',{}));
-function applyDim(){ const r=$('roomDim'); if(r) r.style.opacity=((1-DIM.room)*.93).toFixed(3); window.__lampLv=DIM.lamp; }
+function applyDim(){ const r=$('roomDim'); if(r) r.style.opacity=((1-DIM.room)*.93).toFixed(3); window.__lampLv=DIM.lamp; const ro=$('roomoff'); if(ro) ro.style.opacity=S.lamp?(1-DIM.lamp).toFixed(3):''; const gw=document.querySelector('.glow'); if(gw) gw.style.opacity=S.lamp?DIM.lamp.toFixed(3):''; }
 function dimUI(){ return `<label class="sl" for="dmRoom">방 밝기 · <span class="dmv" data-k="room">${Math.round(DIM.room*100)}%</span></label><input type="range" class="dmr" id="dmRoom" data-k="room" min="0.06" max="1" step="0.01" value="${DIM.room}" aria-label="방 밝기">
    <label class="sl" for="dmLamp">스탠드 불빛 · <span class="dmv" data-k="lamp">${Math.round(DIM.lamp*100)}%</span></label><input type="range" class="dmr" id="dmLamp" data-k="lamp" min="0" max="1" step="0.01" value="${DIM.lamp}" aria-label="스탠드 불빛">`; }
 function wireDim(){ document.querySelectorAll('.dmr').forEach(el=>el.oninput=()=>{ DIM[el.dataset.k]=+el.value; LS.set('dim',DIM); applyDim();
     document.querySelectorAll(`.dmr[data-k="${el.dataset.k}"]`).forEach(x=>{ if(x!==el) x.value=el.value; }); document.querySelectorAll(`.dmv[data-k="${el.dataset.k}"]`).forEach(x=>x.textContent=Math.round(DIM[el.dataset.k]*100)+'%');
-    if(el.dataset.k==='lamp'&&!S.lamp&&DIM.lamp>0) toggleLamp(); }); }
+    if(el.dataset.k==='lamp'&&!S.lamp&&DIM.lamp>.35) toggleLamp(); }); }
 function openSleep(){ if(SL){ show(`<h2>잠들기</h2><p>${Math.max(1,Math.ceil((SL.dur-(Date.now()-SL.t0))/60000))}분 뒤에 불빛과 소리가 다 꺼져요.</p><div class="row"><button class="ok" id="slX">그만두기</button></div>`); $('slX').onclick=()=>{ sleepStop(true); closePanel(); }; return; }
   show(`<h2>잠들기</h2><p>안락의자에 기대면, 스탠드 불빛과 방 안의 소리가 함께 아주 천천히 줄어들다 꺼져요. 잠드는 소리를 고르는 동안엔 듣던 노래·라디오·영상이 잠깐 멈춰요. 심포니는 기타 반주가 있어서 고르면 노래·라디오는 꺼진 채로 두고, 노이즈·바람이나 ‘지금 소리 그대로’를 고르면 이 창을 닫을 때 듣던 것이 다시 이어져요.</p>
    <label class="sl">잠드는 소리</label>
@@ -1849,7 +1928,7 @@ document.querySelectorAll('.hs').forEach(b=>b.addEventListener('click',e=>{
   zoomTo(b); openPanel(b.dataset.p);
 }));
 new MutationObserver(()=>{ if(panel.hidden) closeZoom(); }).observe(panel,{attributes:true,attributeFilter:['hidden']});
-stage.addEventListener('click',e=>{ if(!e.target.closest('.panel,.hs,.hud,.board,.clock')) closePanel(); });
+stage.addEventListener('click',e=>{ if(e.composedPath&&e.composedPath().includes(panel)) return; if(!e.target.closest('.panel,.hs,.hud,.board,.clock')) closePanel(); });   // 패널 안에서 눌러 내용이 다시 그려져도 닫히지 않게
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ openSky(false); closePanel(); } });
 
 // 처음엔 물건들이 차례로 한 번씩 반짝이고, 그 뒤로도 가끔 하나씩
@@ -1959,7 +2038,7 @@ function drawW(now,mx,my,still){
   WG.rain+=(WG.rainT-WG.rain)*.02;
   const zs=1-.22*WG.zm, sx=(WG.ia>wa ? WG.s*WG.ia/wa : WG.s)*zs, sy=(WG.ia>wa ? WG.s : WG.s*wa/WG.ia)*zs;
   g.uniform2f(WG.u.R,cv.width,cv.height); g.uniform2f(WG.u.SC,sx,sy); g.uniform2f(WG.u.CC,WG.c[0],WG.c[1]);
-  g.uniform2f(WG.u.O,-mx*.012,-my*.008); g.uniform1f(WG.u.time,still?40.:now/1000); g.uniform1f(WG.u.rain,WG.rain*(window.__wopen?.2:1)); g.uniform1f(WG.u.lamp,S.lamp?1:0); WG.snow+=(WG.snowT-WG.snow)*.02; g.uniform1f(WG.u.snow,WG.snow); g.uniform1f(WG.u.hasM,WG.hasM); g.uniform1f(WG.u.OVL,WG.ovl?1:0); WG.ng=(WG.ng||0)+((WG.ngT||0)-(WG.ng||0))*.03; g.uniform1f(WG.u.NG,WG.ng); g.clearColor(0,0,0,0); g.clear(g.COLOR_BUFFER_BIT); g.uniform2f(WG.u.AU,WG.au[0],WG.au[1]);
+  g.uniform2f(WG.u.O,-mx*.012,-my*.008); g.uniform1f(WG.u.time,still?40.:now/1000); g.uniform1f(WG.u.rain,WG.rain*(window.__wopen?.2:1)); g.uniform1f(WG.u.lamp,S.lamp?(window.__lampLv==null?1:window.__lampLv):0); WG.snow+=(WG.snowT-WG.snow)*.02; g.uniform1f(WG.u.snow,WG.snow); g.uniform1f(WG.u.hasM,WG.hasM); g.uniform1f(WG.u.OVL,WG.ovl?1:0); WG.ng=(WG.ng||0)+((WG.ngT||0)-(WG.ng||0))*.03; g.uniform1f(WG.u.NG,WG.ng); g.clearColor(0,0,0,0); g.clear(g.COLOR_BUFFER_BIT); g.uniform2f(WG.u.AU,WG.au[0],WG.au[1]);
   g.drawArrays(g.TRIANGLE_STRIP,0,4);
 }
 
@@ -2061,7 +2140,7 @@ function frame(now){
   const mp=Math.max(1,(scene.offsetWidth-stage.clientWidth)/2), pn=mp>2?pan/mp:0;
   const gx=still?0:Math.max(-1,Math.min(1,tx+Math.sin(idle*.23)*(fine?.18:.3))), gy=still?0:ty+Math.sin(idle*.17+1)*(fine?.10:.26);
   mx+=(gx-mx)*.06; my+=(gy-my)*.06;
-  lampMix+=((S.lamp?(window.SLP||0):1)-lampMix)*.09;
+  lampMix+=((S.lamp?Math.max(window.SLP||0,1-(window.__lampLv==null?1:window.__lampLv)):1)-lampMix)*.09;
   { const wd=!!(S.w&&S.w.isDay); if(wd!==stage.classList.contains('isday')){ stage.classList.toggle('isday',wd); const rd=$('roomday'); if(wd&&rd&&!rd.getAttribute('src')) rd.src='img/b_room_day.webp'; }
     if(wd) loadDayTex(); dayMix+=((wd&&(dayTex||S.lite||!gl)?1:0)-dayMix)*.02; }
   // 카메라: 문간에서 한 걸음 들어서고, 고개를 따라 몸이 조금씩 움직인다
