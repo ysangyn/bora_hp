@@ -68,5 +68,19 @@
   "n": 22211,
   "ch": 13,
   "v": "2026-11-12T05:11:09Z"
+ },
+ {
+  "id": "dickens-carol",
+  "t": "크리스마스 캐럴",
+  "a": "찰스 디킨스",
+  "tr": "보라다방",
+  "y": "1843",
+  "kind": "novel",
+  "src": "https://www.gutenberg.org/ebooks/46",
+  "srcN": "원문: A Christmas Carol in Prose, Being a Ghost Story of Christmas (1843) · 다섯 노래 가운데 2까지 옮김, 이어서 옮기는 중",
+  "color": "#5a2a2e",
+  "n": 36531,
+  "ch": 3,
+  "v": "2026-11-12T11:06:29Z"
  }
 ]
