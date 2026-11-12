@@ -40,5 +40,33 @@
   "n": 6555,
   "ch": 1,
   "v": "2026-11-12T04:48:17Z"
+ },
+ {
+  "id": "ohenry-magi",
+  "t": "크리스마스 선물",
+  "a": "오 헨리",
+  "tr": "보라다방",
+  "y": "1905",
+  "kind": "novel",
+  "src": "https://www.gutenberg.org/ebooks/7256",
+  "srcN": "원문: 「The Gift of the Magi」",
+  "color": "#2e4a3c",
+  "n": 6077,
+  "ch": 1,
+  "v": "2026-11-12T05:11:09Z"
+ },
+ {
+  "id": "tolstoy-love",
+  "t": "사람은 무엇으로 사는가",
+  "a": "레프 톨스토이",
+  "tr": "보라다방",
+  "y": "1881",
+  "kind": "novel",
+  "src": "https://ru.wikisource.org/wiki/%D0%A7%D0%B5%D0%BC_%D0%BB%D1%8E%D0%B4%D0%B8_%D0%B6%D0%B8%D0%B2%D1%8B_(%D0%A2%D0%BE%D0%BB%D1%81%D1%82%D0%BE%D0%B9)",
+  "srcN": "원문: 「Чем люди живы」",
+  "color": "#4a3a2c",
+  "n": 22211,
+  "ch": 13,
+  "v": "2026-11-12T05:11:09Z"
  }
 ]
