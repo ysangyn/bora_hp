@@ -1011,7 +1011,7 @@ let shownView=null;
 function applyWindow(){ if(window.__draft) return;
   const w=S.w, v=cityView();
   const PV=S.visit?svOf(S.place):null, pin=PV&&PV.pin;
-  const street=!pin && !!S.key && (S.visit || (w&&w.isDay&&!v)), night=!!(w&&w.isDay===false);
+  const street=GSV && !pin && !!S.key && (S.visit || (w&&w.isDay&&!v)), night=!!(w&&w.isDay===false);
   win.classList.toggle('night',street&&night);
   if(pin){ sv.hidden=true; sv.removeAttribute('src'); win.classList.remove('street'); WG.ovl=0; WG.ngT=night?1:0; const src=pinSrc(pin);
     if(shownView!==src){ shownView=src; const im=new Image(); im.crossOrigin='anonymous'; im.onload=()=>{ if(shownView===src) setViewSource(im,im.naturalWidth/im.naturalHeight,1.08,[.5,.5]); }; im.src=src; } }
@@ -1089,7 +1089,8 @@ async function mlyPins(pl){ try{ const cs=(pl.spots&&pl.spots.length?pl.spots:[{
   return out; }catch(e){ return []; } }
 function nPin(p){ return (p.pins&&p.pins.length)||0; }
 function svOf(p){ const np=nPin(p), i=(p.sv||0)%svCount(p); if(i<np) return {pin:p.pins[i],name:p.pins[i].n}; return svOf0({...p,sv:i-np}); }
-function svCount(p){ return nPin(p)+(S.key?svCount0(p):0)||1; }
+const GSV=false; // 구글 거리 사진은 결제 등록이 필요해 쓰지 않는다(Mapillary 사진만 넘겨 본다)
+function svCount(p){ return nPin(p)+(GSV&&S.key?svCount0(p):0)||1; }
 const RING=(()=>{ const a=[]; [.0013,.0032].forEach(d=>{ for(let k=0;k<8;k++){ const t=k*Math.PI/4; a.push([Math.cos(t)*d,Math.sin(t)*d]); } }); return a; })();
 function lookAt(la,lo,sp,cl){ return Math.round((Math.atan2((sp.lon-lo)*cl,sp.lat-la)*180/Math.PI+360)%360); }
 function svOf0(p){ if(p.views&&p.views.length) return p.views[(p.sv||0)%p.views.length];
@@ -1355,10 +1356,10 @@ function openPlace(){
    <div class="row"><input id="pIn" placeholder="예: 대림동, 살던 집 주소" autocomplete="off" aria-label="동네나 주소"><button class="ok" id="pGo">보기</button></div>
    <small id="pOut">지금 창밖: ${S.place.name}${S.visit?' (거리)':''}</small>
    <small>적은 주소는 이 휴대폰(브라우저)에만 남아요.</small>`);
-  let pend=null, padj=null;
+  let pend=null, padj=null, svBusy=false;
   const svSrc=(V,J)=>`https://www.google.com/maps/embed/v1/streetview?key=${encodeURIComponent(S.key)}&${V.pano?'pano='+V.pano:`location=${V.lat.toFixed(6)},${V.lon.toFixed(6)}`}&heading=${(V.h+J.h+360)%360}&pitch=${18+J.p}&fov=${J.f}`;
   const svBar=()=>{ const po=$('pOut'); if(window.__draft&&po&&po.textContent.includes('지금 창밖')) po.textContent=po.textContent.replace('지금 창밖','미리보기'); let b=$('svPick'); const mob=innerWidth<760;
-    if(!S.visit||svCount(S.place)<2&&!nPin(S.place)){ ['svPick','svPrev','svOk','svAdj'].forEach(id=>{ const x=$(id); if(x) x.remove(); }); return; }
+    if(svBusy||!S.visit||svCount(S.place)<2&&!nPin(S.place)){ ['svPick','svPrev','svOk','svAdj'].forEach(id=>{ const x=$(id); if(x) x.remove(); }); return; }
     const N=svCount(S.place); if(pend==null) pend=(S.place.sv||0)%N;
     if(!b){ b=document.createElement('div'); b.id='svPick'; b.className='svpick'; b.innerHTML='<button class="mc sv" id="svP" aria-label="이전 사진">‹</button><span id="svT"></span><button class="mc sv" id="svN" aria-label="다음 사진">›</button>'; $('pOut').before(b);
       const mv=(d,e)=>{ e.stopPropagation(); const N=svCount(S.place); padj={h:0,p:0,f:90}; if(innerWidth<760) pend=((pend||0)+d+N)%N; else { S.place.sv=((S.place.sv||0)+d+N)%N; pend=S.place.sv; S.place.adj={h:0,p:0,f:90}; LS.set('place6',S.place); applyWindow(); } svBar(); };
@@ -1381,8 +1382,9 @@ function openPlace(){
   const draftOn=()=>{ if(innerWidth>=760||window.__draft) return; const ids=['mPlace','mW','mT','mCo'], tx=ids.map(i=>$(i)?$(i).textContent:'');
     const snap={p:S.place,v:S.visit,w:S.w}; window.__draft=true;
     window.__undoDraft=()=>{ window.__undoDraft=null; if(!window.__draft) return; window.__draft=false; S.place=snap.p; S.visit=snap.v; S.w=snap.w; LS.set('place6',S.place); LS.set('visit',S.visit); ids.forEach((i,k)=>{ if($(i)) $(i).textContent=tx[k]; }); applyWindow(); if(S.radio) radioTune(); }; };
-  const go=async q=>{ if(q) draftOn(); if(q&&await findPlace(q,$('pOut'))){ padj={h:0,p:0,f:90}; let pins=await pinsFor(q); const city=CITYISH.test(S.place.kind||'')||S.place.kind===''; if(!pins.length&&!city) pins=await wikiPins(S.place.wd,S.place.name); if(!city){ S.place.spots=[{n:S.place.name,lat:S.place.lat,lon:S.place.lon}]; S.place.sv=0; LS.set('place6',S.place); applyWindow(); } if(pins.length){ S.place.pins=pins; S.place.sv=0; LS.set('place6',S.place); applyWindow(); } pend=null; svBar(); if(CITYISH.test(S.place.kind||'')||S.place.kind===''){ $('pOut').textContent='그곳의 이름난 곳들을 찾는 중…'; const cur=await curatedSpots(q,S.place), more=await findSpots(S.place), seen=new Set(cur.map(x=>x.n)), sp=cur.concat(more.filter(x=>!seen.has(x.n))).slice(0,16); if(sp.length){ S.place.spots=sp; S.place.sv=0; pend=0; LS.set('place6',S.place); applyWindow(); } $('pOut').textContent=`지금 창밖: ${S.place.name} (거리)`+(sp.length?` · 이름난 곳 ${sp.length}곳`:''); svBar(); }
-    { const pl=S.place, o=$('pOut'), t0=o.textContent; o.textContent=t0+' · 거리 사진 찾는 중…'; const mp=await mlyPins(pl); if(S.place===pl&&mp.length){ pl.pins=(pl.pins||[]).concat(mp); pl.sv=0; pend=0; LS.set('place6',pl); applyWindow(); svBar(); } o.textContent=t0+(mp.length?` · 거리 사진 ${mp.length}장`:''); }
+  const go=async q=>{ if(q) draftOn(); svBusy=true; svBar(); try{ await go0(q); } finally { svBusy=false; pend=null; svBar(); } };
+  const go0=async q=>{ if(q&&await findPlace(q,$('pOut'))){ padj={h:0,p:0,f:90}; let pins=await pinsFor(q); const city=CITYISH.test(S.place.kind||'')||S.place.kind===''; if(!pins.length&&!city) pins=await wikiPins(S.place.wd,S.place.name); if(!city){ S.place.spots=[{n:S.place.name,lat:S.place.lat,lon:S.place.lon}]; S.place.sv=0; LS.set('place6',S.place); applyWindow(); } if(pins.length){ S.place.pins=pins; S.place.sv=0; LS.set('place6',S.place); applyWindow(); } pend=null; svBar(); if(CITYISH.test(S.place.kind||'')||S.place.kind===''){ $('pOut').textContent='그곳의 이름난 곳들을 찾는 중…'; const cur=await curatedSpots(q,S.place), more=await findSpots(S.place), seen=new Set(cur.map(x=>x.n)), sp=cur.concat(more.filter(x=>!seen.has(x.n))).slice(0,16); if(sp.length){ S.place.spots=sp; S.place.sv=0; pend=0; LS.set('place6',S.place); applyWindow(); } $('pOut').textContent=`지금 창밖: ${S.place.name} (거리)`+(sp.length?` · 이름난 곳 ${sp.length}곳`:''); svBar(); }
+    { const pl=S.place, o=$('pOut'), t0=o.textContent; o.textContent=t0+' · 거리 사진 찾는 중…'; const mp=await mlyPins(pl); if(S.place===pl&&mp.length){ const had=new Set((pl.pins||[]).map(x=>x.src)); pl.pins=(pl.pins||[]).concat(mp.filter(x=>!had.has(x.src))); pl.sv=0; pend=0; LS.set('place6',pl); applyWindow(); svBar(); } o.textContent=t0+(mp.length?` · 거리 사진 ${mp.length}장`:''); }
     if(false&&S.key&&S.place.spots){ const pl=S.place, o=$('pOut'), t0=o.textContent; o.textContent=t0+' · 사진이 잘 보이는 자리 고르는 중…'; const vs=await resolveViews(pl); if(S.place===pl){ if(vs){ pl.views=vs; pl.sv=0; pend=0; padj={h:0,p:0,f:90}; LS.set('place6',pl); applyWindow(); } o.textContent=t0+(vs?` · 사진 ${vs.length}장`:` · 자리 확인 안 됨 (${window.__svErr||'?'})`); svBar(); } } } };
   svBar();
   $('pGo').onclick=()=>go($('pIn').value.trim());
