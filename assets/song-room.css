@@ -1,0 +1,53 @@
+/* 노래 짓기를 방의 결로: 흐린 방 사진 위에 스탠드 불빛, 방 패널과 같은 반투명 종이, 같은 글꼴과 단추 */
+:root{
+  --bg:#0b0810; --card:rgba(13,10,19,.62); --card2:rgba(243,238,248,.045); --line:rgba(243,238,248,.13);
+  --fg:#F3EEF8; --dim:rgba(243,238,248,.64); --faint:rgba(243,238,248,.36); --acc:#CDB9F2; --warm:#F2C88F; --on:#120D18;
+  --serif:"Noto Serif KR","Gowun Batang","Nanum Myeongjo",serif;
+}
+html{background:#07050b}
+html,body{background:transparent}
+body::before{content:"";position:fixed;inset:-40px;z-index:-2;background:#07050b url(../img/b_room_on.webp) center 38%/cover no-repeat;filter:blur(22px) brightness(.42) saturate(.9);transform:translateZ(0)}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse 70% 55% at 18% 8%,rgba(242,200,143,.16),transparent 70%),radial-gradient(ellipse 120% 90% at 50% 120%,rgba(7,5,11,.85),transparent 60%)}
+html::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:url(../img/grain.png);opacity:.05}
+body{padding-top:68px}
+main{max-width:760px;gap:18px}
+
+/* 제목: 방의 글씨처럼 가늘고 넓게 */
+h1{font-family:var(--serif);font-weight:300;font-size:clamp(24px,6vw,30px);letter-spacing:.06em;line-height:1.4;word-break:keep-all}
+h1::before{content:"보 라 다 방  ·  노 래  짓 기";display:block;font:500 10.5px/1 "Pretendard",sans-serif;letter-spacing:.32em;color:var(--warm);margin-bottom:16px;white-space:pre}
+h1 small{font-family:"Pretendard",sans-serif;font-size:13.5px;letter-spacing:.02em;color:var(--dim);margin-top:10px}
+
+/* 카드 = 방의 패널(반투명 밤 종이) */
+.card{background:var(--card);-webkit-backdrop-filter:blur(18px) saturate(1.2);backdrop-filter:blur(18px) saturate(1.2);border:1px solid var(--line);border-radius:18px;padding:22px 22px 20px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+label.t{font-size:10.5px;letter-spacing:.28em;color:var(--warm);font-weight:500}
+label.t.big{font-family:var(--serif);font-size:15px;letter-spacing:.12em;color:var(--fg);font-weight:400;margin-top:10px}
+.gl{font-size:12.5px;letter-spacing:.08em;color:var(--dim)}
+
+/* 첫 칸: 공책 줄 위에 적는 느낌 */
+#feel{font-family:var(--serif)!important;font-size:18px!important;line-height:2.2em!important;background:transparent!important;border:0!important;border-radius:0!important;padding:0 2px!important;min-height:6.6em;color:var(--fg);resize:none!important;
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(2.2em - 1px),rgba(243,238,248,.16) calc(2.2em - 1px),rgba(243,238,248,.16) 2.2em)!important;background-attachment:local!important;resize:none}
+#feel::placeholder{color:var(--faint)}
+#feel:focus{outline:none;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(2.2em - 1px),rgba(205,185,242,.4) calc(2.2em - 1px),rgba(205,185,242,.4) 2.2em)!important}
+textarea,input.tx{background:transparent!important;border:0!important;border-bottom:1px solid var(--faint)!important;border-radius:0!important;color:var(--fg)}
+textarea:focus,input.tx:focus{border-color:var(--acc)!important;outline:none}
+
+/* 단추: 방 패널과 같은 가는 테두리 알약, 주 단추는 스탠드 불빛 */
+button{border-color:var(--faint);font-size:13px;letter-spacing:.04em;transition:background .3s,color .3s,border-color .3s}
+button:hover{border-color:var(--fg)}
+button.main{background:transparent;color:var(--warm);border-color:var(--warm);font-weight:500;letter-spacing:.12em;box-shadow:0 0 22px rgba(242,200,143,.12)}
+button.main:hover{background:var(--warm);color:#1b1208}
+button.sm{color:var(--dim);border-color:var(--line)}
+.chip[aria-pressed=true]{background:var(--acc);color:var(--on);border-color:var(--acc)}
+.chip[aria-pressed=true] small{color:rgba(18,13,24,.6)}
+.step{border-color:var(--faint)}
+
+/* 악보·연주 화면 */
+.bar{background:var(--card2);border-radius:10px}
+.bar.now{border-color:var(--warm);box-shadow:0 0 0 1px rgba(242,200,143,.25) inset}
+.bar b{color:var(--acc)}
+.bar span{font-family:var(--serif)}
+canvas{background:rgba(243,238,248,.04);border:1px solid var(--line)}
+pre{background:rgba(243,238,248,.045)}
+.sec h3{color:var(--warm);letter-spacing:.14em;font-size:11.5px}
+#why div{border-left-color:var(--line)}
