@@ -350,7 +350,7 @@ async function paginate(my, out) {
   for (let ci = 0; ci < book.chapters.length; ci++) {
     const ch = book.chapters[ci]; fresh(ci, 0, 0, true, ch.t);
     for (let pi = 0; pi < ch.p.length; pi++) {
-      const T = ch.p[pi], kind = ORN.test(T) ? 'orn' : verse ? 'v' : ''; let s = 0;
+      const T = ch.p[pi], kind = ORN.test(T) ? 'orn' : (verse || T.includes('\n') || (T.length <= 24 && !/[.?!”’」)…]$/.test(T))) ? 'v' : ''; let s = 0;
       while (s < T.length) {
         const rest = T.slice(s), empty = !tx.querySelector('p');
         const cls = kind === 'orn' ? 'orn' : [kind, s > 0 ? 'cont' : '', empty && page.cs && s === 0 && !kind ? 'first' : ''].filter(Boolean).join(' ');
