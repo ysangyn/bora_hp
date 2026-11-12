@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://ysangyn.github.io/bora_hp/</loc></url>
-  <url><loc>https://ysangyn.github.io/bora_hp/notes/</loc></url>
-</urlset>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap><loc>https://ysangyn.github.io/bora_hp/sitemap-notes.xml</loc></sitemap>
+  <sitemap><loc>https://ysangyn.github.io/bora_hp/sitemap-photos.xml</loc></sitemap>
+</sitemapindex>

@@ -12,16 +12,16 @@ export const SITE = {
 export const CATS = [['song', '노래 이야기'], ['work', '작업 노트'], ['day', '일상'], ['letter', '손님에게']];
 export const catName = k => (CATS.find(c => c[0] === k) || [k, '노트'])[1];
 
-const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+export const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 export const plain = html => String(html || '').replace(/<(br|\/p|\/div|\/h[23]|\/blockquote|\/li|\/figcaption)[^>]*>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/\n{3,}/g, '\n\n').trim();
 export const autoSummary = html => { const t = plain(html).replace(/\s+/g, ' ').trim(); return t.length > 110 ? t.slice(0, 108).replace(/\s\S*$/, '') + '…' : t; };
-const ymd = iso => { const d = new Date(iso); const p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}.${p(d.getMonth() + 1)}.${p(d.getDate())}`; };
-const abs = p => p ? (/^https?:/.test(p) ? p : `${SITE.base}/${p.replace(/^\.?\//, '')}`) : '';
+export const ymd = iso => { const d = new Date(iso); const p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}.${p(d.getMonth() + 1)}.${p(d.getDate())}`; };
+export const abs = p => p ? (/^https?:/.test(p) ? p : `${SITE.base}/${p.replace(/^\.?\//, '')}`) : '';
 // 본문 속 사진 주소는 저장할 때 'img/notes/…'(사이트 뿌리 기준) → 페이지 위치에 맞게 바꿔 끼운다
 export const fixSrc = (html, root) => String(html || '').replace(/(<img\b[^>]*?\bsrc=")(img\/)/g, `$1${root}$2`);
 const readMin = html => Math.max(1, Math.round(plain(html).replace(/\s/g, '').length / 500));
 
-function head({ title, desc, url, image, type, root, extra = '' }) {
+export function head({ title, desc, url, image, type, root, extra = '' }) {
   return `<!doctype html>
 <html lang="ko">
 <head>
@@ -50,12 +50,12 @@ function head({ title, desc, url, image, type, root, extra = '' }) {
 ${extra}</head>`;
 }
 
-const bar = (root, here) => `<header class="bar">
+export const bar = (root, here) => `<header class="bar">
   <a class="logo" href="${root}" aria-label="보라다방 방으로">보라다방</a>
-  <nav aria-label="메뉴"><a href="${root}notes/"${here === 'notes' ? ' aria-current="page"' : ''}>노트</a><button class="theme" type="button" aria-label="밤·종이 화면 바꾸기"><i></i></button></nav>
+  <nav aria-label="메뉴"><a href="${root}notes/"${here === 'notes' ? ' aria-current="page"' : ''}>노트</a><a href="${root}photos/"${here === 'photos' ? ' aria-current="page"' : ''}>사진첩</a><button class="theme" type="button" aria-label="밤·종이 화면 바꾸기"><i></i></button></nav>
 </header>`;
 
-const foot = root => `<footer class="foot"><a href="${root}">보라다방</a> · 어른아이 · <a href="${root}rss.xml">RSS</a></footer>
+export const foot = root => `<footer class="foot"><a href="${root}">보라다방</a> · 어른아이 · <a href="${root}rss.xml">RSS</a></footer>
 <script src="${root}assets/notes.js?v=${SITE.v}" defer></script>
 </body>
 </html>

@@ -45,6 +45,18 @@
 .card{background:var(--surf);border-radius:14px;padding:18px;margin-top:24px}
 .card input{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px}
 .warnline{font-size:12.5px;color:var(--lamp)}
+
+.ped{position:fixed;inset:0;z-index:45;background:#0b0810;overflow:auto}
+.ped .pin{max-width:620px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 12px) 16px calc(env(safe-area-inset-bottom,0px) + 24px);display:flex;flex-direction:column;gap:12px;color:#efe8f4}
+.ped .pbar{display:flex;justify-content:space-between;align-items:center}
+.ped .pbar b{font:600 16px/1 var(--serif)}
+.ped .pstage{display:flex;justify-content:center;background:#000;border-radius:8px;min-height:200px;max-height:56vh}
+.ped canvas{max-width:100%;max-height:56vh;touch-action:none;cursor:grab}
+.ped .pchips{display:flex;flex-wrap:wrap;gap:6px}
+.ped .pchips button{border:1px solid rgba(239,232,244,.25);background:none;color:#efe8f4;border-radius:999px;min-height:38px;padding:0 13px;font-size:13px;cursor:pointer}
+.ped .pchips button[aria-pressed=true]{background:#efe8f4;color:#120d18}
+.ped .psl{display:grid;grid-template-columns:56px 1fr;align-items:center;gap:10px;font-size:13px;color:rgba(239,232,244,.75)}
+.ped .psl input{accent-color:#f2c88f;width:100%}
 </style>
 </head>
 <body>
@@ -53,6 +65,7 @@
 <div class="savebar" id="saveBar" hidden><span id="saveT">바뀐 내용이 있어요</span><div class="row"><button class="btn sm" id="undoAll" type="button">되돌리기</button><button class="btn lamp" id="saveAll" type="button">방에 올리기</button></div></div>
 <div class="busy" id="busy" hidden><span id="busyT">올리는 중…</span></div>
 <script type="module">
+import { renderFeed, renderSet, renderPhotoSitemap, PCATS, pcatName } from '../assets/photos-render.js';
 const REPO = 'ysangyn/bora_hp', BRANCH = 'main', ROOT = '../';
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -77,7 +90,7 @@ async function getJSON(path, d) { try { const j = await gh(`/repos/${REPO}/conte
 async function commit(files, msg) {
   for (let attempt = 0; attempt < 3; attempt++) {
     const ref = await gh(`/repos/${REPO}/git/ref/heads/${BRANCH}`), base = ref.object.sha, bc = await gh(`/repos/${REPO}/git/commits/${base}`), tree = [];
-    for (const f of files) { const content = f.blob ? await blobB64(f.blob) : utf8b64(f.text);
+    for (const f of files) { if (f.del) { tree.push({ path: f.path, mode: '100644', type: 'blob', sha: null }); continue; } const content = f.blob ? await blobB64(f.blob) : utf8b64(f.text);
       const b = await gh(`/repos/${REPO}/git/blobs`, { method: 'POST', body: JSON.stringify({ content, encoding: 'base64' }) }); tree.push({ path: f.path, mode: '100644', type: 'blob', sha: b.sha }); }
     const t = await gh(`/repos/${REPO}/git/trees`, { method: 'POST', body: JSON.stringify({ base_tree: bc.tree.sha, tree }) });
     const c = await gh(`/repos/${REPO}/git/commits`, { method: 'POST', body: JSON.stringify({ message: msg, tree: t.sha, parents: [base] }) });
@@ -110,10 +123,10 @@ async function shrink(file, max = 2048) {
 }
 
 /* 상태 */
-const D = { tracks: null, videos: null, views: null }, ORIG = {}, PEND = new Map();
+const D = { tracks: null, videos: null, views: null, photos: null }, ORIG = {}, PEND = new Map();
 let tab = 'tracks', dirty = new Set();
-const FILES = { tracks: 'data/tracks.json', videos: 'data/videos.json', views: 'data/views.json' };
-const mark = k => { dirty.add(k); $('#saveBar').hidden = false; $('#saveT').textContent = `바뀐 내용이 있어요 (${[...dirty].map(x => ({ tracks: '노래', videos: '영상', views: '창밖' })[x]).join('·')})`; };
+const FILES = { tracks: 'data/tracks.json', videos: 'data/videos.json', views: 'data/views.json', photos: 'data/photos.json' };
+const mark = k => { dirty.add(k); $('#saveBar').hidden = false; $('#saveT').textContent = `바뀐 내용이 있어요 (${[...dirty].map(x => ({ tracks: '노래', videos: '영상', views: '창밖', photos: '사진첩' })[x]).join('·')})`; };
 async function loadAll() { for (const k of Object.keys(FILES)) { D[k] = await getJSON(FILES[k], []); ORIG[k] = JSON.stringify(D[k]); } }
 
 function viewKey(err) {
@@ -125,12 +138,12 @@ function viewKey(err) {
 }
 
 function render() {
-  const n = { tracks: D.tracks.length, videos: D.videos.length, views: D.views.length };
-  $('#app').innerHTML = `<h1 class="lt">주인장 방</h1><p class="ls">방의 노래, 프로젝터 영상, 창밖 풍경을 고쳐요. 고친 뒤 아래 '방에 올리기'를 누르면 1~2분 뒤 방에 반영돼요.</p>
-  <div class="tabs" role="tablist"><button type="button" data-tab="tracks" aria-pressed="${tab === 'tracks'}">노래 ${n.tracks}</button><button type="button" data-tab="videos" aria-pressed="${tab === 'videos'}">영상 ${n.videos}</button><button type="button" data-tab="views" aria-pressed="${tab === 'views'}">창밖 ${n.views}</button></div>
+  const n = { tracks: D.tracks.length, videos: D.videos.length, views: D.views.length, photos: D.photos.length };
+  $('#app').innerHTML = `<h1 class="lt">주인장 방</h1><p class="ls">방의 노래, 프로젝터 영상, 창밖 풍경, 사진첩을 고쳐요. 고친 뒤 아래 '방에 올리기'를 누르면 1~2분 뒤 방에 반영돼요.</p>
+  <div class="tabs" role="tablist"><button type="button" data-tab="tracks" aria-pressed="${tab === 'tracks'}">노래 ${n.tracks}</button><button type="button" data-tab="videos" aria-pressed="${tab === 'videos'}">영상 ${n.videos}</button><button type="button" data-tab="views" aria-pressed="${tab === 'views'}">창밖 ${n.views}</button><button type="button" data-tab="photos" aria-pressed="${tab === 'photos'}">사진첩 ${n.photos}</button></div>
   <section id="pane"></section>`;
-  $$('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; render(); });
-  ({ tracks: paneTracks, videos: paneVideos, views: paneViews })[tab]();
+  $$('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; editSet = null; render(); });
+  ({ tracks: paneTracks, videos: paneVideos, views: paneViews, photos: panePhotos })[tab]();
 }
 const moveBtns = (k, i) => `<button class="btn sm" type="button" data-up="${i}" aria-label="위로" ${i === 0 ? 'disabled' : ''}>↑</button><button class="btn sm" type="button" data-dn="${i}" aria-label="아래로" ${i === D[k].length - 1 ? 'disabled' : ''}>↓</button><button class="btn sm" type="button" data-hide="${i}">${D[k][i].hide ? '다시 보이기' : '숨기기'}</button><button class="btn sm" type="button" data-del="${i}">빼기</button>`;
 function wireList(k) {
@@ -206,17 +219,144 @@ function paneViews() {
     busy(false); render(); };
 }
 
+/* 사진첩: 묶음(사진 1~10장 + 제목·분류·날짜·한두 줄) 단위. 사진마다 뒷면 메모. 다듬기(자르기·회전·밝기·대비·따뜻함·필터) */
+const ORIGF = new Map();      // 사진 경로 → 원본 파일(다시 다듬을 때)
+let editSet = null;           // 지금 고치는 묶음 id
+const today = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`; };
+const PRESETS = [
+  { n: '그대로', m: {} },
+  { n: '밤', m: { br: -.08, sat: -.15, tint: [-6, -2, 10] } },
+  { n: '필름', m: { con: -.08, sat: -.2, sep: .15 } },
+  { n: '흑백', m: { gray: 1, con: .08 } },
+  { n: '바랜', m: { con: -.15, br: .06, sat: -.3 } }
+];
+const RATIOS = [['원본', 0], ['4:5', 4 / 5], ['1:1', 1], ['3:2', 3 / 2], ['16:9', 16 / 9]];
+async function bitmapOf(src) { if (src instanceof Blob) { try { return await createImageBitmap(src, { imageOrientation: 'from-image' }); } catch (e) { src = URL.createObjectURL(src); } }
+  return await new Promise((res, rej) => { const i = new Image(); i.crossOrigin = 'anonymous'; i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
+// 다듬기: 회전 → 자르기 → 줄이기 → 색(사진 안에서 직접 계산해 어느 휴대폰에서나 같게)
+function develop(bmp, E, max) {
+  const rot = ((E.rot || 0) % 360 + 360) % 360, sw = rot % 180 ? bmp.height : bmp.width, sh = rot % 180 ? bmp.width : bmp.height;
+  let cw = sw, ch = sh; const R = E.ratio || 0; if (R) { if (sw / sh > R) cw = sh * R; else ch = sw / R; }
+  const ox = (sw - cw) / 2 * (1 + (E.ox || 0)), oy = (sh - ch) / 2 * (1 + (E.oy || 0)), k = Math.min(1, max / Math.max(cw, ch));
+  const W = Math.max(1, Math.round(cw * k)), H = Math.max(1, Math.round(ch * k)), cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const g = cv.getContext('2d'); g.imageSmoothingQuality = 'high'; g.save(); g.scale(k, k); g.translate(-ox, -oy);
+  g.translate(sw / 2, sh / 2); g.rotate(rot * Math.PI / 180); g.drawImage(bmp, -bmp.width / 2, -bmp.height / 2); g.restore();
+  const P = (PRESETS[E.preset || 0] || PRESETS[0]).m, br = (P.br || 0) + (E.b || 0) / 100, con = 1 + (P.con || 0) + (E.c || 0) / 100, sat = 1 + (P.sat || 0) + (E.s || 0) / 100,
+    sep = P.sep || 0, gray = P.gray || 0, warm = (E.w || 0) / 100, t = P.tint || [0, 0, 0];
+  if (br || con !== 1 || sat !== 1 || sep || gray || warm || t[0] || t[1] || t[2]) {
+    const im = g.getImageData(0, 0, W, H), d = im.data;
+    for (let i = 0; i < d.length; i += 4) { let r = d[i], gg = d[i + 1], b = d[i + 2];
+      const l = .299 * r + .587 * gg + .114 * b; r = l + (r - l) * sat; gg = l + (gg - l) * sat; b = l + (b - l) * sat;
+      if (gray) { r = gg = b = l; }
+      if (sep) { const sr = .393 * r + .769 * gg + .189 * b, sg = .349 * r + .686 * gg + .168 * b, sb = .272 * r + .534 * gg + .131 * b; r += (sr - r) * sep; gg += (sg - gg) * sep; b += (sb - b) * sep; }
+      r = (r - 128) * con + 128 + br * 255 + warm * 28 + t[0]; gg = (gg - 128) * con + 128 + br * 255 + warm * 6 + t[1]; b = (b - 128) * con + 128 + br * 255 - warm * 28 + t[2];
+      d[i] = r < 0 ? 0 : r > 255 ? 255 : r; d[i + 1] = gg < 0 ? 0 : gg > 255 ? 255 : gg; d[i + 2] = b < 0 ? 0 : b > 255 ? 255 : b; }
+    g.putImageData(im, 0, 0); }
+  return cv;
+}
+async function cvBlob(cv) { let b = await new Promise(r => cv.toBlob(r, 'image/webp', .86)), ext = 'webp'; if (!b || b.type !== 'image/webp') { b = await new Promise(r => cv.toBlob(r, 'image/jpeg', .88)); ext = 'jpg'; } return { b, ext }; }
+async function addPhotoFile(set, file, E) {
+  const bmp = await bitmapOf(file), cv = develop(bmp, E || {}, 1600), { b, ext } = await cvBlob(cv), path = `img/photos/${set.id}/${rid()}.${ext}`;
+  PEND.set(path, b); ORIGF.set(path, { file, E: E || {} }); return { src: path, w: cv.width, h: cv.height, memo: '' };
+}
+const srcURL = p => PEND.has(p) ? (PEND.get(p)._u || (PEND.get(p)._u = URL.createObjectURL(PEND.get(p)))) : ROOT + p;
+
+function panePhotos() {
+  if (editSet) return paneSet();
+  const L = D.photos.slice().sort((a, b) => b.date.localeCompare(a.date));
+  $('#pane').innerHTML = `<p class="help">사진은 '묶음'으로 올려요. 한 묶음에 1~10장, 제목과 한두 줄, 분류(무대·작업실·일상·여행)를 붙여요. 사진마다 뒷면 메모를 적어 두면 코르크보드에서 뒤집었을 때 보여요. 위치 정보는 자동으로 지워져요.</p>
+  <div class="row" style="margin:14px 0 4px"><button class="btn lamp" type="button" id="pNew">＋ 새 묶음</button><a class="btn sm" href="../photos/" target="_blank" rel="noopener">사진첩 보기</a></div>
+  <ul class="list">${L.map(s => { const i = D.photos.indexOf(s); return `<li class="it${s.hide ? ' off' : ''}"><img class="thumb" src="${esc(s.items[0] ? srcURL(s.items[0].src) : '')}" alt=""><div class="f">
+    <b style="font:600 15.5px/1.4 var(--serif)">${esc(s.title || '(제목 없음)')}</b><small>${esc(s.date.slice(0, 10))} · ${esc(pcatName(s.cat))} · ${s.items.length}장${s.slug ? '' : ' · <span class="tag new">새 묶음</span>'}</small>
+    <div class="row"><button class="btn sm" type="button" data-pe="${esc(s.id)}">고치기</button><button class="btn sm" type="button" data-hide="${i}">${s.hide ? '다시 보이기' : '숨기기'}</button><button class="btn sm" type="button" data-del="${i}">빼기</button></div></div></li>`; }).join('')}</ul>`;
+  $$('[data-hide]').forEach(b => b.onclick = () => { const x = D.photos[+b.dataset.hide]; x.hide = !x.hide; mark('photos'); render(); });
+  $$('[data-del]').forEach(b => b.onclick = () => { D.photos.splice(+b.dataset.del, 1); mark('photos'); render(); toast('빼 두었어요. 올리기 전까지는 되돌릴 수 있어요.'); });
+  $$('[data-pe]').forEach(b => b.onclick = () => { editSet = b.dataset.pe; render(); scrollTo(0, 0); });
+  $('#pNew').onclick = () => { const s = { id: rid(), title: '', cat: 'day', date: today(), place: '', caption: '', items: [] }; D.photos.push(s); editSet = s.id; mark('photos'); render(); };
+}
+function paneSet() {
+  const s = D.photos.find(x => x.id === editSet); if (!s) { editSet = null; return panePhotos(); }
+  $('#pane').innerHTML = `<div class="row" style="margin:6px 0 10px"><button class="btn sm" type="button" id="sBack">← 묶음 목록</button></div>
+  <div class="add" style="margin-top:0">
+    <label class="meta3" for="sT">제목</label><input type="text" id="sT" value="${esc(s.title)}" placeholder="예: 기온 골목의 비">
+    <div class="row"><select id="sC" aria-label="분류" style="width:auto">${PCATS.map(([k, n]) => `<option value="${k}"${s.cat === k ? ' selected' : ''}>${n}</option>`).join('')}</select><input type="date" id="sD" value="${esc(s.date.slice(0, 10))}" style="width:auto;font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px"></div>
+    <label class="meta3" for="sP">어디서 (선택)</label><input type="text" id="sP" value="${esc(s.place || '')}" placeholder="예: 교토 · 기온">
+    <label class="meta3" for="sCap">한두 줄</label><textarea id="sCap" rows="3" style="width:100%;font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px">${esc(s.caption || '')}</textarea>
+  </div>
+  <ul class="list">${s.items.map((it, i) => `<li class="it"><img class="thumb" src="${esc(srcURL(it.src))}" alt="" style="width:88px;height:88px"><div class="f">
+    <input type="text" data-memo="${i}" value="${esc(it.memo || '')}" placeholder="뒷면 메모 (예: 우산 없이 처마 밑에서 한참 서 있었다)">
+    <div class="row"><button class="btn sm" type="button" data-ed="${i}">다듬기</button><button class="btn sm" type="button" data-pu="${i}" ${i === 0 ? 'disabled' : ''}>↑</button><button class="btn sm" type="button" data-pd="${i}" ${i === s.items.length - 1 ? 'disabled' : ''}>↓</button><button class="btn sm" type="button" data-px="${i}">빼기</button>${i === 0 ? '<span class="tag">대표 사진</span>' : ''}</div></div></li>`).join('')}</ul>
+  <div class="row" style="margin-top:16px"><button class="btn pri" type="button" id="sAdd" ${s.items.length >= 10 ? 'disabled' : ''}>사진 넣기 (${s.items.length}/10)</button></div>
+  <input type="file" id="sFile" accept="image/*" multiple hidden>`;
+  const upd = (f, v) => { s[f] = v; mark('photos'); };
+  $('#sT').oninput = e => upd('title', e.target.value); $('#sC').onchange = e => upd('cat', e.target.value); $('#sP').oninput = e => upd('place', e.target.value);
+  $('#sCap').oninput = e => upd('caption', e.target.value); $('#sD').onchange = e => upd('date', e.target.value || today());
+  $('#sBack').onclick = () => { editSet = null; render(); };
+  $$('[data-memo]').forEach(el => el.oninput = () => { s.items[+el.dataset.memo].memo = el.value; mark('photos'); });
+  $$('[data-pu]').forEach(b => b.onclick = () => { const i = +b.dataset.pu; [s.items[i - 1], s.items[i]] = [s.items[i], s.items[i - 1]]; mark('photos'); render(); });
+  $$('[data-pd]').forEach(b => b.onclick = () => { const i = +b.dataset.pd; [s.items[i + 1], s.items[i]] = [s.items[i], s.items[i + 1]]; mark('photos'); render(); });
+  $$('[data-px]').forEach(b => b.onclick = () => { s.items.splice(+b.dataset.px, 1); mark('photos'); render(); });
+  $$('[data-ed]').forEach(b => b.onclick = () => openDevelop(s, +b.dataset.ed));
+  $('#sAdd').onclick = () => $('#sFile').click();
+  $('#sFile').onchange = async e => { const fs = [...e.target.files].slice(0, 10 - s.items.length); e.target.value = ''; busy(true, '사진을 다듬는 중…');
+    for (const f of fs) { try { s.items.push(await addPhotoFile(s, f)); } catch (err) { toast('사진을 읽지 못했어요'); } }
+    busy(false); mark('photos'); render(); };
+}
+// 사진 다듬기 창
+function openDevelop(set, idx) {
+  const it = set.items[idx], o = ORIGF.get(it.src), E = Object.assign({ rot: 0, ratio: 0, ox: 0, oy: 0, b: 0, c: 0, w: 0, s: 0, preset: 0 }, o ? o.E : {});
+  const wrap = document.createElement('div'); wrap.className = 'ped'; wrap.innerHTML = `<div class="pin"><div class="pbar"><button class="btn sm" type="button" id="dX">취소</button><b>사진 다듬기</b><button class="btn sm lamp" type="button" id="dOk">적용</button></div>
+    <div class="pstage"><canvas id="dCv"></canvas></div>
+    <div class="pchips">${PRESETS.map((p, i) => `<button type="button" data-pr="${i}" aria-pressed="${E.preset === i}">${p.n}</button>`).join('')}</div>
+    <div class="pchips">${RATIOS.map(([n, r]) => `<button type="button" data-ra="${r}" aria-pressed="${E.ratio === r}">${n}</button>`).join('')}<button type="button" id="dRot">↻ 돌리기</button></div>
+    <label class="psl">밝기<input type="range" min="-40" max="40" value="${E.b}" data-k="b"></label>
+    <label class="psl">대비<input type="range" min="-40" max="40" value="${E.c}" data-k="c"></label>
+    <label class="psl">따뜻함<input type="range" min="-50" max="50" value="${E.w}" data-k="w"></label>
+    <label class="psl">채도<input type="range" min="-60" max="40" value="${E.s}" data-k="s"></label>
+    <p class="help" style="margin:4px 0 0">자를 때는 사진을 끌어 보이는 자리를 옮겨요.</p></div>`;
+  document.body.appendChild(wrap);
+  let bmp = null, raf = 0; const cv = $('#dCv');
+  const draw = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { if (!bmp) return; const c = develop(bmp, E, 900); cv.width = c.width; cv.height = c.height; cv.getContext('2d').drawImage(c, 0, 0); }); };
+  (async () => { busy(true, '사진을 여는 중…'); try { bmp = await bitmapOf(o ? o.file : ROOT + it.src); } catch (e) { toast('사진을 열지 못했어요'); } busy(false); draw(); })();
+  wrap.querySelectorAll('[data-pr]').forEach(b => b.onclick = () => { E.preset = +b.dataset.pr; wrap.querySelectorAll('[data-pr]').forEach(x => x.setAttribute('aria-pressed', x === b)); draw(); });
+  wrap.querySelectorAll('[data-ra]').forEach(b => b.onclick = () => { E.ratio = +b.dataset.ra; E.ox = E.oy = 0; wrap.querySelectorAll('[data-ra]').forEach(x => x.setAttribute('aria-pressed', x === b)); draw(); });
+  $('#dRot').onclick = () => { E.rot = (E.rot + 90) % 360; draw(); };
+  wrap.querySelectorAll('.psl input').forEach(r => r.oninput = () => { E[r.dataset.k] = +r.value; draw(); });
+  let drag = null; cv.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, ox: E.ox, oy: E.oy }; cv.setPointerCapture(e.pointerId); });
+  cv.addEventListener('pointermove', e => { if (!drag || !E.ratio) return; const k = 2 / Math.max(cv.clientWidth, 1); E.ox = Math.max(-1, Math.min(1, drag.ox - (e.clientX - drag.x) * k)); E.oy = Math.max(-1, Math.min(1, drag.oy - (e.clientY - drag.y) * k)); draw(); });
+  cv.addEventListener('pointerup', () => drag = null);
+  $('#dX').onclick = () => wrap.remove();
+  $('#dOk').onclick = async () => { if (!bmp) return; busy(true, '적용하는 중…');
+    try { const c = develop(bmp, E, 1600), { b, ext } = await cvBlob(c), path = `img/photos/${set.id}/${rid()}.${ext}`;
+      PEND.set(path, b); ORIGF.set(path, { file: o ? o.file : await (await fetch(ROOT + it.src)).blob(), E: { ...E } }); set.items[idx] = { ...it, src: path, w: c.width, h: c.height }; mark('photos'); }
+    catch (e) { toast('적용하지 못했어요'); }
+    busy(false); wrap.remove(); render(); };
+}
+// 올릴 때: 사진첩 페이지들(목록·묶음별)과 사진 사이트맵을 함께 굽는다
+function photoFiles() {
+  const vis = D.photos.filter(s => !s.hide && s.items.length).map(s => ({ ...s })), now = new Date().toISOString(), used = new Set();
+  for (const s of D.photos) { if (!s.slug) { const base = s.date.slice(0, 10); let sl = base, n = 2; while (D.photos.some(x => x !== s && x.slug === sl) || used.has(sl)) sl = `${base}-${n++}`; s.slug = sl; } used.add(s.slug);
+    if (s.date.length === 10) s.date = new Date(s.date + 'T21:00:00+09:00').toISOString(); s.updated = now; }
+  const list = D.photos.filter(s => !s.hide && s.items.length).sort((a, b) => b.date.localeCompare(a.date)), out = [];
+  list.forEach((s, i) => out.push({ path: `photos/${s.slug}/index.html`, text: renderSet(s, { prev: list[i + 1] || null, next: list[i - 1] || null }) }));
+  out.push({ path: 'photos/index.html', text: renderFeed(list) }, { path: 'sitemap-photos.xml', text: renderPhotoSitemap(list) });
+  const before = JSON.parse(ORIG.photos || '[]').filter(s => s.slug).map(s => s.slug), now2 = new Set(list.map(s => s.slug));
+  before.forEach(sl => { if (!now2.has(sl)) out.push({ path: `photos/${sl}/index.html`, del: true }); });
+  return out;
+}
+
 /* 올리기 */
 $('#saveAll').onclick = async () => {
   busy(true, '방에 올리는 중… (곡 파일이 크면 1분쯤 걸려요)');
   try { const files = [], used = new Set();
+    if (dirty.has('photos')) files.push(...photoFiles());
     for (const k of dirty) { files.push({ path: FILES[k], text: JSON.stringify(D[k], null, 1) });
-      for (const x of D[k]) for (const p of [x.f, x.day, x.night]) if (p && PEND.has(p) && !used.has(p)) { used.add(p); files.push({ path: p, blob: PEND.get(p) }); } }
+      for (const x of D[k]) for (const p of [x.f, x.day, x.night, ...((x.items || []).map(i => i.src))]) if (p && PEND.has(p) && !used.has(p)) { used.add(p); files.push({ path: p, blob: PEND.get(p) }); } }
     await commit(files, '주인장 방: ' + [...dirty].join(', ')); for (const p of used) PEND.delete(p);
     for (const k of dirty) ORIG[k] = JSON.stringify(D[k]); dirty.clear(); $('#saveBar').hidden = true; busy(false); toast('올렸어요. 1~2분 뒤 방에 보여요.'); render();
   } catch (e) { busy(false); toast('올리지 못했어요 (' + (e.status || '연결') + '). 잠시 뒤 다시 해 주세요.'); console.warn(e); }
 };
-$('#undoAll').onclick = () => { for (const k of dirty) D[k] = JSON.parse(ORIG[k]); dirty.clear(); PEND.clear(); $('#saveBar').hidden = true; render(); };
+$('#undoAll').onclick = () => { for (const k of dirty) D[k] = JSON.parse(ORIG[k]); dirty.clear(); PEND.clear(); editSet = null; $('#saveBar').hidden = true; render(); };
 window.addEventListener('beforeunload', e => { if (dirty.size) { e.preventDefault(); e.returnValue = ''; } });
 
 async function start() {

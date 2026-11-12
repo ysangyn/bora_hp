@@ -1,0 +1,53 @@
+/* 보라다방 사진첩 — 피드(기본)와 코르크보드 보기 */
+.pwrap{max-width:620px}
+.phead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.pview{display:flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:999px;margin-bottom:6px}
+.pview button{border:0;background:none;border-radius:999px;min-height:36px;padding:0 14px;font-size:13px;color:var(--mut);cursor:pointer}
+.pview button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.feed{display:flex;flex-direction:column;gap:52px;margin-top:18px}
+.pset[hidden],.feed[hidden]{display:none}
+.ph-h{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.ph-h .av{width:34px;height:34px;border-radius:50%;background:#3A2A4E;color:#efe8f4;display:grid;place-items:center;font:500 13px/1 var(--serif);flex:none}
+.ph-h b{display:block;font-size:13.5px;font-weight:500}
+.ph-h small{display:block;font-size:11.5px;color:var(--mut)}
+.ph-h .pc{margin-left:auto;font-size:11.5px;letter-spacing:.12em;color:var(--lamp)}
+.strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:6px;background:var(--surf);aspect-ratio:var(--ar,1);margin:0 -20px}
+.strip::-webkit-scrollbar{display:none}
+.strip .ph{flex:0 0 100%;margin:0;scroll-snap-align:start;position:relative}
+.strip img{display:block;width:100%;height:100%;object-fit:cover;cursor:zoom-in}
+@media (min-width:660px){.strip{margin:0}}
+.dots{display:flex;justify-content:center;gap:5px;margin-top:10px}
+.dots i{width:6px;height:6px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--lamp)}
+.ph-b{margin-top:12px}
+.ph-b h2{margin:0;font:600 17.5px/1.45 var(--serif)}
+.ph-b h2 a{text-decoration:none}
+.ph-b p{margin:6px 0 0;font:400 15.5px/1.85 var(--serif);word-break:keep-all}
+.ph-b time{display:block;margin-top:8px;font-size:12px;color:var(--mut);letter-spacing:.04em}
+/* 코르크보드 */
+.board{margin:18px -20px 0;padding:34px 18px 40px;border-radius:6px;background-color:#3b2b20;
+  background-image:radial-gradient(rgba(0,0,0,.25) 1px,transparent 1.2px),radial-gradient(rgba(255,220,170,.06) 1px,transparent 1.4px);background-size:7px 7px,11px 11px;background-position:0 0,3px 5px;
+  box-shadow:inset 0 0 70px rgba(0,0,0,.6);display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:30px 18px}
+.board[hidden]{display:none}
+@media (min-width:660px){.board{margin:18px 0 0}}
+.pol{position:relative;border:0;padding:8px 8px 32px;background:#F4EEE4;box-shadow:0 10px 20px rgba(0,0,0,.45);transform:rotate(var(--r));cursor:pointer;transition:transform .35s cubic-bezier(.2,.8,.2,1);text-align:left}
+.pol:hover,.pol:focus-visible{transform:rotate(0deg) scale(1.05);z-index:2}
+.pol::before{content:"";position:absolute;left:50%;top:-7px;width:13px;height:13px;margin-left:-6.5px;border-radius:50%;background:var(--pin,#c0564a);box-shadow:0 2px 3px rgba(0,0,0,.5)}
+.pol img{display:block;width:100%;aspect-ratio:1;object-fit:cover}
+.pol span{position:absolute;left:10px;right:10px;bottom:7px;font:18px/1.1 'Nanum Pen Script',cursive;color:#3a2d26;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+/* 크게 보기 + 뒤집기 */
+.lb{position:fixed;inset:0;z-index:40;background:rgba(7,5,11,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;perspective:1400px;padding:20px}
+.lb[hidden]{display:none}
+.lb .card{position:relative;width:min(88vw,460px);aspect-ratio:var(--ar,.8);max-height:72vh;border:0;padding:0;background:none;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.2,.8,.2,1);cursor:pointer}
+.lb .card.flip{transform:rotateY(180deg)}
+.lb .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:0 26px 60px rgba(0,0,0,.6)}
+.lb .front{background:#F4EEE4;padding:12px 12px 52px}
+.lb .front img{width:100%;height:100%;object-fit:cover;display:block}
+.lb .front span{position:absolute;left:16px;right:16px;bottom:12px;font:26px/1.1 'Nanum Pen Script',cursive;color:#3a2d26;text-align:left}
+.lb .back{transform:rotateY(180deg);background:#EFE7DA;padding:30px 26px;text-align:left;display:flex;flex-direction:column;background-image:repeating-linear-gradient(transparent 0 33px,rgba(80,60,40,.18) 33px 34px)}
+.lb .back p{margin:0;font:26px/34px 'Nanum Pen Script',cursive;color:#3a2d26;white-space:pre-line}
+.lb .back small{margin-top:auto;font:22px/1.2 'Nanum Pen Script',cursive;color:#7a5a44}
+.lb .tools{display:flex;gap:8px;align-items:center}
+.lb .tools button,.lb .tools a{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid rgba(239,232,244,.3);background:none;color:#EFE8F4;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;cursor:pointer}
+.lb .hint{font-size:12px;color:rgba(239,232,244,.55)}
+@media (prefers-reduced-motion:reduce){.lb .card,.pol{transition:none}}

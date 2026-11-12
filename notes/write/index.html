@@ -387,7 +387,7 @@ async function pagesFor(list, ids, extra) {   // 이웃 글까지 다시 굽기
     files.push({ path: `notes/${full.slug}/index.html`, text: renderPost(full, { ...neighbors(list, i), tracks: TRACKS }) }); }
   return files;
 }
-const commonFiles = list => [{ path: 'data/notes.json', text: JSON.stringify(list, null, 1) }, { path: 'notes/index.html', text: renderList(list) }, { path: 'sitemap.xml', text: renderSitemap(list) }, { path: 'rss.xml', text: renderRss(list) }];
+const commonFiles = list => [{ path: 'data/notes.json', text: JSON.stringify(list, null, 1) }, { path: 'notes/index.html', text: renderList(list) }, { path: 'sitemap-notes.xml', text: renderSitemap(list) }, { path: 'rss.xml', text: renderRss(list) }];
 
 async function publish() {
   const imgs = gather();
