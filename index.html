@@ -575,6 +575,8 @@ body.lite .grade .grain,body.lite .steam i,body.lite .flake,body.lite .record i:
 .svok{align-self:stretch;min-height:44px}
 
 .svprev img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cpbox{display:flex;flex-direction:column;gap:10px}.svprev.cp img{transition:opacity .4s}.cpt{position:absolute;left:12px;bottom:10px;font-size:11.5px;letter-spacing:.06em;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.9)}
+.panel .ok:disabled{opacity:.5;border-color:var(--faint)}
 
 .svadj{display:flex;justify-content:space-between;gap:2px;padding:2px 0}
 .svpick span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -1446,18 +1448,22 @@ function openPlace(){
   svBar();
   $('pGo').onclick=()=>go($('pIn').value.trim());
   $('pIn').addEventListener('keydown',e=>{ if(e.key==='Enter') go(e.target.value.trim()); });
-  panel.querySelectorAll('.chip[data-n]').forEach(c=>c.onclick=()=>{ const p=PICKS.find(x=>x.name===c.dataset.n); setPlace({...p},$('pOut')); panel.querySelectorAll('.chip[data-n]').forEach(x=>x.setAttribute('aria-pressed',x===c)); svBar(); });
+  const cityPrev=(p,c)=>{ const v=VIEWS.find(x=>x.n===p.name), box=$('cpBox'); panel.querySelectorAll('.chip[data-n]').forEach(x=>x.setAttribute('aria-pressed',x===c));
+    if(!v||!box){ setPlace({...p},$('pOut')); svBar(); return; }
+    const h=(new Date().getUTCHours()+new Date().getUTCMinutes()/60+p.lon/15+48)%24, day=h>=7&&h<18&&v.dsrc, same=!S.visit&&S.place.name===p.name;
+    box.hidden=false; box.innerHTML=`<div class="svprev cp"><img alt="${p.name}의 창밖" src="${day?v.dsrc:v.src}"><span class="cpt">${p.name} · 그곳 ${Math.floor(h)}시쯤 · ${day?'낮':'밤'}</span></div>
+     <div class="row">${v.dsrc?`<button class="chip" id="cpDN">${day?'밤 풍경 보기':'낮 풍경 보기'}</button>`:''}<button class="ok" id="cpOk"${same?' disabled':''}>${same?'지금 창과 같아요':'이 창으로 정하기'}</button></div>`;
+    let d=!!day; if($('cpDN')) $('cpDN').onclick=()=>{ d=!d; box.querySelector('img').src=d?v.dsrc:v.src; $('cpDN').textContent=d?'밤 풍경 보기':'낮 풍경 보기'; };
+    $('cpOk').onclick=()=>{ setPlace({...p},$('pOut')); svBar(); $('cpOk').textContent='지금 창과 같아요'; $('cpOk').disabled=true; roomSay(`창밖을 ${p.name}(으)로 바꿨어요`); }; };
+  { const ch=panel.querySelector('.chips'); if(ch&&!$('cpBox')) ch.insertAdjacentHTML('afterend','<div id="cpBox" class="cpbox" hidden></div>'); }
+  panel.querySelectorAll('.chip[data-n]').forEach(c=>c.onclick=()=>{ const p=PICKS.find(x=>x.name===c.dataset.n); cityPrev(p,c); });
 }
 function openSettings(){
   show(`<h2>설정</h2>
    ${dimUI()}
    <div class="chips"><button class="chip" id="sLite" aria-pressed="${S.lite}">가볍게 보기 (움직임·효과 줄이기)</button></div>
-   <p>낮의 창밖에 진짜 거리를 보이려면 구글 지도 Embed API 키를 넣어요. 키는 이 브라우저에만 저장돼요.</p>
-   <div class="row"><input id="sKey" value="${S.key.replace(/"/g,'&quot;')}" placeholder="Google Maps Embed API 키" autocomplete="off" aria-label="구글 지도 키"><button class="ok" id="sSave">저장</button></div>
-   <small>키가 없어도 <a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${S.place.lat},${S.place.lon}" target="_blank" rel="noopener">지도에서 그 거리 열기</a>로 볼 수 있어요.</small>
    <small>보라다방 · 어른아이 · 방과 창밖 사진은 AI로 만들었어요 · 날씨 Open-Meteo · 장소 검색 OpenStreetMap · 라디오 목록 Radio Browser · 창밖 대표 사진 보라핀·Wikimedia Commons (사진마다 작가·라이선스를 창 아래에 표시) · 천창 하늘 <a href="https://www.cfht.hawaii.edu/en/gallery/nanaao.php" target="_blank" rel="noopener">CFHT Nānā ao</a> (<a href="https://www.gnu.org/licenses/fdl-1.3.html" target="_blank" rel="noopener">GNU FDL 1.3</a>)</small>`);
   wireDim(); $('sLite').onclick=e=>{ setLite(!S.lite); e.target.setAttribute('aria-pressed',S.lite); };
-  $('sSave').onclick=()=>{ S.key=$('sKey').value.trim(); LS.set('gkey',S.key); applyWindow(); $('sSave').textContent='저장했어요'; };
 }
 $('bGear').onclick=openSettings;
 $('memo').onclick=e=>{ e.stopPropagation(); closeZoom(); openPlace(); };
@@ -1903,7 +1909,8 @@ const _sleepEnd=sleepEnd; sleepEnd=function(){ try{ const a=LS.get('slept',[]), 
 // 내 창 걸기: 손님이 찍은 창밖 사진 한 장을 이 기기의 창에
 function myWinAdd(x){ if(!x||!x.blob) return; const url=URL.createObjectURL(x.blob); for(let i=VIEWS.length-1;i>=0;i--) if(VIEWS[i].mine) VIEWS.splice(i,1); for(let i=PICKS.length-1;i>=0;i--) if(PICKS[i].mine) PICKS.splice(i,1);
   VIEWS.push({n:'내 창',lat:x.lat,lon:x.lon,r:.05,src:url,dsrc:url,au:[0,.4],pr:'rain',ia:x.ia||1.6,s:1.06,c:[.5,.5],own:1,mine:1}); PICKS.unshift({name:'내 창',lat:x.lat,lon:x.lon,cc:x.cc||'',mine:1}); }
-IDB.get('myWin').then(x=>{ if(x&&x.blob){ myWinAdd(x); if(S.place&&S.place.name==='내 창') applyWindow(); } });
+// 내 창 걸기는 뺐다(2026-11). 예전에 걸어 둔 사진은 지우고, 창이 '내 창'이었으면 첫 도시로 돌린다
+try{ IDB.set('myWin',null); }catch(e){} if(S.place&&S.place.name==='내 창'){ setTimeout(()=>{ try{ setPlace({...PICKS[0]}); }catch(e){} },0); }
 function myWinUI(){ const pnl=$('panel'); if(!pnl||pnl.hidden) return; const has=VIEWS.some(v=>v.mine);
   pnl.insertAdjacentHTML('beforeend',`<div class="mywin"><label class="sl">내 창 걸기</label><small>내가 찍은 창밖 사진 한 장을 이 방의 창에 걸어요. 가로 사진이 잘 어울려요. 사진은 이 기기에만 남고 어디에도 올라가지 않아요.</small>
     <div class="row"><label class="ok" for="mwFile" tabindex="0">${has?'다른 사진으로 바꾸기':'사진 고르기'}</label><input type="file" id="mwFile" accept="image/*" hidden>${has?'<button class="chip" id="mwGo">내 창 보기</button><button class="chip" id="mwDel">내 창 지우기</button>':''}</div><small id="mwOut"></small></div>`);
@@ -1916,7 +1923,7 @@ function myWinUI(){ const pnl=$('panel'); if(!pnl||pnl.hidden) return; const has
     }catch(er){ $('mwOut').textContent='사진을 읽지 못했어요. 다른 사진으로 해 보세요.'; } };
   if($('mwGo')) $('mwGo').onclick=async()=>{ const v=VIEWS.find(x=>x.mine); if(v){ await setPlace({name:'내 창',lat:v.lat,lon:v.lon,cc:''}); closePanel(); } };
   if($('mwDel')) $('mwDel').onclick=async()=>{ await IDB.set('myWin',null); for(let i=VIEWS.length-1;i>=0;i--) if(VIEWS[i].mine) VIEWS.splice(i,1); for(let i=PICKS.length-1;i>=0;i--) if(PICKS[i].mine) PICKS.splice(i,1); roomSay('내 창을 지웠어요'); closePanel(); }; }
-const _openPlace=openPlace; openPlace=function(){ const r=_openPlace.apply(this,arguments); try{ myWinUI(); }catch(e){ console.warn(e); } return r; };
+
 
 const ACT={wopen:()=>toggleWindow(),rain:toggleRainSound,curtain:toggleCurtain,lamp:toggleLamp,play:togglePlay,radio:()=>openRadio(),kettle:()=>openTea(),sleep:()=>openSleep(),proj:()=>openProj()};
 /* ---------- 프로젝터 ---------- */
