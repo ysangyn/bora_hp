@@ -14,7 +14,7 @@
   // 함께 들을 곡: 레코드를 누르면 돈다
   let au = null;
   $$('.sp').forEach(b => b.onclick = () => {
-    if (!au) { au = new Audio(b.dataset.src); au.preload = 'auto'; au.onended = () => b.classList.remove('on'); }
+    if (!au) { au = new Audio(b.dataset.src); au.preload = 'auto'; au.volume = Math.min(1, +(b.dataset.g || 1)); au.onended = () => b.classList.remove('on'); }
     if (au.paused) { au.play().then(() => b.classList.add('on')).catch(() => toast('재생하지 못했어요')); } else { au.pause(); b.classList.remove('on'); }
   });
 

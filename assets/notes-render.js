@@ -65,7 +65,7 @@ const songCard = (p, tracks, root) => {
   const t = (tracks || []).find(x => x.f === p.song);
   if (!t) return '';
   return `<aside class="song" aria-label="이 글과 함께 들을 곡">
-  <button class="sp" type="button" data-src="${root}${esc(t.f)}" aria-label="${esc(t.t)} 재생"><i class="rec"></i><span class="pl"></span></button>
+  <button class="sp" type="button" data-src="${root}${esc(t.f)}" data-g="${t.g || 1}" aria-label="${esc(t.t)} 재생"><i class="rec"></i><span class="pl"></span></button>
   <div><small>이 글과 함께 들을 곡</small><b>${esc(t.t)}</b><span>어른아이</span></div>
 </aside>`;
 };

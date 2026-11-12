@@ -1,22 +1,32 @@
 [
  {
   "f": "music/01.mp3",
-  "t": "토닥토닥 (Remastered)"
+  "t": "토닥토닥 (Remastered)",
+  "g": 0.407,
+  "lufs": -9.2
  },
  {
   "f": "music/02.mp3",
-  "t": "Sad Thing"
+  "t": "Sad Thing",
+  "g": 1,
+  "lufs": -17.0
  },
  {
   "f": "music/03.mp3",
-  "t": "Annabel Lee"
+  "t": "Annabel Lee",
+  "g": 0.668,
+  "lufs": -13.5
  },
  {
   "f": "music/04.mp3",
-  "t": "B TL B TL"
+  "t": "B TL B TL",
+  "g": 0.966,
+  "lufs": -16.7
  },
  {
   "f": "music/05.mp3",
-  "t": "아주 아주 슬픈 꿈"
+  "t": "아주 아주 슬픈 꿈",
+  "g": 0.562,
+  "lufs": -12.0
  }
 ]
