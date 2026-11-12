@@ -559,20 +559,20 @@ function humTrack(song,sro,from,to,R,PRE){ const V=BUF.bora.map(prepVoice).sort(
     if(g&&contig&&!pv.wordEnd&&te-g.t0<2.4) g.notes.push(n); else { g={notes:[n],t0:t,phrase:!pv||n.abs-(pv.abs+pv.len)>=1.5,contigPrev:contig}; groups.push(g); } g.t1=te; });
   groups.forEach((g,gi)=>{ const nx=groups[gi+1]; g.contigNext=!!nx&&nx.contigPrev; g.phraseEnd=!nx||nx.phrase; });
   const len=Math.ceil((rel(N[N.length-1].abs+N[N.length-1].len)+1.2)*sro), out=new Float32Array(len), breaths=[];
-  const vib=5.2+R()*.5, ph1=R()*6.28, ph2=R()*6.28;
+  const vib=5.1+R()*.6, ph1=R()*6.28, ph2=R()*6.28;   // 떨림 빠르기·깊이는 어른아이의 실제 노래(Annabel Lee)에서 잰 값에 맞춘다: 초당 5.4번, ±9센트 안팎
   groups.forEach(g=>{ const ns=g.notes, lag=.006+R()*.018, ts=ns.map(n=>rel(n.abs)+lag), te=ns.map(n=>rel(n.abs+n.len)+lag), end=te[te.length-1];
     const L=ns.map(n=>(n.quiet?.7:1)*(n.type==='chorus'||n.type==='post'?1:n.type==='outro'?.6:n.type==='bridge'?.82:.84)*(n.em?1.15:n.anchor?1:.9)*(.95+R()*.1));
     let off, rel2; if(g.phraseEnd){ off=end; rel2=.32; } else if(g.contigNext){ off=end-Math.min(.1,(end-ts[ts.length-1])*.25); rel2=.07; } else { off=end-.02; rel2=.14; }
-    const sc=(g.phrase?55:25)+R()*25, att=g.phrase?.1:.06, start=ts[0]-.05, stop=off+rel2;
+    const sc=(g.phrase?14:6)+R()*8, att=g.phrase?.09:.05, start=ts[0]-.05, stop=off+rel2;
     if(g.phrase&&ts[0]>.9) breaths.push(ts[0]);
     const vi=ns.map(n=>{ let best=0; V.forEach((v,i)=>{ if(Math.abs(v.m-n.m)<Math.abs(V[best].m-n.m)) best=i; }); return best; });
     const noteAt=t=>{ let j=0; for(let k=1;k<ns.length;k++) if(t>=ts[k]-.035) j=k; return j; };
     const centsAt=t=>{ const j=noteAt(t); let c=100*ns[j].m;
       if(j===0){ const x=smooth((t-start)/(att+.1)); c-=sc*(1-x); }
-      else { const x=smooth((t-(ts[j]-.035))/.1); if(x<1){ const d=100*(ns[j].m-ns[j-1].m); c=100*ns[j-1].m+d*x+(d>0?9:-6)*Math.sin(Math.PI*x); } }
-      const dj=te[j]-ts[j], dt=t-ts[j]; if(dj>.5&&dt>.22){ const dep=Math.min(1,(dt-.22)/.4)*(13+(ns[j].end?9:0)+Math.min(10,(dj-.5)*10)); c+=dep*Math.sin(2*Math.PI*vib*t); }
-      c+=4*Math.sin(2*Math.PI*.47*t+ph1)+2.5*Math.sin(2*Math.PI*1.31*t+ph2);
-      if(g.phraseEnd&&t>off-.1) c-=32*smooth((t-(off-.1))/.38);
+      else { const x=smooth((t-(ts[j]-.03))/.075); if(x<1){ const d=100*(ns[j].m-ns[j-1].m); c=100*ns[j-1].m+d*x+(d>0?3:-2)*Math.sin(Math.PI*x); } }
+      const dj=te[j]-ts[j], dt=t-ts[j]; if(dj>.7&&dt>.25){ const dep=Math.min(1,(dt-.25)/.35)*(7+(ns[j].end?4:0)+Math.min(3,(dj-.7)*3)); c+=dep*Math.sin(2*Math.PI*vib*t); }
+      // 느린 흔들림은 녹음 속 실제 흔들림(아래 jr)만 쓴다
+      if(g.phraseEnd&&t>off-.1) c-=7*smooth((t-(off-.1))/.38);
       return c; };
     const ampAt=t=>{ const j=noteAt(t); let a=L[j];
       if(j>0){ const x=smooth((t-(ts[j]-.04))/.08); a=L[j-1]+(L[j]-L[j-1])*x; a*=1-.2*Math.exp(-Math.pow((t-ts[j])/.035,2)); }
@@ -580,7 +580,7 @@ function humTrack(song,sro,from,to,R,PRE){ const V=BUF.bora.map(prepVoice).sort(
       if(g.phraseEnd&&t>ts[ts.length-1]+.2) a*=1-.28*smooth((t-ts[ts.length-1]-.2)/Math.max(.1,off-ts[ts.length-1]-.2));
       a*=smooth((t-start)/(att+.05)); if(t>off) a*=1-smooth((t-off)/rel2); return a; };
     let t=Math.max(0,start*sro), ptr=R()*.6;
-    while(t<stop*sro&&t<len-1){ const tt=t/sro, c=centsAt(tt)+(R()-.5)*3, f=440*Math.pow(2,(c/100-69)/12), Tt=sro/f, amp=ampAt(tt);
+    while(t<stop*sro&&t<len-1){ const tt=t/sro, c=centsAt(tt), f=440*Math.pow(2,(c/100-69)/12), Tt=sro/f, amp=ampAt(tt);
       let jr=1; if(amp>.0005){ const v=V[vi[noteAt(tt)]], ratio=v.sr/sro, L2=v.b-v.a, p=(ptr*v.sr)%(2*L2), pos=v.a+(p<L2?p:2*L2-p);
         let lo=0, hi=v.ep.length-1; while(hi-lo>1){ const m=(lo+hi)>>1; if(v.ep[m]<pos) lo=m; else hi=m; } const k=Math.abs(v.ep[lo]-pos)<Math.abs(v.ep[hi]-pos)?lo:hi, e=v.ep[k]; jr=Math.max(.985,Math.min(1.015,v.per[k]/v.pm));   // 녹음 속 주기 흔들림을 그대로
         const H=Math.max(2,Math.round(Math.max(v.per[k]/ratio,Tt))), w0=amp*Tt/H, ti=Math.round(t);
