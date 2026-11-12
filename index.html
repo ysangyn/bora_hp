@@ -964,7 +964,7 @@ function toggleLamp(){ blip('switch'); S.lamp=!S.lamp; setTimeout(humSet,0); sta
 /* ---------- 소리: 전부 코드로 합성 (파일 없음) ---------- */
 const AU={ctx:null,out:null,on:false,rain:null,vinyl:null};
 function actx(){
-  if(!AU.ctx){ try{ AU.ctx=(()=>{ const A=window.AudioContext||window.webkitAudioContext; try{ return new A({latencyHint:'playback'}); }catch(_){ return new A(); } })(); AU.out=AU.ctx.createGain(); AU.out.gain.value=AU.on?1:0; try{ const cp=AU.ctx.createDynamicsCompressor(); cp.threshold.value=-26; cp.knee.value=14; cp.ratio.value=4; cp.attack.value=.012; cp.release.value=.5; AU.out.connect(cp).connect(AU.ctx.destination); }catch(_){ AU.out.connect(AU.ctx.destination); }
+  if(!AU.ctx){ try{ AU.ctx=(()=>{ const A=window.AudioContext||window.webkitAudioContext; try{ return new A({latencyHint:'playback'}); }catch(_){ return new A(); } })(); AU.out=AU.ctx.createGain(); AU.out.gain.value=AU.on?1:0; try{ const cp=AU.ctx.createDynamicsCompressor(); cp.threshold.value=-26; cp.knee.value=14; cp.ratio.value=4; cp.attack.value=.012; cp.release.value=.5; AU.tone=AU.ctx.createBiquadFilter(); AU.tone.type='lowpass'; AU.tone.Q.value=.3; AU.tone.frequency.value=toneHz(LS.get('tone',.7)); AU.out.connect(AU.tone).connect(cp).connect(AU.ctx.destination); }catch(_){ AU.out.connect(AU.ctx.destination); }
     try{ Object.defineProperty(AU,'recOK',{get:()=>!!AU.recHas&&!SOFT,configurable:true}); }catch(_){} }catch(e){ return null; } }
   if(AU.ctx.state==='suspended') AU.ctx.resume(); return AU.ctx;
 }
@@ -1010,6 +1010,18 @@ async function bedLevel(k,v,tau){ if(!AU.ctx) return; const B=bedOf(k), vol=Math
 function placeKind(){ const n=(S.place&&S.place.name)||''; if(/레이캬비크|교토|제주|애월/.test(n)) return 'quiet'; if(/브루클린|파리|해운대|부산/.test(n)) return 'city'; return 'city'; }
 function summerNow(){ const m=new Date().getMonth()+1; return (S.place&&S.place.lat<0)?(m>=12||m<=3):(m>=6&&m<=9); }
 const MX=Object.assign({rain:1,out:1,boil:1,noise:1,sym:1,tick:1},LS.get('mix',{}));
+function toneHz(v){ return 700*Math.pow(22,Math.max(0,Math.min(1,v))); }   // 소리 빛깔: 어둡게(700Hz)에서 밝게(15kHz)까지
+function toneSet(v){ LS.set('tone',v); if(AU.tone&&AU.ctx) AU.tone.frequency.setTargetAtTime(toneHz(v),AU.ctx.currentTime,.3); }
+function mixAuto(){ const h=new Date().getHours(), w=S.w||{}, cold=w.temp!=null&&w.temp<8; let v,say;   // 지금 시각과 창밖 날씨에 맞춰 알아서 섞기
+  if(h>=22||h<5){ v={rain:.55}; say='깊은 밤 · 어둡고 포근한 부슬비만 남겼어요'; toneSet(.5); rainLv(0); }
+  else if(h<10){ v={out:.7,rain:.3}; say='아침 · 창을 열고 비를 조금만 남겼어요'; toneSet(.75); rainLv(0); }
+  else if(h<18){ v={rain:.5,tick:.5}; say='낮 · 부슬비에 느린 시계를 얹었어요'; toneSet(.7); rainLv(0); }
+  else { v=cold?{rain:.6,boil:.6}:{rain:.7,out:.4}; say=cold?'저녁 · 비와 주전자 끓는 소리예요':'저녁 · 창을 조금 열어 둔 비 오는 창가예요'; toneSet(.6); rainLv(0); }
+  mixApply(v); roomSay(say); const t=$('mxTone'); if(t) t.value=LS.get('tone',.7); }
+function mixLink(){ const n=mixNow(), q=MIXI.map(([k])=>k[0]+Math.round((n[k]||0)*100)).join('-')+'-l'+RL+'-e'+Math.round(LS.get('tone',.7)*100); return location.origin+location.pathname+'?mix='+q; }
+(()=>{ try{ const q=new URLSearchParams(location.search).get('mix'); if(!q||!/^[a-z0-9-]{3,80}$/.test(q)) return; const m={}; q.split('-').forEach(x=>{ m[x[0]]=+x.slice(1); }); const v={}; [['r','rain'],['o','out'],['b','boil'],['n','noise'],['s','sym'],['t','tick']].forEach(([c,k])=>{ v[k]=Math.max(0,Math.min(1.5,(m[c]||0)/100)); });
+  if(m.l>=0&&m.l<=2) v.l=m.l; if(m.e>=0&&m.e<=100) v.e=m.e/100;
+  const a=LS.get('mixSaved',[]).filter(p=>p.n!=='나눠 받은 자리'); a.unshift({n:'나눠 받은 자리',v}); LS.set('mixSaved',a.slice(0,6)); history.replaceState(null,'',location.pathname+location.hash); setTimeout(()=>roomSay('나눠 받은 소리를 ‘소리 섞기’의 나만의 자리에 넣어 두었어요'),4000); }catch(e){} })();
 let SOFT=LS.get('sndSoft',true);   // 소리 결: 처음의 부드러운 합성 소리(기본) / 실제 녹음
 function sndSoft(v){ SOFT=!!v; LS.set('sndSoft',SOFT); if(KT){ toggleKettle(); toggleKettle(); } setRain(); ambUpdate(); }
 window.__snd=()=>({soft:SOFT,rec:AU.recOK,rain:AU.rain?+AU.rain.gain.value.toFixed(3):null,base:AU.rainBase,snd:S.snd,beds:Object.fromEntries(Object.entries(AMB.beds).map(([k,v])=>[k,+v.g.gain.value.toFixed(3)])),kt:KT?+KT.g.gain.value.toFixed(3):null});
@@ -1966,7 +1978,7 @@ function mixSet(k,v,quiet){ const c=actx(); if(!c) return; if(!AU.on) setAudio(t
   else if(k==='sym'){ if(on&&!SYM){ if(S.playing) songStop(); if(S.radio) radioOff(); symStart(); } else if(!on&&SYM) symStop(); if(SYM) SYM.out.gain.setTargetAtTime(MX.sym,c.currentTime,.6); }
   else if(k==='tick'){ tickSet(on); }
   ambUpdate(); if(!quiet) mixUI(); }
-function mixApply(v){ MIXI.forEach(([k])=>mixSet(k,v[k]||0,true)); setTimeout(mixUI,150); }
+function mixApply(v){ if(v.l!=null) rainLv(v.l); if(v.e!=null){ toneSet(v.e); const t=$('mxTone'); if(t) t.value=v.e; } MIXI.forEach(([k])=>mixSet(k,v[k]||0,true)); setTimeout(mixUI,150); }
 function mixUI(){ const box=$('mxRows'); if(!box) return; const now=mixNow(), tot=MIXI.reduce((a,[k])=>a+now[k],0);
   $('mxBar').innerHTML=tot>0?MIXI.filter(([k])=>now[k]>0).map(([k,n,c])=>`<i style="flex:${now[k].toFixed(2)};background:${c}" title="${n}"></i>`).join(''):'<i class="none"></i>';
   $('mxSum').textContent=tot>0?MIXI.filter(([k])=>now[k]>0).map(([k,n])=>`${n} ${Math.round(now[k]/tot*100)}`).join(' · '):'아직 아무 소리도 넣지 않았어요';
@@ -1979,13 +1991,16 @@ function mixUI(){ const box=$('mxRows'); if(!box) return; const now=mixNow(), to
 function openMix(){ blip('paper');
   show(`<h2>소리 섞기</h2><p>방 안의 소리를 재료처럼 섞어 오늘 밤의 자리를 만들어요. 작게, 냉장고 소리쯤이 알맞아요.</p>
    <div class="chips" id="mxSoft"><button class="chip" data-sf="1">부드러운 소리</button><button class="chip" data-sf="0">실제 녹음 소리</button></div>
+   <div class="row"><button class="ok" id="mxAuto">지금에 맞게 알아서</button></div>
    <div class="mxbar" id="mxBar" aria-hidden="true"></div><small id="mxSum"></small>
    <div id="mxRows">${MIXI.map(([k,n,c,d])=>`<label class="mxr"><span class="mxn"><i style="background:${c}"></i>${n}<small>${d}</small></span><input type="range" data-mx="${k}" min="0" max="1.5" step="0.05" aria-label="${n} 세기"><b data-mxv="${k}"></b></label>`).join('')}</div>
+   <label class="mxr"><span class="mxn"><i style="background:#8a7fa8"></i>소리 빛깔<small>왼쪽은 어둡고 포근하게, 오른쪽은 밝고 또렷하게</small></span><input type="range" id="mxTone" min="0" max="1" step="0.02" aria-label="소리 빛깔"><b></b></label>
    <div class="chips" id="mxRl"><button class="chip" data-rl="0">부슬비</button><button class="chip" data-rl="1">보통 비</button><button class="chip" data-rl="2">장대비</button></div>
    <div class="chips" id="mxNz" hidden><button class="chip" data-nz="wave">숨 고르기 바람</button><button class="chip" data-nz="pink">핑크 노이즈</button><button class="chip" data-nz="brown">브라운 노이즈</button></div>
    <label class="sl">바로 섞어 보기</label><div class="chips">${MIXP.map((p,i)=>`<button class="chip" data-mp="${i}">${p.n}</button>`).join('')}<button class="chip" data-mp="-1">모두 끄기</button></div>
    <label class="sl">나만의 자리</label><div class="chips" id="mxSaved"></div>
    <div class="row"><input id="mxName" maxlength="14" placeholder="이 소리에 이름 붙이기" aria-label="자리 이름"><button class="ok" id="mxSave">간직하기</button></div>
+   <div class="row"><button class="chip" id="mxShare">이 소리를 링크로 나누기</button></div>
    <div class="row"><button class="chip" id="mxSleep">이 소리로 잠들기</button><button class="chip" id="mxWays">세계의 잠 청하는 법</button></div>
    <small>노래·라디오는 턴테이블과 라디오에서 그대로 틀 수 있어요. 심포니는 기타 반주가 있어서 노래·라디오와 함께 켜지 않아요. 간직한 자리는 이 기기에만 저장돼요.</small>`);
   window.__slPanel=false;
@@ -1993,6 +2008,8 @@ function openMix(){ blip('paper');
   document.querySelectorAll('[data-nz]').forEach(b=>b.onclick=()=>{ LS.set('mixNoise',b.dataset.nz); sleepSound(b.dataset.nz); setTimeout(()=>{ if(SN) SN.g.gain.setTargetAtTime(SN.base*MX.noise,AU.ctx.currentTime,.4); mixUI(); },80); });
   document.querySelectorAll('[data-mp]').forEach(b=>b.onclick=()=>{ const i=+b.dataset.mp; mixApply(i<0?{}:MIXP[i].v); });
   $('mxSave').onclick=()=>{ const n=$('mxName').value.trim()||'나의 자리', a=LS.get('mixSaved',[]).filter(p=>p.n!==n); a.unshift({n,v:mixNow()}); LS.set('mixSaved',a.slice(0,6)); $('mxName').value=''; mixUI(); roomSay(`‘${n}’ 자리를 간직했어요`); };
+  $('mxAuto').onclick=e=>{ e.stopPropagation(); mixAuto(); }; $('mxTone').value=LS.get('tone',.7); $('mxTone').oninput=e=>{ if(!AU.on) setAudio(true); toneSet(+e.target.value); };
+  $('mxShare').onclick=async e=>{ e.stopPropagation(); const u=mixLink(); try{ await navigator.clipboard.writeText(u); roomSay('링크를 복사했어요 · 받는 사람의 방에 같은 소리가 담겨요'); }catch(_){ $('mxName').removeAttribute('maxlength'); $('mxName').value=u; $('mxName').select(); roomSay('링크를 이름 칸에 적어 두었어요 · 길게 눌러 복사해 주세요'); } };
   $('mxSleep').onclick=()=>openSleep(); $('mxWays').onclick=e=>{ e.stopPropagation(); openWays(); }; mixUI(); }
 $('bMix').addEventListener('click',e=>{ e.stopPropagation(); openMix(); }); $('rmMix').addEventListener('click',e=>{ e.stopPropagation(); openMix(); });
 /* ---------- 세계의 잠 청하는 법: 오늘 밤의 방법 하나, 양 세기, 낱말 띄우기 ---------- */
