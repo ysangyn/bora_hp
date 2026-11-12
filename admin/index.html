@@ -18,8 +18,10 @@
 .btn.sm{min-height:36px;padding:6px 12px;font-size:12.5px}
 .btn:disabled{opacity:.4;cursor:default}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.tabs{display:flex;gap:6px;margin:22px 0 6px;position:sticky;top:64px;z-index:4;background:var(--bg);padding:8px 0}
-.tabs button{border:1px solid var(--line);background:none;border-radius:999px;padding:9px 16px;font-size:14px;cursor:pointer;color:var(--mut);min-height:42px}
+.tabs{display:flex;gap:6px;margin:22px -20px 6px;position:sticky;top:64px;z-index:4;background:var(--bg);padding:8px 20px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none}
+.tabs button{border:1px solid var(--line);background:none;border-radius:999px;padding:8px 12px;font-size:13.5px;cursor:pointer;color:var(--mut);min-height:42px}
 .tabs button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .help{font-size:13px;color:var(--mut);line-height:1.7}
 .list{list-style:none;margin:14px 0 0;padding:0}
@@ -57,6 +59,21 @@
 .ped .pchips button[aria-pressed=true]{background:#efe8f4;color:#120d18}
 .ped .psl{display:grid;grid-template-columns:56px 1fr;align-items:center;gap:10px;font-size:13px;color:rgba(239,232,244,.75)}
 .ped .psl input{accent-color:#f2c88f;width:100%}
+
+.bspn{width:22px;height:64px;border-radius:2px;background:linear-gradient(90deg,rgba(0,0,0,.35),rgba(255,255,255,.1) 30%,rgba(0,0,0,.25)),var(--c);box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.bed{display:flex;flex-direction:column;gap:14px;margin-top:16px}
+.fld{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--mut);min-width:0}
+.fld input,.fld select,.fld textarea{width:100%;font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px}
+.fld textarea{font:15px/1.75 var(--serif);min-height:260px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:480px){.two{grid-template-columns:1fr}}
+.sw{display:flex;flex-wrap:wrap;gap:8px}
+.sw button{width:34px;height:34px;border-radius:8px;border:2px solid transparent;background:var(--c);cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.sw button[aria-pressed=true]{border-color:var(--lamp)}
+.chk{display:flex;gap:8px;align-items:center;font-size:13.5px}
+.bstat{margin:0;font-size:13px;color:var(--lamp)}
+.bkprev{position:fixed;inset:0;z-index:60;background:#0e0b13}
+.bkprev iframe{width:100%;height:100%;border:0;display:block}
 </style>
 </head>
 <body>
@@ -123,10 +140,10 @@ async function shrink(file, max = 2048) {
 }
 
 /* 상태 */
-const D = { tracks: null, videos: null, views: null, photos: null }, ORIG = {}, PEND = new Map();
+const D = { tracks: null, videos: null, views: null, photos: null, books: null }, ORIG = {}, PEND = new Map();
 let tab = 'tracks', dirty = new Set();
-const FILES = { tracks: 'data/tracks.json', videos: 'data/videos.json', views: 'data/views.json', photos: 'data/photos.json' };
-const mark = k => { dirty.add(k); $('#saveBar').hidden = false; $('#saveT').textContent = `바뀐 내용이 있어요 (${[...dirty].map(x => ({ tracks: '노래', videos: '영상', views: '창밖', photos: '사진첩' })[x]).join('·')})`; };
+const FILES = { tracks: 'data/tracks.json', videos: 'data/videos.json', views: 'data/views.json', photos: 'data/photos.json', books: 'data/books.json' };
+const mark = k => { dirty.add(k); $('#saveBar').hidden = false; $('#saveT').textContent = `바뀐 내용이 있어요 (${[...dirty].map(x => ({ tracks: '노래', videos: '영상', views: '창밖', photos: '사진첩', books: '책장' })[x]).join('·')})`; };
 async function loadAll() { for (const k of Object.keys(FILES)) { D[k] = await getJSON(FILES[k], []); ORIG[k] = JSON.stringify(D[k]); } }
 
 function viewKey(err) {
@@ -138,12 +155,12 @@ function viewKey(err) {
 }
 
 function render() {
-  const n = { tracks: D.tracks.length, videos: D.videos.length, views: D.views.length, photos: D.photos.length };
-  $('#app').innerHTML = `<h1 class="lt">주인장 방</h1><p class="ls">방의 노래, 프로젝터 영상, 창밖 풍경, 사진첩을 고쳐요. 고친 뒤 아래 '방에 올리기'를 누르면 1~2분 뒤 방에 반영돼요.</p>
-  <div class="tabs" role="tablist"><button type="button" data-tab="tracks" aria-pressed="${tab === 'tracks'}">노래 ${n.tracks}</button><button type="button" data-tab="videos" aria-pressed="${tab === 'videos'}">영상 ${n.videos}</button><button type="button" data-tab="views" aria-pressed="${tab === 'views'}">창밖 ${n.views}</button><button type="button" data-tab="photos" aria-pressed="${tab === 'photos'}">사진첩 ${n.photos}</button></div>
+  const n = { tracks: D.tracks.length, videos: D.videos.length, views: D.views.length, photos: D.photos.length, books: D.books.length };
+  $('#app').innerHTML = `<h1 class="lt">주인장 방</h1><p class="ls">방의 노래, 프로젝터 영상, 창밖 풍경, 사진첩, 책장을 고쳐요. 고친 뒤 아래 '방에 올리기'를 누르면 1~2분 뒤 방에 반영돼요.</p>
+  <div class="tabs" role="tablist"><button type="button" data-tab="tracks" aria-pressed="${tab === 'tracks'}">노래 ${n.tracks}</button><button type="button" data-tab="videos" aria-pressed="${tab === 'videos'}">영상 ${n.videos}</button><button type="button" data-tab="views" aria-pressed="${tab === 'views'}">창밖 ${n.views}</button><button type="button" data-tab="photos" aria-pressed="${tab === 'photos'}">사진첩 ${n.photos}</button><button type="button" data-tab="books" aria-pressed="${tab === 'books'}">책장 ${n.books}</button></div>
   <section id="pane"></section>`;
-  $$('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; editSet = null; render(); });
-  ({ tracks: paneTracks, videos: paneVideos, views: paneViews, photos: panePhotos })[tab]();
+  $$('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; editSet = null; editBook = null; render(); });
+  ({ tracks: paneTracks, videos: paneVideos, views: paneViews, photos: panePhotos, books: paneBooks })[tab]();
 }
 const moveBtns = (k, i) => `<button class="btn sm" type="button" data-up="${i}" aria-label="위로" ${i === 0 ? 'disabled' : ''}>↑</button><button class="btn sm" type="button" data-dn="${i}" aria-label="아래로" ${i === D[k].length - 1 ? 'disabled' : ''}>↓</button><button class="btn sm" type="button" data-hide="${i}">${D[k][i].hide ? '다시 보이기' : '숨기기'}</button><button class="btn sm" type="button" data-del="${i}">빼기</button>`;
 function wireList(k) {
@@ -345,18 +362,108 @@ function photoFiles() {
   return out;
 }
 
+
+/* 책장: 공개된 글을 붙여 넣으면 장·문단으로 나눠 책으로 꽂는다. 목록(data/books.json)과 본문(data/books/<id>.json)을 따로 둔다 */
+const BKINDS = [['novel', '소설'], ['poem', '시'], ['fairy', '동화'], ['essay', '수필']];
+const BCOLORS = ['#5b2430', '#23314f', '#2f4a3a', '#7a5a2a', '#4a2a4e', '#2b2a2e', '#7a3b22', '#3d5560', '#d9c9a6'];
+const BT = new Map(), BDIRTY = new Set();   // 고친 책 본문, 올려야 할 책 id
+let editBook = null, bDraft = null;
+const bSrcName = u => { try { const h = new URL(u).hostname; return /wikisource/.test(h) ? '위키문헌' : /gongu/.test(h) ? '공유마당' : /gutenberg/.test(h) ? '프로젝트 구텐베르크' : h.replace(/^www\./, ''); } catch (e) { return ''; } };
+function bParas(lines, kind) {
+  const txt = lines.join('\n').replace(/^\s*\n+|\n+\s*$/g, ''); if (!txt.trim()) return [];
+  const blocks = txt.split(/\n[ \t　]*\n+/);
+  if (kind === 'poem') return blocks.map(b => b.split('\n').map(l => l.replace(/^[ \t　]+/, '').replace(/\s+$/, '')).join('\n').trim()).filter(Boolean);
+  const longLines = txt.split('\n').some(l => l.trim().length > 110);
+  const out = (!longLines && blocks.length > 1) ? blocks.map(b => b.split('\n').map(l => l.trim()).filter(Boolean).join(' ')) : txt.split('\n');
+  return out.map(x => x.replace(/[ \t　]+/g, ' ').trim()).filter(Boolean);
+}
+function bParse(raw, kind, strip) {
+  let s = String(raw || '').replace(/\r\n?/g, '\n').replace(/[​-‍﻿]/g, '').replace(/ /g, ' ');
+  if (strip) s = s.replace(/\[\s*(?:\d{1,3}|주\s*\d{1,3}|각주\s*\d{1,3}|편집|원문 보기)\s*\]/g, '').replace(/↑/g, '');
+  const chs = []; let cur = { t: '', lines: [] };
+  for (const ln of s.split('\n')) { const m = ln.match(/^\s*#\s+(.+?)\s*$/); if (m) { if (cur.t || cur.lines.some(x => x.trim())) chs.push(cur); cur = { t: m[1], lines: [] }; } else cur.lines.push(ln); }
+  if (cur.t || cur.lines.some(x => x.trim())) chs.push(cur);
+  return chs.map(c => ({ t: c.t, p: bParas(c.lines, kind) })).filter(c => c.t || c.p.length);
+}
+const bRaw = b => (b.chapters || []).map(c => (c.t ? '# ' + c.t + '\n\n' : '') + (c.p || []).join(b.kind === 'poem' ? '\n\n' : '\n')).join('\n\n');
+const bStat = ch => { const n = ch.reduce((a, c) => a + c.p.reduce((x, y) => x + y.length, 0), 0); return { n, ch: ch.length, p: ch.reduce((a, c) => a + c.p.length, 0) }; };
+const bSpine = c => `<span class="bspn" style="--c:${esc(c)}"></span>`;
+function paneBooks() {
+  if (editBook) return paneBook();
+  $('#pane').innerHTML = `<p class="help">방의 책꽂이 아래 칸에 꽂히는 책이에요. 손님이 꺼내 읽고, 읽던 쪽은 손님 기기에만 기억돼요.</p>
+  <ul class="list">${D.books.map((b, i) => `<li class="it${b.hide ? ' off' : ''}">${bSpine(b.color || BCOLORS[0])}<div class="f">
+    <b style="font:600 16px/1.4 var(--serif)">${esc(b.t)}</b><small>${[b.a, b.tr ? b.tr + ' 옮김' : '', (BKINDS.find(k => k[0] === b.kind) || [0, '책'])[1], b.ch ? '장 ' + b.ch + '개' : '', b.n ? b.n.toLocaleString() + '자' : ''].filter(Boolean).map(esc).join(' · ')}${BDIRTY.has(b.id) ? ' · <span class="tag new">고침</span>' : ''}</small>
+    <div class="row"><button class="btn sm" type="button" data-bed="${esc(b.id)}">고치기</button><button class="btn sm" type="button" data-bpv="${esc(b.id)}">미리 읽기</button>${moveBtns('books', i)}</div></div></li>`).join('')}</ul>
+  <div class="add"><b>새 책 꽂기</b><p class="help" style="margin:0">위키문헌이나 공유마당 같은 곳에서 글을 그대로 복사해 붙여 넣어요. 장 제목과 문단은 자동으로 나눠요.</p>
+    <div class="row"><button class="btn pri" type="button" id="bNew">새 책 만들기</button></div></div>`;
+  wireList('books');
+  $('#bNew').onclick = () => { bDraft = { id: rid(), t: '', a: '', tr: '', y: '', kind: 'novel', src: '', srcN: '', color: BCOLORS[D.books.length % BCOLORS.length], raw: '', strip: true, isNew: true }; editBook = bDraft.id; render(); };
+  $$('[data-bed]').forEach(b => b.onclick = async () => { const full = await bLoad(b.dataset.bed); if (!full) return; bDraft = { ...full, raw: bRaw(full), strip: false }; editBook = full.id; render(); });
+  $$('[data-bpv]').forEach(b => b.onclick = async () => { const full = await bLoad(b.dataset.bpv); if (full) bPreview(full); });
+}
+async function bLoad(id) {
+  if (BT.has(id)) return BT.get(id);
+  busy(true, '책을 펼치는 중…'); try { const j = await getJSON(`data/books/${id}.json`, null); busy(false); if (!j) { toast('책 본문을 찾지 못했어요'); return null; } BT.set(id, j); return j; }
+  catch (e) { busy(false); toast('불러오지 못했어요'); return null; }
+}
+function bBuild(d) {
+  const chapters = bParse(d.raw, d.kind, d.strip);
+  return { id: d.id, t: d.t.trim(), a: d.a.trim(), tr: d.tr.trim(), y: String(d.y || '').trim(), kind: d.kind, src: d.src.trim(), srcN: d.srcN.trim() || bSrcName(d.src.trim()), color: d.color, chapters };
+}
+function bPreview(full) {
+  window.__bookPreview = full; let o = $('#bkPrev');
+  if (!o) { o = document.createElement('div'); o.id = 'bkPrev'; o.className = 'bkprev'; o.innerHTML = '<iframe title="미리 읽기"></iframe>'; document.body.appendChild(o);
+    addEventListener('message', e => { if (e.origin === location.origin && e.data && e.data.bora === 'books-close') { o.hidden = true; o.querySelector('iframe').src = 'about:blank'; } }); }
+  o.hidden = false; o.querySelector('iframe').src = '../books/?embed=1&preview=1';
+}
+function paneBook() {
+  const d = bDraft; if (!d) { editBook = null; return paneBooks(); }
+  const f = (k, label, ph, extra = '') => `<label class="fld"><span>${label}</span><input type="text" data-bf="${k}" value="${esc(d[k] || '')}" placeholder="${esc(ph)}" ${extra}></label>`;
+  $('#pane').innerHTML = `<div class="row" style="margin-top:14px"><button class="btn sm" type="button" id="bBack">← 책장 목록</button></div>
+  <div class="bed">
+    ${f('t', '제목', '예: 메밀꽃 필 무렵')}
+    <div class="two">${f('a', '지은이', '예: 이효석')}${f('tr', '옮긴이', '번역한 글이면')}</div>
+    <div class="two">${f('y', '처음 나온 해', '예: 1936', 'inputmode="numeric"')}<label class="fld"><span>종류</span><select data-bf="kind">${BKINDS.map(([k, n]) => `<option value="${k}"${d.kind === k ? ' selected' : ''}>${n}</option>`).join('')}</select></label></div>
+    ${f('src', '가져온 곳 주소', 'https://ko.wikisource.org/wiki/…', 'inputmode="url"')}
+    ${f('srcN', '가져온 곳 이름', '비우면 주소를 보고 정해요 (예: 위키문헌)')}
+    <div class="fld"><span>책등 색</span><div class="sw">${BCOLORS.map(c => `<button type="button" data-bc="${c}" aria-label="색 ${c}" aria-pressed="${d.color === c}" style="--c:${c}"></button>`).join('')}</div></div>
+    <label class="fld"><span>본문</span><textarea data-bf="raw" rows="14" placeholder="여기에 글을 붙여 넣어요.&#10;&#10;# 첫째 장 제목&#10;문단…&#10;&#10;# 둘째 장 제목&#10;문단…">${esc(d.raw)}</textarea></label>
+    <p class="help" style="margin:0">'# 장 제목'처럼 줄 맨 앞에 #과 한 칸을 두면 거기서 장이 나뉘어요. 시는 빈 줄로 연을 나눠요. 위키문헌에서 복사한 글은 문단마다 한 줄이라 그대로 붙여 넣으면 돼요.</p>
+    <label class="chk"><input type="checkbox" id="bStrip"${d.strip ? ' checked' : ''}> 주석 번호([1], [편집] 같은 것) 지우기</label>
+    <p class="bstat" id="bStat"></p>
+    <p class="warnline">번역한 글은 옮긴이에게도 저작권이 있어요. 위키문헌·공유마당처럼 저작권이 끝났거나 자유 이용이 표시된 글만 넣어 주세요.</p>
+    <div class="row"><button class="btn" type="button" id="bPv">미리 읽기</button><button class="btn pri" type="button" id="bOk">${d.isNew ? '책장에 꽂기' : '고친 내용 담기'}</button></div>
+  </div>`;
+  const stat = () => { const ch = bParse(d.raw, d.kind, d.strip), st = bStat(ch); $('#bStat').textContent = st.n ? `장 ${st.ch}개 · 문단 ${st.p.toLocaleString()}개 · 글자 ${st.n.toLocaleString()}자 · 휴대폰으로 약 ${Math.max(1, Math.round(st.n / 360))}쪽` : '아직 본문이 없어요.'; };
+  stat();
+  let t = 0; $$('[data-bf]').forEach(el => el.oninput = el.onchange = () => { d[el.dataset.bf] = el.value; clearTimeout(t); t = setTimeout(stat, 250); });
+  $('#bStrip').onchange = e => { d.strip = e.target.checked; stat(); };
+  $$('[data-bc]').forEach(b => b.onclick = () => { d.color = b.dataset.bc; $$('[data-bc]').forEach(x => x.setAttribute('aria-pressed', x === b)); });
+  $('#bBack').onclick = () => { editBook = null; bDraft = null; render(); };
+  $('#bPv').onclick = () => { const full = bBuild(d); if (!full.chapters.length) { toast('본문을 먼저 붙여 넣어 주세요'); return; } bPreview(full); };
+  $('#bOk').onclick = () => {
+    const full = bBuild(d); if (!full.t) { toast('제목을 적어 주세요'); return; } if (!full.chapters.length) { toast('본문을 먼저 붙여 넣어 주세요'); return; }
+    const st = bStat(full.chapters), meta = { id: full.id, t: full.t, a: full.a, tr: full.tr, y: full.y, kind: full.kind, src: full.src, srcN: full.srcN, color: full.color, n: st.n, ch: st.ch, v: new Date().toISOString() };
+    const i = D.books.findIndex(x => x.id === full.id); if (i < 0) D.books.push(meta); else D.books[i] = { ...D.books[i], ...meta };
+    BT.set(full.id, full); BDIRTY.add(full.id); mark('books'); editBook = null; bDraft = null; render(); toast(i < 0 ? '책장에 꽂았어요. 아래 \'방에 올리기\'를 눌러 주세요.' : '고친 내용을 담았어요.');
+  };
+}
+
 /* 올리기 */
 $('#saveAll').onclick = async () => {
   busy(true, '방에 올리는 중… (곡 파일이 크면 1분쯤 걸려요)');
   try { const files = [], used = new Set();
     if (dirty.has('photos')) files.push(...photoFiles());
+    if (dirty.has('books')) { const now = new Set(D.books.map(b => b.id));
+      for (const id of BDIRTY) if (now.has(id) && BT.has(id)) files.push({ path: `data/books/${id}.json`, text: JSON.stringify(BT.get(id)) });
+      JSON.parse(ORIG.books || '[]').forEach(b => { if (!now.has(b.id)) files.push({ path: `data/books/${b.id}.json`, del: true }); }); }
     for (const k of dirty) { files.push({ path: FILES[k], text: JSON.stringify(D[k], null, 1) });
       for (const x of D[k]) for (const p of [x.f, x.day, x.night, ...((x.items || []).map(i => i.src))]) if (p && PEND.has(p) && !used.has(p)) { used.add(p); files.push({ path: p, blob: PEND.get(p) }); } }
-    await commit(files, '주인장 방: ' + [...dirty].join(', ')); for (const p of used) PEND.delete(p);
+    await commit(files, '주인장 방: ' + [...dirty].join(', ')); for (const p of used) PEND.delete(p); BDIRTY.clear();
     for (const k of dirty) ORIG[k] = JSON.stringify(D[k]); dirty.clear(); $('#saveBar').hidden = true; busy(false); toast('올렸어요. 1~2분 뒤 방에 보여요.'); render();
   } catch (e) { busy(false); toast('올리지 못했어요 (' + (e.status || '연결') + '). 잠시 뒤 다시 해 주세요.'); console.warn(e); }
 };
-$('#undoAll').onclick = () => { for (const k of dirty) D[k] = JSON.parse(ORIG[k]); dirty.clear(); PEND.clear(); editSet = null; $('#saveBar').hidden = true; render(); };
+$('#undoAll').onclick = () => { for (const k of dirty) D[k] = JSON.parse(ORIG[k]); dirty.clear(); PEND.clear(); editSet = null; editBook = null; bDraft = null; BDIRTY.clear(); BT.clear(); $('#saveBar').hidden = true; render(); };
 window.addEventListener('beforeunload', e => { if (dirty.size) { e.preventDefault(); e.returnValue = ''; } });
 
 async function start() {
