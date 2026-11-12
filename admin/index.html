@@ -267,11 +267,11 @@ async function paneStamps() {
   stampRows.forEach(r => { const o = by[r.k] = by[r.k] || { k: r.k, n: 0, t: {}, last: 0 }; o.n++; o.t[r.t] = (o.t[r.t] || 0) + 1; o.last = Math.max(o.last, r.at); });
   const ago = t => { const m = Math.round((now - t) / 6e4); return m < 60 ? `${Math.max(1, m)}분 전` : m < 1440 ? `${Math.round(m / 60)}시간 전` : `${Math.round(m / 1440)}일 전`; };
   const nm = k => T[k] ? `<small>${T[k][0]}</small> ${esc(T[k][1])}` : esc(k);
-  P.innerHTML = `<section class="card"><h2>손님 도장</h2><p class="hint">지난 30일 ${month}개 · 모두 ${stampRows.length}개 (손님 화면에는 숫자가 보이지 않아요)</p>
-    <h3 class="gl">곳마다</h3>${Object.values(by).sort((a, b) => b.last - a.last).map(o => `<div class="trow" style="cursor:default"><span><b>${nm(o.k)}</b><small>${Object.entries(o.t).map(([t, n]) => `${ST_L[t] || t} ${n}`).join(' · ')}</small></span><em>${ago(o.last)}</em></div>`).join('') || '<p class="hint">아직 도장이 없어요.</p>'}
-    <h3 class="gl">최근</h3>${stampRows.slice(0, 20).map(r => `<p class="hint" style="margin:4px 0">${ago(r.at)} · ${nm(r.k)} · ${ST_L[r.t] || r.t}</p>`).join('')}
-    <div class="row" style="margin-top:12px"><button class="btn" type="button" id="fbRe">새로 불러오기</button></div>
-    <details style="margin-top:14px"><summary class="hint">Firestore 규칙 다시 보기 · 설정 바꾸기</summary>${rulesBox()}<div class="row" style="margin-top:8px"><button class="btn sm" type="button" id="fbReset">설정 바꾸기</button></div></details></section>`;
+  const ic = { read: '📖', comfort: '🤍', more: '🎵' };
+  P.innerHTML = `<section class="card"><h2>손님 도장 <small style="font-weight:400;opacity:.65">· 모두 ${stampRows.length} · 30일 ${month}</small></h2>
+    ${Object.values(by).sort((a, b) => b.last - a.last).map(o => `<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid rgba(127,127,127,.18);font-size:14px"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${nm(o.k)}</span><span style="flex:none;opacity:.85">${Object.entries(o.t).map(([t, n]) => `<span title="${ST_L[t] || t}">${ic[t] || ''}${n}</span>`).join(' ')} <small style="opacity:.6">${ago(o.last)}</small></span></div>`).join('') || '<p class="hint">아직 도장이 없어요.</p>'}
+    <p class="hint" style="margin-top:8px">📖 잘 읽었어요 · 🤍 위로가 됐어요 · 🎵 더 듣고 싶어요 <button class="btn sm" type="button" id="fbRe" style="margin-left:6px">새로 불러오기</button></p>
+    <details style="margin-top:6px"><summary class="hint">설정</summary>${rulesBox()}<div class="row" style="margin-top:8px"><button class="btn sm" type="button" id="fbReset">설정 바꾸기</button></div></details></section>`;
   rulesCopy();
   $('#fbRe').onclick = async () => { busy(true, '불러오는 중…'); try { stampRows = await loadStamps(); stampErr = ''; } catch (e) { stampErr = e.message; stampRows = null; } busy(false); paneStamps(); };
   $('#fbReset').onclick = () => { FB = null; stampRows = null; stampErr = ''; paneStamps(); };
