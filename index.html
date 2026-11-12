@@ -618,6 +618,7 @@ body.lite .grade .grain,body.lite .steam i,body.lite .flake,body.lite .record i:
 .remote .rb button{width:40px;height:40px;border-radius:50%;background:transparent;display:inline-flex;align-items:center;justify-content:center}
 .remote .rb button:active{background:rgba(255,255,255,.12)}
 .remote .rb button svg{width:18px;height:18px;fill:currentColor}
+.remote .rb .rmoff{color:#f2a8a0}
 .remote .rb button.big{width:44px;height:44px;background:rgba(255,255,255,.1)} .remote .rb button.big svg{width:22px;height:22px}
 .remote .i2{display:none}.remote.paused .i1{display:none}.remote.paused .i2{display:inline-flex}
 .remote #rmShuf{opacity:.5}.remote #rmShuf[aria-pressed=true]{opacity:1;color:#f2c88f}
@@ -888,7 +889,7 @@ body.hasnote .hs[data-p="mailbox"]{display:block!important}
    <button class="rmix" id="rmMix" type="button">소리 섞기</button>
    <button class="rtog" id="rmTog" aria-label="리모컨 열기"><i></i><i></i><i></i></button>
    <span class="rt" id="rmT"></span>
-   <div class="rb"><button id="rmPrev" aria-label="이전"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h2v12H6zM9.5 12l8.5-6v12z"/></svg></button><button id="rmB" aria-label="10초 뒤로"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg></button><button id="rmPlay" class="big" aria-label="재생 또는 멈춤"><span class="i1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></span><span class="i2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span></button><button id="rmF" aria-label="10초 앞으로"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2l5 4-5 4V7a5 5 0 1 0 5 5h2a7 7 0 1 1-7-7z"/></svg></button><button id="rmNext" aria-label="다음"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 6h2v12h-2zM14.5 12 6 6v12z"/></svg></button><button id="rmShuf" aria-label="무작위 재생"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3l4 4-4 4V8h-2.5l-3 4 3 4H17v-3l4 4-4 4v-3h-3.5l-3.5-4.7L6.5 18H3v-2h2.5l4.2-5.6L5.5 6H3V4h3.5l3.5 4.7L13.5 4H17z"/></svg></button></div>
+   <div class="rb"><button id="rmPrev" aria-label="이전"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h2v12H6zM9.5 12l8.5-6v12z"/></svg></button><button id="rmB" aria-label="10초 뒤로"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg></button><button id="rmPlay" class="big" aria-label="재생 또는 멈춤"><span class="i1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></span><span class="i2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span></button><button id="rmF" aria-label="10초 앞으로"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2l5 4-5 4V7a5 5 0 1 0 5 5h2a7 7 0 1 1-7-7z"/></svg></button><button id="rmNext" aria-label="다음"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 6h2v12h-2zM14.5 12 6 6v12z"/></svg></button><button id="rmShuf" aria-label="무작위 재생"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3l4 4-4 4V8h-2.5l-3 4 3 4H17v-3l4 4-4 4v-3h-3.5l-3.5-4.7L6.5 18H3v-2h2.5l4.2-5.6L5.5 6H3V4h3.5l3.5 4.7L13.5 4H17z"/></svg></button><button id="rmOff" class="rmoff" aria-label="끄고 닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10H7z"/></svg></button></div>
    <label class="rv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9zm11.5 3a3.5 3.5 0 0 0-2-3.2v6.4a3.5 3.5 0 0 0 2-3.2z"/></svg><input type="range" id="rmVol" min="0" max="1" step="0.05" aria-label="소리 크기"></label>
    <label class="rv rdim"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg><input type="range" class="dmr" data-k="room" min="0.06" max="1" step="0.01" aria-label="방 밝기"></label>
    <div class="rsl" id="rmSl" hidden><span id="rmSlT"></span><button id="rmSlX">끄기</button></div>
@@ -1335,6 +1336,7 @@ function rmUpdate(){ const m=rmMode(), r=$('remote'), sk=sleepKind(); const sl=$
   $('rmT').textContent=t; r.classList.toggle('paused',!playing); $('rmShuf').setAttribute('aria-pressed',!!S.shuf); if(document.activeElement!==$('rmVol')) $('rmVol').value=S.vol; }
 setInterval(rmUpdate,600);
 $('rmSl').addEventListener('click',e=>e.stopPropagation());
+$('rmOff').onclick=e=>{ e.stopPropagation(); const m=rmMode(); if(m==='proj') projOff(); else if(m==='radio') radioOff(); else if(m==='song'){ songStop(); try{ songEl.removeAttribute('src'); songEl.load(); }catch(_){} } HOLD=null; const r=$('remote'); r.classList.remove('open'); setTimeout(rmUpdate,80); roomSay('껐어요'); };
 $('rmSlX').onclick=e=>{ e.stopPropagation(); sleepSound('none'); symStop(); setTimeout(rmUpdate,100); };
 // 노래·라디오·프로젝터가 켜지면 잠드는 소리는 뒤로: 심포니는 기타·초침을 쉬고, 소음은 작게. 끄면 다시 원래대로
 let duckSnK=null;
