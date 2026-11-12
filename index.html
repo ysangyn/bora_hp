@@ -824,7 +824,7 @@ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches, fine=matchM
 const S={
   place:LS.get('place6',{name:'레이캬비크',lat:64.1466,lon:-21.9426,cc:'is'}),
   curtain:LS.get('curtain',null), lamp:false, snd:false, playing:false,
-  key:LS.get('gkey','')||'AIzaSyBodR1Uc2Qcxg_oKPjcEMRlAj4l58KSZnU', lite:LS.get('lite',false), visit:LS.get('visit',false), radio:null, vol:LS.get('vol',.6),
+  key:LS.get('gkey',''), lite:LS.get('lite',false), visit:LS.get('visit',false), radio:null, vol:LS.get('vol',.6),
   w:null   // {kind:'rain'|'snow'|null, cloud:0..1, isDay:bool, tz, code, temp}
 };
 
@@ -1077,6 +1077,16 @@ async function wikiPins(wd,name){ if(!wd) return []; try{
     take(Object.values((q.query||{}).pages||{}).filter(p=>!bad.test(p.title)).sort((a,b)=>(a.index||0)-(b.index||0)).slice(0,8)); out.splice(3); }
   return out; }catch(e){ return []; } }
 function pinSrc(pin){ return pin.src||('img/pin/'+pin.f); }
+// Mapillary(무료 공개 거리 사진, CC BY-SA): 그곳 둘레에서 사람들이 찍은 거리 사진을 몇 장 고른다(결제 없이)
+const MLY='MLY|28940021905666587|6f123c26e51ffb21e04cccff938c19c6';
+async function mlyPins(pl){ try{ const cs=(pl.spots&&pl.spots.length?pl.spots:[{lat:pl.lat,lon:pl.lon,n:pl.name}]).slice(0,4), out=[], seen=new Set();
+  for(const c of cs){ for(const d of [.0012,.004]){ const cl=Math.max(.3,Math.cos(c.lat*Math.PI/180)), bb=[c.lon-d/cl,c.lat-d,c.lon+d/cl,c.lat+d].map(v=>v.toFixed(6)).join(',');
+      const j=await (await fetch(`https://graph.mapillary.com/images?access_token=${encodeURIComponent(MLY)}&fields=id,thumb_2048_url,is_pano,captured_at,creator&bbox=${bb}&limit=40`)).json();
+      const ims=(j.data||[]).filter(x=>!x.is_pano&&x.thumb_2048_url).sort((a,b)=>(b.captured_at||0)-(a.captured_at||0));
+      let k=0; for(const x of ims){ if(seen.has(x.id)) continue; if(k++%5) continue; seen.add(x.id); out.push({n:c.n||pl.name,src:x.thumb_2048_url,a:((x.creator&&x.creator.username)||'Mapillary')+' · Mapillary',l:'CC BY-SA 4.0',u:'https://www.mapillary.com/app/?pKey='+x.id}); if(out.length>=6) break; }
+      if(ims.length>=3) break; }
+    if(out.length>=6) break; }
+  return out; }catch(e){ return []; } }
 function nPin(p){ return (p.pins&&p.pins.length)||0; }
 function svOf(p){ const np=nPin(p), i=(p.sv||0)%svCount(p); if(i<np) return {pin:p.pins[i],name:p.pins[i].n}; return svOf0({...p,sv:i-np}); }
 function svCount(p){ return nPin(p)+(S.key?svCount0(p):0)||1; }
@@ -1371,7 +1381,8 @@ function openPlace(){
     const snap={p:S.place,v:S.visit,w:S.w}; window.__draft=true;
     window.__undoDraft=()=>{ window.__undoDraft=null; if(!window.__draft) return; window.__draft=false; S.place=snap.p; S.visit=snap.v; S.w=snap.w; LS.set('place6',S.place); LS.set('visit',S.visit); ids.forEach((i,k)=>{ if($(i)) $(i).textContent=tx[k]; }); applyWindow(); if(S.radio) radioTune(); }; };
   const go=async q=>{ if(q) draftOn(); if(q&&await findPlace(q,$('pOut'))){ padj={h:0,p:0,f:90}; let pins=await pinsFor(q); const city=CITYISH.test(S.place.kind||'')||S.place.kind===''; if(!pins.length&&!city) pins=await wikiPins(S.place.wd,S.place.name); if(!city){ S.place.spots=[{n:S.place.name,lat:S.place.lat,lon:S.place.lon}]; S.place.sv=0; LS.set('place6',S.place); applyWindow(); } if(pins.length){ S.place.pins=pins; S.place.sv=0; LS.set('place6',S.place); applyWindow(); } pend=null; svBar(); if(CITYISH.test(S.place.kind||'')||S.place.kind===''){ $('pOut').textContent='그곳의 이름난 곳들을 찾는 중…'; const cur=await curatedSpots(q,S.place), more=await findSpots(S.place), seen=new Set(cur.map(x=>x.n)), sp=cur.concat(more.filter(x=>!seen.has(x.n))).slice(0,16); if(sp.length){ S.place.spots=sp; S.place.sv=0; pend=0; LS.set('place6',S.place); applyWindow(); } $('pOut').textContent=`지금 창밖: ${S.place.name} (거리)`+(sp.length?` · 이름난 곳 ${sp.length}곳`:''); svBar(); }
-    if(S.key&&S.place.spots){ const pl=S.place, o=$('pOut'), t0=o.textContent; o.textContent=t0+' · 사진이 잘 보이는 자리 고르는 중…'; const vs=await resolveViews(pl); if(S.place===pl){ if(vs){ pl.views=vs; pl.sv=0; pend=0; padj={h:0,p:0,f:90}; LS.set('place6',pl); applyWindow(); } o.textContent=t0+(vs?` · 사진 ${vs.length}장`:` · 자리 확인 안 됨 (${window.__svErr||'?'})`); svBar(); } } } };
+    { const pl=S.place, o=$('pOut'), t0=o.textContent; o.textContent=t0+' · 거리 사진 찾는 중…'; const mp=await mlyPins(pl); if(S.place===pl&&mp.length){ pl.pins=(pl.pins||[]).concat(mp); pl.sv=0; pend=0; LS.set('place6',pl); applyWindow(); svBar(); } o.textContent=t0+(mp.length?` · 거리 사진 ${mp.length}장`:''); }
+    if(false&&S.key&&S.place.spots){ const pl=S.place, o=$('pOut'), t0=o.textContent; o.textContent=t0+' · 사진이 잘 보이는 자리 고르는 중…'; const vs=await resolveViews(pl); if(S.place===pl){ if(vs){ pl.views=vs; pl.sv=0; pend=0; padj={h:0,p:0,f:90}; LS.set('place6',pl); applyWindow(); } o.textContent=t0+(vs?` · 사진 ${vs.length}장`:` · 자리 확인 안 됨 (${window.__svErr||'?'})`); svBar(); } } } };
   svBar();
   $('pGo').onclick=()=>go($('pIn').value.trim());
   $('pIn').addEventListener('keydown',e=>{ if(e.key==='Enter') go(e.target.value.trim()); });
