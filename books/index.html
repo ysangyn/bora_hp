@@ -9,7 +9,8 @@
 <link rel="icon" type="image/png" sizes="32x32" href="../img/icon/icon-32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=Gowun+Batang:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@kfonts/maruburi@0.1.0/index.css">
 <style>
 /* 보라다방 책장 — 방의 책꽂이에서 한 권 꺼내 읽는 화면. 종이책처럼 한 장씩 넘긴다 */
 :root{--bg:#0e0b13;--ink:#efe6dc;--mut:rgba(239,230,220,.6);--lamp:#f2c88f;--line:rgba(239,230,220,.13);
@@ -108,7 +109,7 @@ a{color:inherit}
 
 /* 쪽 안 */
 .hd{position:absolute;left:var(--side);right:var(--side);top:calc(var(--pt) * .4);font:400 10.5px/1.2 var(--serif);letter-spacing:.16em;color:var(--pmut);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tx{position:absolute;left:var(--side);right:var(--side);top:var(--pt);height:var(--th);overflow:hidden;font:400 var(--fs)/var(--lh) var(--serif);text-align:justify;word-break:normal;overflow-wrap:anywhere;font-kerning:normal}
+.tx{position:absolute;left:var(--side);right:var(--side);top:var(--pt);height:var(--th);overflow:hidden;font:400 var(--fs)/var(--lh) var(--serif);text-align:left;word-break:keep-all;overflow-wrap:anywhere;font-kerning:normal}
 .tx p{margin:0;text-indent:1em}
 .tx p.first,.tx p.cont{text-indent:0}
 .tx p.v{text-indent:0;white-space:pre-line;text-align:left;word-break:keep-all;margin-bottom:var(--lh)}
@@ -142,6 +143,7 @@ a{color:inherit}
 .cov .ca{margin:20px 0 auto;font:400 14px/1.75 var(--serif);letter-spacing:.24em;opacity:.92}
 .cov .ca small{display:block;font-size:11.5px;letter-spacing:.14em;opacity:.8}
 .cov .cm{margin:0;font-size:10.5px;letter-spacing:.44em;opacity:.72}
+#dimL{position:absolute;inset:0;z-index:5;background:#000;opacity:var(--dim,0);pointer-events:none;transition:opacity .3s}
 .cui{position:absolute;left:0;right:0;bottom:calc(46px + env(safe-area-inset-bottom));z-index:7;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding:0 16px}
 .cui .stamps{flex-basis:100%;order:-1;margin:0 0 4px;padding:14px 16px 10px;border:0;border-radius:16px;background:rgba(20,14,26,.72);color:#efe8f4;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);max-width:420px;margin-inline:auto}
 .btn{min-height:46px;padding:0 22px;border-radius:999px;border:1px solid rgba(239,230,220,.3);background:rgba(14,11,19,.6);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-size:14px;letter-spacing:.04em;cursor:pointer}
@@ -186,6 +188,7 @@ a{color:inherit}
       <div class="leaf" id="leaf"><div class="face fr" id="lf"></div><div class="face bk" id="lb"></div></div>
       <i class="shadow" aria-hidden="true"></i>
     </div>
+    <div id="dimL" aria-hidden="true"></div>
   </div>
   <div class="cui" id="cui"><button class="btn pri" type="button" id="goB" disabled>펼치는 중…</button><button class="btn" type="button" id="fromStart" hidden>처음부터</button><div class="stamps" id="bkStamps" hidden></div></div>
   <div class="rbot" id="rbot" hidden><span id="pChap"></span><div class="prog" aria-hidden="true"><i id="progI"></i></div><span id="pNum"></span></div>
@@ -203,8 +206,14 @@ const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g,
 const LS = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }, del(k) { try { localStorage.removeItem(k); } catch (e) {} } };
 const Q = new URLSearchParams(location.search), EMBED = Q.has('embed'), PREVIEW = Q.has('preview');
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const SET = Object.assign({ fs: 1, paper: 'cream', snd: true }, LS.get('bora_book_set', {}));
-const FS = [15, 16.5, 18, 20];
+const SET = Object.assign({ fs: 1, paper: 'cream', snd: true, ff: 'maru', dim: 0 }, LS.get('bora_book_set', {}));
+const FS = [15, 16.5, 18, 20, 22];
+/* 본문 글꼴: 마루 부리(화면에서 읽기 좋은 바탕체)가 기본 */
+const FF = { maru: ['마루 부리', "'마루 부리','MaruBuri'"], gowun: ['고운바탕', "'Gowun Batang'"], nanum: ['나눔명조', "'Nanum Myeongjo'"] };
+const DIM = [[0, '밝게'], [.18, '조금 어둡게'], [.34, '어둡게'], [.5, '아주 어둡게']];
+const famOf = () => (FF[SET.ff] || FF.maru)[1];
+function applyLook() { const r = document.documentElement.style; r.setProperty('--serif', famOf() + ",'Noto Serif KR','AppleMyungjo','Batang',serif"); r.setProperty('--dim', String(+SET.dim || 0)); }
+applyLook();
 const KIND = { novel: '소설', poem: '시', fairy: '동화', essay: '수필' };
 const ORN = /^\s*(?:[*＊]\s*){1,3}$|^\s*[◇◆○●□■△▲※☆★]{1,3}\s*$|^\s*[-―─—]{3,}\s*$/;
 const shelfV = $('#shelfV'), readV = $('#readV'), bookEl = $('#book'), pL = $('#pL'), pR = $('#pR'), leaf = $('#leaf'), lf = $('#lf'), lb = $('#lb'), meas = $('#meas'), goB = $('#goB'), fromStart = $('#fromStart'), stage = $('#stage');
@@ -312,7 +321,7 @@ $('#toShelf').onclick = toShelf;
 async function fontsReady() {
   if (!document.fonts || !book) return;
   const chars = [...new Set((book.t + (book.a || '') + book.chapters.map(c => c.t + c.p.join('')).join('')).replace(/\s/g, ''))].join('') + '끝⁂0123456789';
-  const all = Promise.all([document.fonts.load(`400 16px "Nanum Myeongjo"`, chars), document.fonts.load(`700 16px "Nanum Myeongjo"`, book.t + book.chapters.map(c => c.t).join(''))]).catch(() => {});
+  const all = Promise.all([document.fonts.load(`400 16px ${famOf()}`, chars), document.fonts.load(`700 16px ${famOf()}`, book.t + book.chapters.map(c => c.t).join(''))]).catch(() => {});
   const ok = await Promise.race([all.then(() => true), wait(3500).then(() => false)]);
   if (!ok) { const b = book; all.then(() => { if (book === b && !readV.hidden) relayout(); }); }
 }
@@ -474,10 +483,14 @@ $('#setB').onclick = () => {
   const toc = many ? `<div class="toc"><h3>차례</h3><ol>${book.chapters.map((c, i) => { const pk = pages.findIndex(P => P.c === i); return `<li><button type="button" data-ch="${i}"${i === cc ? ' aria-current="true"' : ''}${pk < 0 || closed ? ' disabled' : ''}>${esc(c.t || (i ? i + 1 + '장' : '처음'))}<span>${pk > 0 ? pages[pk].n + '쪽' : ''}</span></button></li>`; }).join('')}</ol></div>` : '';
   $('#shIn').innerHTML = `<div class="sh-h"><b>${esc(book.t)}</b><button class="tbtn" type="button" id="shX">닫기</button></div>
     <div class="sh-row"><span>글자 크기</span><div class="seg"><button type="button" data-fs="-1" aria-label="글자 작게"${SET.fs <= 0 ? ' disabled' : ''}>가−</button><button type="button" data-fs="1" aria-label="글자 크게"${SET.fs >= FS.length - 1 ? ' disabled' : ''}>가+</button></div></div>
+    <div class="sh-row"><span>글꼴</span><div class="seg">${Object.entries(FF).map(([v, f]) => `<button type="button" data-ff="${v}" aria-pressed="${SET.ff === v}">${f[0]}</button>`).join('')}</div></div>
+    <div class="sh-row"><span>밝기</span><div class="seg">${DIM.map(([v, nm]) => `<button type="button" data-dim="${v}" aria-pressed="${+SET.dim === v}">${nm}</button>`).join('')}</div></div>
     <div class="sh-row"><span>종이</span><div class="seg">${[['cream', '밝은 종이'], ['aged', '누런 종이'], ['night', '밤 종이']].map(([v, nm]) => `<button type="button" data-paper="${v}" aria-pressed="${SET.paper === v}">${nm}</button>`).join('')}</div></div>
     <div class="sh-row"><span>넘기는 소리</span><div class="seg"><button type="button" id="sndB" aria-pressed="${!!SET.snd}">${SET.snd ? '켜짐' : '꺼짐'}</button></div></div>${toc}`;
   $('#sheet').hidden = false; $('#shX').onclick = closeSheet; $('#shX').focus({ preventScroll: true });
   $$('.seg [data-fs]').forEach(b => b.onclick = () => { const v = Math.max(0, Math.min(FS.length - 1, SET.fs + +b.dataset.fs)); if (v === SET.fs) return; SET.fs = v; LS.set('bora_book_set', SET); closeSheet(); relayout(); });
+  $$('.seg [data-ff]').forEach(b => b.onclick = async () => { if (SET.ff === b.dataset.ff) return; SET.ff = b.dataset.ff; LS.set('bora_book_set', SET); applyLook(); closeSheet(); await fontsReady(); relayout(); });
+  $$('.seg [data-dim]').forEach(b => b.onclick = () => { SET.dim = +b.dataset.dim; LS.set('bora_book_set', SET); applyLook(); $$('.seg [data-dim]').forEach(x => x.setAttribute('aria-pressed', x === b)); });
   $$('.seg [data-paper]').forEach(b => b.onclick = () => { SET.paper = b.dataset.paper; LS.set('bora_book_set', SET); readV.dataset.paper = SET.paper; $$('.seg [data-paper]').forEach(x => x.setAttribute('aria-pressed', x === b)); });
   $('#sndB').onclick = () => { SET.snd = !SET.snd; LS.set('bora_book_set', SET); $('#sndB').setAttribute('aria-pressed', SET.snd); $('#sndB').textContent = SET.snd ? '켜짐' : '꺼짐'; if (SET.snd) flipSnd(true); };
   $$('[data-ch]').forEach(b => b.onclick = () => { const pk = pages.findIndex(P => P.c === +b.dataset.ch); if (pk < 0 || busy) return; cur = spread ? spreadOf(pk) : pk; render(); afterTurn(); flipSnd(); closeSheet(); });
