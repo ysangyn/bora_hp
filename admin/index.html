@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="../assets/notes.css?v=1">
-<script>try{if(localStorage.getItem('bora_theme')==='paper')document.documentElement.dataset.theme='paper'}catch(e){}</script>
+<script>/* 주인장 방은 밝은 화면이 기본(밤 화면은 오른쪽 위 버튼으로) */document.documentElement.dataset.theme='paper';try{if(localStorage.getItem('bora_admin_theme')==='night')delete document.documentElement.dataset.theme}catch(e){}</script>
 <style>
 .wrap{padding-bottom:120px}
 .btn{appearance:none;border:1px solid var(--line);background:none;border-radius:999px;padding:9px 16px;font-size:13.5px;cursor:pointer;min-height:42px;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;color:var(--ink)}
@@ -148,6 +148,14 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--lamp)!im
 .busy{-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .toast{border-radius:999px!important}
 @media (prefers-reduced-motion:reduce){.hcard,.btn,.tabs button{transition:none}}
+/* 밝은 화면(기본): 깨끗한 흰 종이에 은은한 불빛 */
+:root[data-theme=paper]{--bg:#f7f5f2;--surf:#ffffff;--ink:#1f1a24;--mut:#6f6878;--line:rgba(31,26,36,.1);--lamp:#b5741f;--acc:#6a4fa3}
+:root[data-theme=paper] body{background:radial-gradient(60% 40% at 95% -8%,rgba(242,200,143,.35),transparent 70%),radial-gradient(55% 38% at -10% 108%,rgba(205,185,242,.3),transparent 70%),var(--bg)}
+:root[data-theme=paper] body::after{opacity:.025}
+:root[data-theme=paper] .card,:root[data-theme=paper] .rbox,:root[data-theme=paper] .add,:root[data-theme=paper] .hcard,:root[data-theme=paper] .todo{background:rgba(255,255,255,.82);box-shadow:0 1px 2px rgba(31,26,36,.04),0 12px 32px -18px rgba(31,26,36,.18)}
+:root[data-theme=paper] .btn.pri{color:#fff;box-shadow:0 10px 24px -12px rgba(181,116,31,.7)}
+:root[data-theme=paper] .savebar{background:rgba(255,255,255,.88)}
+
 </style>
 </head>
 <body>
@@ -166,7 +174,7 @@ const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g,
 let tt = 0;
 const toast = m => { let t = $('.toast'); if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); } t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 2600); };
 const busy = (on, t) => { $('#busy').hidden = !on; if (t) $('#busyT').textContent = t; };
-$('.theme').onclick = () => { const r = document.documentElement, p = r.dataset.theme !== 'paper'; if (p) r.dataset.theme = 'paper'; else delete r.dataset.theme; try { localStorage.setItem('bora_theme', p ? 'paper' : 'night'); } catch (e) {} };
+$('.theme').onclick = () => { const r = document.documentElement, p = r.dataset.theme !== 'paper'; if (p) r.dataset.theme = 'paper'; else delete r.dataset.theme; try { localStorage.setItem('bora_admin_theme', p ? 'paper' : 'night'); } catch (e) {} };
 const rid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
 
 const blobB64 = b => new Promise((res, rej) => { const f = new FileReader(); f.onload = () => res(String(f.result).split(',')[1]); f.onerror = rej; f.readAsDataURL(b); });
