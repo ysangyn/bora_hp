@@ -210,6 +210,20 @@ img.room.off{opacity:0;transition:opacity 1.2s}.lampoff img.room.off{opacity:1}
 .lampoff .dim{opacity:1}
 .glow{position:absolute;left:10.5%;top:26%;width:22%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(255,214,160,.24),transparent 62%);mix-blend-mode:screen;z-index:3;pointer-events:none;transition:opacity .5s}
 .lampoff .glow{opacity:0}
+/* 낮 + 가벼운 모드(사진 방): 낮 사진이 덮어도 스탠드가 켜진 게 보이게 */
+.stage.isday:not(.gl) .glow{background:radial-gradient(circle,rgba(255,232,180,.75),rgba(255,206,140,.28) 30%,transparent 62%);mix-blend-mode:screen}
+.stage.isday.lampoff:not(.gl) .glow{opacity:0}
+
+/* 찻잔·시계 패널 */
+.tea{border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:14px 0;display:flex;flex-direction:column;gap:10px}
+.tea-hd{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}.tea-hd b{font-family:var(--f-serif);font-weight:400;font-size:21px;letter-spacing:.03em}.tea-hd span{font-size:11.5px;letter-spacing:.08em;color:var(--accent)}
+.tea dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13px}.tea dt{color:var(--faint);white-space:nowrap}.tea dd{margin:0;color:var(--ink);word-break:keep-all;line-height:1.6}
+.tea details{font-size:13px}.tea summary{cursor:pointer;color:var(--muted);padding:6px 0;letter-spacing:.04em}.tea details p{margin:4px 0 6px;font-size:13px;line-height:1.7}.tea details b{color:var(--ink);font-weight:500;margin-right:6px}.tea .care{color:var(--accent)}
+.tea-why{font-size:12.5px!important;color:var(--accent)!important}
+.ck2{display:grid;grid-template-columns:1fr 1fr;gap:12px;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:12px 0}.ck2 div{display:flex;flex-direction:column;gap:2px}.ck2 b{font-family:var(--f-num);font-style:italic;font-weight:500;font-size:30px;letter-spacing:.04em}
+.alist{display:flex;flex-direction:column}.arow{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--hair);font-size:13px}.arow b{font-family:var(--f-num);font-style:italic;font-size:19px}.arow span{flex:1;color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.alm-msg{font-size:16px!important;color:var(--ink)!important;line-height:1.7}
+.clock.alm::after{content:"";position:absolute;right:-6%;top:-18%;width:.7cqw;height:.7cqw;min-width:5px;min-height:5px;border-radius:50%;background:#f2c88f;box-shadow:0 0 .6cqw #f2c88f}
 .steam{position:absolute;left:52.1%;top:51.2%;width:2.6%;height:9.6%;z-index:3;pointer-events:none;transition:opacity 1.2s}
 .steam i{position:absolute;bottom:0;left:25%;width:50%;height:100%;border-radius:50%;background:radial-gradient(ellipse at 50% 75%,rgba(255,255,255,.5),transparent 68%);filter:blur(3px);opacity:0;animation:steam 4.2s ease-in infinite}
 .steam i:nth-child(2){animation-delay:1.4s;left:5%}.steam i:nth-child(3){animation-delay:2.8s;left:45%}
@@ -740,7 +754,7 @@ body.hasnote .hs[data-p="mailbox"]{display:block!important}
   <svg class="beamsvg" viewBox="0 0 2000 1126" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset=".22" stop-color="#e8eeff" stop-opacity=".16"/><stop offset="1" stop-color="#cfe0ff" stop-opacity=".02"/></linearGradient><filter id="bf1" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="11"/></filter><clipPath id="bc1"><polygon id="beamC"/></clipPath></defs><polygon id="beamP" fill="url(#bg1)" filter="url(#bf1)"/><g clip-path="url(#bc1)" id="dust"></g><circle id="beamL" r="5" fill="#fff8e8" filter="url(#bf1)"/></svg>
   <div class="dial pl" data-z=".76"></div>
   <div class="glow pl" data-z=".93"></div>
-  <button class="clock pl" id="clock" data-z=".95" data-lb="그곳의 지금 시각" aria-label="창밖 장소의 현지 시각. 누르면 장소를 바꿔요">
+  <button class="clock pl" id="clock" data-z=".95" data-lb="시계 · 알림" aria-label="창밖 장소의 현지 시각. 누르면 알림을 맞출 수 있어요">
    <span class="dg" id="ckD" aria-hidden="true">--:--</span><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="48" fill="#3B2A1E"/><circle cx="50" cy="50" r="42" fill="#E6DDCB"/>
     <g stroke="#3A3028" stroke-width="2" stroke-linecap="round"><path d="M50 12v7M50 81v7M12 50h7M81 50h7"/></g>
     <g stroke="#3A3028" stroke-width="1" opacity=".6"><path d="M69 17l-2.5 4.3M83 31l-4.3 2.5M83 69l-4.3-2.5M69 83l-2.5-4.3M31 83l2.5-4.3M17 69l4.3-2.5M17 31l4.3 2.5M31 17l2.5 4.3"/></g>
@@ -908,8 +922,13 @@ function toggleRainSound(){ S.snd=!S.snd; if(S.snd&&!AU.on) setAudio(true); rain
 const TRACKS=[{f:'music/01.mp3',g:0.407,t:'토닥토닥 (Remastered)'},{f:'music/02.mp3',g:1,t:'Sad Thing'},{f:'music/03.mp3',g:0.668,t:'Annabel Lee'},{f:'music/04.mp3',g:0.966,t:'B TL B TL'},{f:'music/05.mp3',g:0.562,t:'아주 아주 슬픈 꿈'}];
 const songEl=$('songEl'); let trk=LS.get('trk',0)%TRACKS.length; songEl.volume=Math.min(1,S.vol*(window.__slf==null?1:window.__slf)*songGain());
 function songLabel(){ $('np').textContent='♪ '+TRACKS[trk].t+' — 어른아이'; }
-function songPlay(i){ skI=-1; if(i!=null) trk=(i+TRACKS.length)%TRACKS.length; LS.set('trk',trk); if(!AU.on) setAudio(true); if(S.radio) radioOff(); songEl.src=TRACKS[trk].f; songEl.muted=false; songEl.play().catch(()=>{ $('np').textContent='음원 파일을 찾지 못했어요 (music 폴더)'; });
+function songPlay(i){ symYield(); skI=-1; if(i!=null) trk=(i+TRACKS.length)%TRACKS.length; LS.set('trk',trk); if(!AU.on) setAudio(true); if(S.radio) radioOff(); songEl.src=TRACKS[trk].f; songEl.muted=false; songEl.play().catch(()=>{ $('np').textContent='음원 파일을 찾지 못했어요 (music 폴더)'; });
   S.playing=true; vinyl(true); stage.classList.add('playing'); $('lbPlay').textContent='바늘 들기'; songLabel(); updRecords(); mediaMeta(); }
+let HOLD=null;
+function holdMusic(){ if(HOLD) return; const h={}; if(S.playing){ h.song=trk; h.t=songEl.currentTime||0; songStop(); } else if(S.radio){ h.radio=S.radio; radioOff(); } else if(typeof PJ!=='undefined'&&PJ){ h.pj=PJ; projOff(); } if(h.song!=null||h.radio||h.pj) HOLD=h; }
+function resumeMusic(){ const h=HOLD; HOLD=null; if(!h) return; if(h.song!=null){ songPlay(h.song); if(h.t>1) songEl.addEventListener('loadedmetadata',()=>{ try{ songEl.currentTime=h.t; }catch(e){} },{once:true}); } else if(h.radio) radioPlay(h.radio); else if(h.pj) projPlay(VIDEOS.find(x=>x.id===h.pj)||{id:h.pj}); }
+function duck(on){ const c=AU.ctx; if(!c||!AU.out) return; AU.out.gain.cancelScheduledValues(c.currentTime); AU.out.gain.setTargetAtTime(on?0:(AU.on?1:0),c.currentTime,.3); }
+function symYield(){ if(typeof SYM!=='undefined'&&SYM){ symStop(); try{ upSleepSnd(); rmUpdate(); }catch(e){} } }
 function songStop(){ S.playing=false; songEl.pause(); vinyl(false); stage.classList.remove('playing'); $('lbPlay').textContent='노래 틀기'; updRecords(); }
 songEl.addEventListener('ended',()=>{ if(skI>=0){ songStop(); return; } blip('needle'); songPlay(S.shuf?rndOther(trk,TRACKS.length):trk+1); });
 function togglePlay(){ blip('needle'); if(S.playing) songStop(); else songPlay(); }
@@ -1151,22 +1170,23 @@ const P={
   mug:{t:'오늘의 자리',d:'오늘 기분에 맞춰 노래와 배경 소리를 골라드려요.',items:['비 오는 날','잠 안 오는 밤','그냥 멍하니','위로가 필요한 날']},
   guitar:{t:'비밀 서랍',d:'주인장만 열 수 있는 서랍이에요.',items:['데모 녹음 · 미완성 가사 · 혼자 보는 메모']}
 };
-function closePanel(){ if(window.__undoDraft) window.__undoDraft(); panel.hidden=true; panel.style.transform=''; if(typeof closeZoom==='function') closeZoom(); }
+let onLeave=null; function panelLeave(){ const f=onLeave; onLeave=null; if(f){ try{ f(); }catch(e){ console.warn(e); } } }
+function closePanel(){ panelLeave(); if(window.__undoDraft) window.__undoDraft(); panel.hidden=true; panel.style.transform=''; if(typeof closeZoom==='function') closeZoom(); }
 (()=>{ let y0=null,dy=0,t0=0,drag=false;
   panel.addEventListener('touchstart',e=>{ if(panel.hidden) return; const onTop=e.target.closest('.grab,h2,.x')||panel.scrollTop<=0; if(!onTop||e.target.closest('input,textarea,select')) return; y0=e.touches[0].clientY; dy=0; t0=performance.now(); drag=false; },{passive:true});
   panel.addEventListener('touchmove',e=>{ if(y0==null) return; dy=e.touches[0].clientY-y0; if(!drag&&dy>8&&panel.scrollTop<=0){ drag=true; panel.style.transition='none'; } if(drag){ e.preventDefault(); panel.style.transform=`translateY(${Math.max(0,dy)}px)`; } },{passive:false});
   panel.addEventListener('touchend',()=>{ if(y0==null) return; y0=null; if(!drag) return; panel.style.transition='transform .25s ease';
     const v=dy/Math.max(1,performance.now()-t0); if(dy>90||v>.6){ panel.style.transform='translateY(110%)'; setTimeout(()=>{ panel.style.transition=''; closePanel(); },230); } else { panel.style.transform=''; setTimeout(()=>panel.style.transition='',260); } });
 })();
-function show(html){ blip('paper'); panel.innerHTML='<i class="grab" aria-hidden="true"></i><button class="x" aria-label="닫기"><span>닫기</span></button>'+html; panel.style.transform=''; panel.hidden=false; panel.classList.remove('in'); void panel.offsetWidth; panel.classList.add('in'); panel.querySelector('.x').onclick=closePanel; }
+function show(html){ panelLeave(); blip('paper'); panel.innerHTML='<i class="grab" aria-hidden="true"></i><button class="x" aria-label="닫기"><span>닫기</span></button>'+html; panel.style.transform=''; panel.hidden=false; panel.classList.remove('in'); void panel.offsetWidth; panel.classList.add('in'); panel.querySelector('.x').onclick=closePanel; }
 function openPanel(k){
   if(k==='books') return openBooks(); if(k==='mailbox') return openNote(); if(k==='drawer') return openDrawer(); if(k==='plant') return openPlant(); if(k==='notes') return openSketch(); if(k==='guitar') return openSong();
   const p=P[k]; if(k==='records'){ show(`<h2>${p.t}</h2><p>어른아이의 노래들. 누르면 턴테이블에 올려요.</p><div class="rcbar"><span id="rcNow"></span>${MC}</div><ul>${TRACKS.map((t,i)=>`<li><button class="trk" data-i="${i}">${t.t}</button></li>`).join('')}</ul>`); document.querySelectorAll('.trk').forEach(b=>b.onclick=()=>{ blip('needle'); songPlay(+b.dataset.i); }); wireMC('rc'); updRecords(); try{ moodUI(); }catch(e){} return; }
   show(`<h2>${p.t}</h2><p>${p.d}</p><ul>${p.items.map(i=>`<li>${i}</li>`).join('')}</ul>`);
 }
-function openSong(){ closePanel(); if(S.playing) songStop(); if(S.radio) radioOff(); if(typeof PJ!=='undefined'&&PJ) projOff();
+function openSong(){ closePanel(); HOLD=null; holdMusic(); duck(true);
   let o=$('songOv'); if(!o){ o=document.createElement('div'); o.id='songOv'; o.className='songov'; o.innerHTML='<div class="sbar"><b>노래 짓기</b><button id="songX">방으로</button></div><iframe id="songF" title="기타로 노래 짓기" allow="autoplay"></iframe>'; document.body.appendChild(o);
-    $('songX').onclick=()=>{ o.classList.remove('on'); window.__covered=false; setTimeout(()=>{ $('songF').src='about:blank'; },400); }; }
+    $('songX').onclick=()=>{ o.classList.remove('on'); window.__covered=false; setTimeout(()=>{ $('songF').src='about:blank'; duck(false); resumeMusic(); },400); }; }
   $('songF').src='song.html'; window.__covered=true; requestAnimationFrame(()=>o.classList.add('on')); }
 // 페이지를 방 위에 덮어 연다(노래·빗소리는 계속). 휴대폰 '뒤로'·페이지의 '방으로'는 덮개를 닫는다
 function openOver(url,title){ closePanel(); blip('paper');
@@ -1343,7 +1363,7 @@ function tickClock(){ let h,m,sec; const now=new Date();
   const dg=$('ckD'); if(dg) dg.innerHTML=String(h).padStart(2,'0')+'<b>'+(sec%2?'&nbsp;':':')+'</b>'+String(m).padStart(2,'0');
   const rot=(el,a)=>el.setAttribute('transform',`rotate(${a.toFixed(1)} 50 50)`); rot($('ckH'),(h%12+m/60)*30); rot($('ckM'),(m+sec/60)*6); rot($('ckS'),sec*6); }
 tickClock(); setInterval(tickClock,1000);
-$('clock').addEventListener('click',e=>{ e.stopPropagation(); closeZoom(); openPlace(); });
+$('clock').addEventListener('click',e=>{ e.stopPropagation(); closeZoom(); openClock(); });
 $('board').addEventListener('click',e=>{ e.stopPropagation(); zoomTo({style:{left:"71.6%",top:"33%"}}); openGallery(); });
 renderBoard();
 function openPlace(){
@@ -1433,19 +1453,19 @@ async function resolve(st){
   return (j&&j[0]&&(j[0].url_resolved||j[0].url)) || st.url;
 }
 function radioLabel(st){ return st.local ? `${st.n} · 그 동네 방송` : `${st.n} · ${st.city}`; }
-async function radioPlay(st){ if(typeof songStop==='function'&&S.playing) songStop();
+async function radioPlay(st){ symYield(); if(typeof songStop==='function'&&S.playing) songStop();
   S.radio=st; $('npR').textContent='라디오 맞추는 중…'; stage.classList.add('onair'); updRadioPanel();
   const tok=(radioPlay.n=(radioPlay.n||0)+1);
   radioEl.src=st.url||SILENT; radioEl.volume=0; const first=radioEl.play().catch(()=>{});      // 누른 순간 재생 권한을 잡아 둔다
   const url=st.url ? st.url : await resolve(st); if(tok!==radioPlay.n) return;
-  if(!url){ $('npR').textContent=''; stage.classList.remove('onair'); S.radio=null; setRadioMsg('이 방송은 지금 연결할 수 없어요. 다음 방송을 눌러 보세요.'); return; }
+  if(!url){ try{ radioEl.pause(); }catch(e){} $('npR').textContent=''; stage.classList.remove('onair'); S.radio=null; setRadioMsg('이 방송은 지금 연결할 수 없어요. 다음 방송을 눌러 보세요.'); return; }
   if(radioEl.src!==url) radioEl.src=url; radioEl.volume=0;
-  try{ await radioEl.play(); fade(S.vol,1500); $('npR').textContent='라디오 · '+radioLabel(st); setRadioMsg(!st.local&&st.dist>1500?`창밖 ${S.place.name} 가까이에는 광고 없는 방송이 없어서, 가장 가까운 ${st.city}의 ${st.n}을 틀었어요.`:''); }
-  catch(e){ $('npR').textContent=''; stage.classList.remove('onair'); S.radio=null; setRadioMsg('방송을 틀지 못했어요. 다음 방송을 눌러 보세요.'); }
+  try{ await radioEl.play(); if(tok!==radioPlay.n) return; fade(S.vol,1500); $('npR').textContent='라디오 · '+radioLabel(st); setRadioMsg(!st.local&&st.dist>1500?`창밖 ${S.place.name} 가까이에는 광고 없는 방송이 없어서, 가장 가까운 ${st.city}의 ${st.n}을 틀었어요.`:''); }
+  catch(e){ if(tok!==radioPlay.n) return; try{ radioEl.pause(); }catch(_){} $('npR').textContent=''; stage.classList.remove('onair'); S.radio=null; setRadioMsg('방송을 틀지 못했어요. 다음 방송을 눌러 보세요.'); }
   updRadioPanel();
 }
 let fadeT; function fade(to,ms,done){ clearInterval(fadeT); const from=radioEl.volume, t0=performance.now(); fadeT=setInterval(()=>{ const k=Math.min(1,(performance.now()-t0)/ms); radioEl.volume=from+(to-from)*k; if(k>=1){ clearInterval(fadeT); done&&done(); } },50); }
-function radioOff(slow){ if(!S.radio) return; S.radio=null; fade(0,slow?3000:600,()=>{ radioEl.pause(); radioEl.removeAttribute('src'); radioEl.load(); }); stage.classList.remove('onair'); updRadioPanel(); }
+function radioOff(slow){ if(!S.radio) return; S.radio=null; radioPlay.n=(radioPlay.n||0)+1; $('npR').textContent=''; fade(0,slow?3000:600,()=>{ if(S.radio) return; radioEl.pause(); radioEl.removeAttribute('src'); radioEl.load(); }); stage.classList.remove('onair'); updRadioPanel(); }
 function radioTune(){ sortStations(); radioPlay(order[0]); }
 function setRadioMsg(t){ const m=$('rMsg'); if(m) m.textContent=t; }
 function updRadioPanel(){ const b=$('rOn'); if(!b) return; b.textContent=S.radio?'라디오 끄기':'라디오 켜기'; const c=$('rNow'); if(c) c.innerHTML=S.radio?`<b>${radioLabel(S.radio)}</b><span>${S.radio.local?'광고가 나올 수 있어요':S.radio.note}${S.radio.dist!=null?` · 창밖에서 약 ${S.radio.dist.toLocaleString()}km`:''}</span>`:'<span>꺼져 있어요</span>'; }
@@ -1512,7 +1532,92 @@ function toggleKettle(){ const c=actx(); if(!c) return; if(!AU.on) setAudio(true
     o.connect(og).connect(g); o.start(t); o.stop(t+.07); },70);
   const mea=setInterval(()=>{ if(KT) g.gain.setTargetAtTime(.32+Math.random()*.34,c.currentTime,4); },9000);   // 소리 크기가 저절로 천천히 오르내림
   KT={g,srcs,bub,mea}; stage.classList.add('boil'); upKettle(); }
-function upKettle(){ const l=document.querySelector('[data-a="kettle"] .lb'); if(l) l.textContent=KT?'불 끄기':'물 올리기'; }
+function upKettle(){ almUI(); const b=$('tKet'); if(b) b.textContent=KT?'불 끄기':'물 올리기'; }
+/* ---------- 찻잔: 지금 이 방에 어울리는 차 + 우리기 타이머 ---------- */
+// caf 0 카페인 없음 · 1 조금 · 2 보통 · 3 많은 편. bs=티백 우리는 초. tg: night(늦은 밤에도) warm(춥거나 비 올 때) cool(더울 때) am(아침) cc(창밖 나라)
+const TEAS=[
+ {id:'chamo',n:'캐모마일',k:'꽃차',caf:0,bs:300,w:'갓 끓은 물(100°C) 200ml',bag:'티백 하나, 5분. 잔에 받침을 덮어 두면 향이 덜 날아가요.',leaf:'말린 꽃 1~2작은술, 5~7분',taste:'사과를 닮은 달큰한 꽃향에, 끝맛이 살짝 쌉쌀해요.',tip:'꿀 반 작은술이나 레몬 한 조각이 잘 어울려요. 너무 오래 두면 풀 맛이 올라와요.',story:'유럽에서 저녁 찻잔에 오래 올라온 꽃이에요. 이름은 그리스 말로 ‘땅의 사과’라는 뜻이에요.',care:'국화과 꽃가루에 예민하면 피하는 게 좋아요.',br:[['트와이닝스','캐모마일만 넣은 티백이 흔해요. 꽃 맛이 깔끔하게 나요.'],['셀레셜 시즈닝스 슬리피타임','캐모마일에 스피어민트·레몬그라스·린덴꽃 등을 섞은 미국 블렌드라, 캐모마일만 넣은 것보다 산뜻해요.']],tg:{night:1,cc:['GB','FR','DE']}},
+ {id:'rooi',n:'루이보스',k:'허브차',caf:0,bs:360,w:'갓 끓은 물(100°C) 200ml',bag:'티백 하나, 5~7분. 오래 둬도 덜 떫어요.',leaf:'1작은술, 5분 넘게',taste:'붉은 빛깔에 구수하고 은근히 달아요. 나무 향이 살짝 나요.',tip:'진하게 우려 데운 우유를 반쯤 부으면 카페인 없는 밀크티가 돼요.',story:'남아프리카공화국 세더버그 산지에서 자라는 ‘붉은 덤불’이에요. 그곳에선 아이부터 어른까지 늘 마셔요.',br:[['고르는 법','상자에 산지(세더버그)를 적어 둔 것, 바닐라·카라멜 향을 넣은 것 등 갈래가 많아요. 처음엔 아무것도 넣지 않은 것부터 마셔 보세요.']],tg:{night:1,warm:1,cc:['ZA']}},
+ {id:'bori',n:'보리차',k:'곡물차',caf:0,bs:300,w:'뜨거운 물이나 찬물',bag:'뜨거운 물엔 티백 하나 5분, 찬물 1리터엔 티백 하나 넣고 냉장고에서 1~2시간.',leaf:'볶은 보리 한 줌을 물 2리터에 넣고 끓으면 약한 불로 5~10분',taste:'고소하고 구수해요. 볶은 정도에 따라 진하기가 달라요.',tip:'주전자에 끓여 두면 물 대신 하루 내내 마시기 좋아요.',story:'한국 집집마다 보리차를 끓여 물병에 담아 두던 시절이 있었지요. 많은 사람에게 ‘집의 맛’이에요.',br:[['고르는 법','볶은 알곡, 티백, 찬물용 티백이 있어요. 알곡을 끓이면 가장 구수하고, 찬물용은 여름에 편해요.']],tg:{night:1,cool:1,warm:1,cc:['KR']}},
+ {id:'dung',n:'둥굴레차',k:'곡물·뿌리차',caf:0,bs:240,w:'갓 끓은 물 200ml',bag:'티백 하나, 3~5분',leaf:'볶은 둥굴레 한 큰술을 물 1리터에 넣고 10분쯤 끓이기',taste:'볶은 뿌리 특유의 구수함 뒤로 은근한 단맛이 남아요.',tip:'보리차와 반씩 섞어 끓여도 좋아요.',story:'볶은 둥굴레 뿌리차로, 사무실 탕비실 단골 티백 가운데 하나예요.',br:[['동서식품','현미녹차와 함께 오래 팔려 온 국내 티백 차예요. 어디서든 구하기 쉬워요.']],tg:{night:1,warm:1,cc:['KR']}},
+ {id:'corn',n:'옥수수차',k:'곡물차',caf:0,bs:300,w:'뜨거운 물이나 찬물',bag:'티백 하나, 5분. 찬물에 넣어 두어도 돼요.',leaf:'볶은 옥수수 알 한 줌을 물 2리터에 넣고 끓이기',taste:'볶은 옥수수의 달큰한 구수함이에요. 옥수수수염을 섞으면 더 산뜻해요.',tip:'보리차보다 단맛이 있어 아이들도 좋아해요.',story:'옥수수수염을 섞은 옥수수수염차는 병 음료로도 흔히 보여요.',br:[['광동제약 옥수수수염차','병에 든 옥수수수염차로 잘 알려졌어요. 집에서 우린 것보다 맛이 가볍고 고르게 나요.']],tg:{night:1,cool:1,cc:['KR']}},
+ {id:'meme',n:'메밀차',k:'곡물차',caf:0,bs:240,w:'갓 끓은 물 200ml',bag:'알곡 1큰술이나 티백 하나, 3~5분. 두세 번 다시 우려도 돼요.',leaf:'볶은 쓴메밀 알곡 1큰술',taste:'볶은 견과 같은 고소함에 끝이 깔끔해요.',tip:'우리고 남은 알곡은 밥 지을 때 넣어도 고소해요.',story:'쓴메밀(타타리 메밀)을 볶아 만들어요. 노란 빛깔이 곱게 우러나요.',care:'메밀에 예민한 사람은 마시면 안 돼요.',br:[],tg:{night:1,warm:1}},
+ {id:'mint',n:'페퍼민트',k:'허브차',caf:0,bs:300,w:'갓 끓은 물 200ml',bag:'티백 하나, 5분',leaf:'말린 잎 1작은술, 5분',taste:'입안이 시원해지는 박하 향이에요.',tip:'얼음 넣은 잔에 진하게 우려 부으면 여름 차가 돼요.',story:'식사 뒤 입가심으로 많이 마셔요. 박하 향은 방 안 공기까지 바꿔 줘요.',br:[['트와이닝스','영국 차 회사로, 박하 티백도 오래 만들어 왔어요.']],tg:{night:1,cool:1}},
+ {id:'hibi',n:'히비스커스',k:'꽃차',caf:0,bs:300,w:'갓 끓은 물 200ml',bag:'티백 하나, 5분',leaf:'말린 꽃받침 1작은술, 5분',taste:'루비 빛깔에 새콤해요. 크랜베리를 닮았어요.',tip:'꿀을 조금 넣거나, 진하게 우려 얼음에 부으면 맛있어요.',story:'이집트와 멕시코 등에서는 차갑게 마시는 일상 음료예요.',care:'신맛이 강해서 빈속엔 연하게 드세요.',br:[],tg:{night:1,cool:1}},
+ {id:'ginger',n:'생강차',k:'청차',caf:0,bs:0,w:'뜨거운 물 200ml',bag:'생강청 2~3작은술을 넣고 잘 저어요.',leaf:'얇게 저민 생강 서너 쪽을 물에 넣고 10분 끓이고 꿀 한 숟갈',taste:'코끝이 찡하게 맵고, 꿀이 그 매운맛을 감싸요.',tip:'대추 두세 알이나 계피 한 조각을 같이 끓이면 맛이 둥글어져요.',story:'추운 날 몸을 데우려고 오래 마셔 온 차예요.',care:'매운맛이 세서 속이 예민하면 연하게 드세요.',br:[['담터','가루를 물에 타는 생강차·율무차로 잘 알려진 국내 회사예요.'],['녹차원','꿀에 재운 생강·유자 같은 청을 만드는 국내 회사예요.']],tg:{night:1,warm:1,cc:['KR']}},
+ {id:'yuja',n:'유자차',k:'청차',caf:0,bs:0,w:'뜨거운 물 200ml',bag:'유자청 2~3큰술을 넣고 저어요.',leaf:'—',taste:'새콤달콤하고 향이 진해요. 씹히는 껍질이 맛있어요.',tip:'뜨거운 물을 먼저 붓고 청을 넣으면 향이 더 살아요. 탄산수에 타면 여름 에이드가 돼요.',story:'고흥·거제 같은 남해안에서 많이 나는 유자를 껍질째 썰어 설탕이나 꿀에 재워요.',br:[['녹차원','꿀유자차가 잘 알려져 있어요.']],tg:{night:1,warm:1,cc:['KR','JP']}},
+ {id:'jujube',n:'대추차',k:'달인 차',caf:0,bs:0,w:'물 1리터',bag:'대추청이 있으면 2큰술을 뜨거운 물에 타요.',leaf:'말린 대추 열 알 남짓을 물 1리터에 넣고 약한 불로 30분 넘게 달이기',taste:'진하고 달큰해요. 오래 달일수록 걸쭉해져요.',tip:'잣 몇 알을 띄우면 찻집 대추차가 돼요.',story:'오래 달여야 맛이 나는 차라, 시간을 들여 끓이는 것부터가 쉼이에요.',br:[],tg:{night:1,warm:1,cc:['KR']}},
+ {id:'kuk',n:'국화차',k:'꽃차',caf:0,bs:240,w:'조금 식힌 물(90°C) 200ml',bag:'말린 꽃 3~5송이, 3~5분. 두세 번 다시 우려도 돼요.',leaf:'말린 감국 3~5송이',taste:'맑고 쌉싸름한 국화 향이에요.',tip:'잔에 꽃이 피어나는 걸 보려면 유리잔이 좋아요.',story:'가을에 따서 말린 노란 감국으로 만들어요.',care:'국화과 꽃가루에 예민하면 피하는 게 좋아요.',br:[],tg:{night:1,cc:['KR','CN']}},
+ {id:'hoji',n:'호지차',k:'볶은 녹차',caf:1,bs:90,w:'갓 끓은 물 200ml',bag:'티백 하나, 1~2분',leaf:'1큰술, 30초~1분. 두세 번 다시 우려요.',taste:'커피콩처럼 볶은 향이 나고, 녹차보다 쓴맛이 적어요.',tip:'우유에 진하게 우리면 호지차 라테가 돼요.',story:'녹차 잎을 센 불에 볶은 일본 차예요. 카페인이 적은 편이지만 아주 없지는 않아요.',br:[],tg:{warm:1,cc:['JP']}},
+ {id:'genmai',n:'현미녹차',k:'녹차',caf:1,bs:90,w:'조금 식힌 물(80~90°C) 200ml',bag:'티백 하나, 1~2분',leaf:'1큰술, 1분',taste:'볶은 현미의 고소함이 녹차의 쌉쌀함을 덜어 줘요.',tip:'끓는 물을 바로 부으면 쓴맛이 나요. 잠깐 식혀 부으세요.',story:'녹차에 볶은 현미를 섞은 차예요. 한국에선 가장 흔한 녹차 티백이기도 해요.',br:[['동서식품','오래 팔려 온 현미녹차 티백으로, 많은 사람이 처음 마셔 본 녹차예요.']],tg:{cc:['KR','JP']}},
+ {id:'green',n:'녹차',k:'녹차',caf:2,bs:90,w:'식힌 물(70~80°C) 200ml',bag:'티백 하나, 1~2분',leaf:'잎 2~3g, 1~2분. 두세 번 다시 우려요.',taste:'풋풋하고 맑아요. 좋은 잎은 끝에 단맛이 남아요.',tip:'끓는 물을 다른 잔에 한 번 옮겨 부으면 알맞게 식어요. 오래 두면 써져요.',story:'제주, 전남 보성, 경남 하동 등에서 많이 나요. 일찍 딴 잎일수록 여리고 맛이 부드러워요.',br:[['오설록','아모레퍼시픽이 1979년부터 제주에 차밭을 일궈 만든 차 브랜드예요. 세작·말차와, 향을 입힌 블렌드가 많아요.']],tg:{am:1,cc:['KR','JP','CN']}},
+ {id:'oolong',n:'우롱차',k:'반발효차',caf:2,bs:180,w:'뜨거운 물(90~95°C) 200ml',bag:'티백 하나, 3분',leaf:'잎 4~5g, 첫 잔 1분. 다섯 번 넘게 다시 우려요.',taste:'꽃향과 볶은 향 사이 어딘가예요. 우릴 때마다 맛이 달라져요.',tip:'잎이 동그랗게 말린 것은 다 풀릴 때까지 여러 번 우려 보세요.',story:'대만 고산 우롱, 중국 철관음이 유명해요. 녹차와 홍차 사이쯤 발효해요.',br:[],tg:{cc:['TW','CN','HK']}},
+ {id:'eng',n:'잉글리시 브렉퍼스트',k:'홍차',caf:3,bs:240,w:'갓 끓은 물(100°C) 200ml',bag:'티백 하나, 3~5분',leaf:'1작은술, 3~4분',taste:'진하고 몰트 향이 나요. 우유와 잘 어울려요.',tip:'우유를 넣을 거면 4~5분 진하게 우리세요.',story:'영국에서 아침 식사와 함께 마시는 진한 홍차 블렌드예요.',br:[['트와이닝스','1706년 런던의 작은 찻집에서 시작한 영국 차 회사예요.'],['립톤','노란 상자 ‘옐로 라벨’ 티백으로 세계 어디서나 보이는 홍차예요.']],tg:{am:1,cc:['GB','IE']}},
+ {id:'earl',n:'얼그레이',k:'홍차',caf:3,bs:180,w:'갓 끓은 물(100°C) 200ml',bag:'티백 하나, 3~4분. 오래 두면 떫어요.',leaf:'1작은술, 3분',taste:'홍차에 베르가못(시트러스) 향을 입혔어요. 화사하고 향긋해요.',tip:'레몬보다 우유가 향을 더 둥글게 해 줘요.',story:'베르가못 향을 입힌 홍차예요. 이름은 19세기 영국 그레이 백작에게서 왔다고 전해요.',br:[['트와이닝스','얼그레이로 가장 널리 알려진 회사 가운데 하나예요.'],['마리아주 프레르','1854년 파리에서 시작했어요. 천 가지 넘는 차를 다루고, ‘마르코 폴로’ 같은 향 블렌드가 유명해요.'],['다만 프레르','1692년부터 이어져 온 프랑스 차 회사로, 과일·꽃 향을 입힌 블렌드가 많아요.']],tg:{cc:['GB','FR']}},
+];
+const CAF=['카페인 없음','카페인 조금','카페인 보통','카페인 많은 편'];
+let TEA_I=0, TEA_L=null;
+function teaRank(){ const now=new Date(), h=now.getHours(), mo=now.getMonth()+1, w=S.w||{}, cc=(S.place&&S.place.cc||'').toUpperCase();
+  const late=h>=18||h<5, aft=h>=15&&h<18, am=h>=5&&h<11, wet=w.kind==='rain'||w.kind==='snow', cold=(w.temp!=null&&w.temp<10)||mo===12||mo<=2, hot=(w.temp!=null&&w.temp>=25)||(mo>=6&&mo<=8&&w.temp==null);
+  const cap=late?0:aft?1:3, why=[];
+  why.push(`${h<12?'오전':'오후'} ${h%12||12}시`);
+  if(S.place&&S.place.name) why.push(`창밖 ${S.place.name}${w.kind==='snow'?'엔 눈':w.kind==='rain'?'엔 비':w.temp!=null?` ${Math.round(w.temp)}°C`:''}`);
+  const L=TEAS.filter(t=>t.caf<=cap).map(t=>{ let s=Math.random()*1.2; const g=t.tg||{};
+    if((wet||cold)&&g.warm) s+=2; if(hot&&g.cool) s+=2; if(am&&g.am) s+=2; if(late&&g.night) s+=1; if(g.cc&&g.cc.includes(cc)) s+=2.2; return {t,s}; }).sort((a,b)=>b.s-a.s).map(x=>x.t);
+  return {L,why:why.join(' · ')+(late?' · 늦은 시간이라 카페인 없는 차로 골랐어요':aft?' · 카페인이 적은 차로 골랐어요':'에 맞춰 골랐어요')}; }
+function teaCard(t){ const e=escH;
+  return `<div class="tea"><div class="tea-hd"><b>${e(t.n)}</b><span>${e(t.k)} · ${CAF[t.caf]}</span></div><p>${e(t.taste)}</p>
+   <dl><dt>물</dt><dd>${e(t.w)}</dd><dt>우리기</dt><dd>${e(t.bag)}</dd>${t.leaf&&t.leaf!=='—'?`<dt>잎·알곡</dt><dd>${e(t.leaf)}</dd>`:''}<dt>맛있게</dt><dd>${e(t.tip)}</dd></dl>
+   <details><summary>알려진 이야기</summary><p>${e(t.story)}</p>${t.care?`<p class="care">${e(t.care)}</p>`:''}</details>
+   ${t.br&&t.br.length?`<details><summary>브랜드마다 이렇게 달라요</summary>${t.br.map(([a,b])=>`<p><b>${e(a)}</b> ${e(b)}</p>`).join('')}</details>`:''}</div>`; }
+function openTea(pick){ blip('paper'); const R=teaRank(); if(!TEA_L||pick==null){ TEA_L=R.L; TEA_I=0; }
+  const t=pick!=null?TEAS.find(x=>x.id===pick):TEA_L[TEA_I%TEA_L.length], brew=ALM.find(a=>a.id==='tea');
+  show(`<h2>차 한 잔</h2><p class="tea-why">${escH(pick!=null?'찻장에서 고른 차':R.why)}</p>${teaCard(t)}
+   <div class="row" id="tBtns">${brew?`<button class="ok" id="tStop">그만 우리기 · <span id="tLeft"></span></button>`:t.bs?`<button class="ok" id="tBrew">물 붓고 우리기 · ${t.bs>=60?Math.round(t.bs/60*10)/10+'분':t.bs+'초'}</button>`:''}<button class="chip" id="tKet">${KT?'불 끄기':'물 올리기'}</button>${pick==null?'<button class="chip" id="tNext">다른 차</button>':''}</div>
+   <label class="sl">찻장</label><div class="chips">${TEAS.map(x=>`<button class="chip" data-tea="${x.id}" aria-pressed="${x.id===t.id}">${x.n}</button>`).join('')}</div>
+   <small>광고가 아니에요. 받은 것도, 어디서 사라는 이야기도 없어요. 차는 약이 아니니, 몸에 맞지 않으면 쉬어 가세요. 시간은 이 휴대폰의 지금 시각을 따라요.</small>`);
+  $('tKet').onclick=()=>{ toggleKettle(); $('tKet').textContent=KT?'불 끄기':'물 올리기'; };
+  if($('tNext')) $('tNext').onclick=()=>{ TEA_I++; openTea(); };
+  if($('tBrew')) $('tBrew').onclick=()=>{ if(KT) toggleKettle(); pour(); almAdd({id:'tea',kind:'tea',at:Date.now()+t.bs*1000,msg:`${t.n}가 다 우러났어요. 티백을 건져 주세요.`.replace(/([가-힣])가 다/,(m,c)=>((c.charCodeAt(0)-0xAC00)%28?c+'이':c+'가')+' 다')}); openTea(pick); };
+  if($('tStop')) $('tStop').onclick=()=>{ almDel('tea'); openTea(pick); };
+  document.querySelectorAll('[data-tea]').forEach(b=>b.onclick=()=>openTea(b.dataset.tea)); almUI(); }
+function pour(){ const c=actx(); if(!c||!AU.on) return; const t=c.currentTime, s=c.createBufferSource(); s.buffer=noise(2.2,false); const f=c.createBiquadFilter(); f.type='bandpass'; f.Q.value=1.2; f.frequency.setValueAtTime(900,t); f.frequency.linearRampToValueAtTime(1700,t+2); const g=c.createGain(); g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.12,t+.15); g.gain.setValueAtTime(.12,t+1.6); g.gain.exponentialRampToValueAtTime(.0001,t+2.2); s.connect(f).connect(g).connect(AU.out); s.start(t); s.stop(t+2.3); }
+
+/* ---------- 시계 알림: 방이 열려 있는 동안 울린다 ---------- */
+let ALM=(LS.get('alarms',[])||[]).filter(a=>a&&a.at>Date.now()-5*60000);
+function almSave(){ LS.set('alarms',ALM); }
+function almAdd(a){ ALM=ALM.filter(x=>x.id!==a.id); ALM.push(a); ALM.sort((x,y)=>x.at-y.at); almSave(); almUI(); }
+function almDel(id){ ALM=ALM.filter(x=>x.id!==id); almSave(); almUI(); }
+function hhmm(ms){ const d=new Date(ms); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+function mmss(ms){ const s=Math.max(0,Math.ceil(ms/1000)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+function chime(n){ const c=actx(); if(!c) return; try{ c.resume(); }catch(e){} const out=AU.on?AU.out:c.destination;
+  for(let k=0;k<n;k++){ const t=c.currentTime+.05+k*1.1; [[659.25,.16],[987.77,.07],[1318.5,.04]].forEach(([f,a],j)=>{ const o=c.createOscillator(), g=c.createGain(); o.type='sine'; o.frequency.value=k%2?f*.75:f; g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(a,t+.01); g.gain.exponentialRampToValueAtTime(.0001,t+1.6-j*.3); o.connect(g).connect(out); o.start(t); o.stop(t+1.7); }); } }
+function almFire(a){ const late=Date.now()-a.at; chime(a.kind==='tea'?2:4); try{ navigator.vibrate&&navigator.vibrate([180,120,180]); }catch(e){}
+  const msg=a.msg||'맞춰 둔 시간이 됐어요.', lt=late>90000?` (${Math.round(late/60000)}분 늦게 알려 드려요. 방이 닫혀 있었나 봐요)`:'';
+  if(document.hidden){ const t0=document.title; let i=0; clearInterval(almFire.ti); almFire.ti=setInterval(()=>{ document.title=i++%2?t0:'⏰ '+msg; if(!document.hidden){ clearInterval(almFire.ti); document.title=t0; } },1000); }
+  show(`<h2>${a.kind==='tea'?'차가 다 우러났어요':'알림'}</h2><p class="alm-msg">${escH(msg)}${lt}</p><div class="row"><button class="ok" id="aOk">알겠어요</button>${a.kind!=='tea'?'<button class="chip" id="aSn">5분 뒤 다시</button>':''}</div>`);
+  $('aOk').onclick=closePanel; if($('aSn')) $('aSn').onclick=()=>{ almAdd({...a,id:'a'+Date.now(),at:Date.now()+300000}); closePanel(); roomSay('5분 뒤에 다시 알려 드릴게요'); }; }
+function almTick(){ const now=Date.now(), due=ALM.filter(a=>a.at<=now); if(due.length){ ALM=ALM.filter(a=>a.at>now); almSave(); due.forEach(almFire); } almUI(); }
+function almUI(){ const ck=$('clock'); if(ck) ck.classList.toggle('alm',ALM.some(a=>a.kind!=='tea'));
+  const tea=ALM.find(a=>a.id==='tea'), l=document.querySelector('[data-a="kettle"] .lb'); if(l) l.textContent=tea?'우리는 중 '+mmss(tea.at-Date.now()):KT?'물 끓는 중':'차 한 잔';
+  const tl=$('tLeft'); if(tl&&tea) tl.textContent=mmss(tea.at-Date.now());
+  const ul=$('aList'); if(ul){ const L=ALM.filter(a=>a.kind!=='tea'); ul.innerHTML=L.length?L.map(a=>`<div class="arow"><b>${hhmm(a.at)}</b><span>${escH(a.msg||'시간이 됐어요')} · ${mmss(a.at-Date.now())} 남음</span><button class="chip" data-adel="${a.id}">지우기</button></div>`).join(''):'<small>맞춰 둔 알림이 없어요.</small>'; ul.querySelectorAll('[data-adel]').forEach(b=>b.onclick=()=>almDel(b.dataset.adel)); }
+  const h=$('ckHere'); if(h){ h.textContent=hhmm(Date.now()); const th=$('ckThere'), tz=S.w&&S.w.tz; if(th){ if(tz) th.textContent=new Intl.DateTimeFormat('ko-KR',{hour:'2-digit',minute:'2-digit',hourCycle:'h23',timeZone:tz}).format(new Date()); else { const n=new Date(), t=(n.getUTCHours()*60+n.getUTCMinutes()+Math.round(S.place.lon/15)*60+2880)%1440; th.textContent=String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0'); } } } }
+setInterval(almTick,1000); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) almTick(); });
+function openClock(){ blip('paper');
+  show(`<h2>시계</h2><div class="ck2"><div><small>이 휴대폰</small><b id="ckHere"></b></div><div><small>창밖 ${escH(S.place.name)}</small><b id="ckThere"></b></div></div>
+   <label class="sl">알림 맞추기</label>
+   <input id="aMsg" maxlength="40" placeholder="무엇을 알려 줄까요? (비워 두면 ‘시간이 됐어요’)" aria-label="알림 내용">
+   <div class="chips">${[10,20,30,60].map(m=>`<button class="chip" data-am="${m}">${m<60?m+'분':'1시간'} 뒤</button>`).join('')}</div>
+   <div class="row"><input type="time" id="aAt" aria-label="알림 시각" style="max-width:150px"><button class="ok" id="aSet">이 시각에</button></div>
+   <div id="aList" class="alist"></div>
+   <small>알림은 이 방이 열려 있는 동안 종소리로 울려요. 다른 앱으로 넘어가거나 화면이 꺼지면 늦게 울리거나 울리지 않을 수 있어요. 아침에 깨는 알람은 휴대폰 시계 앱을 써 주세요. 알림은 이 기기에만 저장돼요.</small>
+   <div class="row"><button class="chip" id="cPlace">창밖 장소 바꾸기</button></div>`);
+  const msg=()=>$('aMsg').value.trim();
+  document.querySelectorAll('[data-am]').forEach(b=>b.onclick=()=>{ if(!AU.on) setAudio(true); const m=+b.dataset.am; almAdd({id:'a'+Date.now(),kind:'alm',at:Date.now()+m*60000,msg:msg()}); roomSay(`${m<60?m+'분':'1시간'} 뒤에 알려 드릴게요`); });
+  $('aSet').onclick=()=>{ const v=$('aAt').value; if(!v) return; if(!AU.on) setAudio(true); const [hh,mm]=v.split(':').map(Number), d=new Date(); d.setHours(hh,mm,0,0); if(d.getTime()<=Date.now()+5000) d.setDate(d.getDate()+1); almAdd({id:'a'+Date.now(),kind:'alm',at:d.getTime(),msg:msg()}); roomSay(`${v}에 알려 드릴게요`); };
+  $('cPlace').onclick=()=>openPlace(); almUI(); }
+
 /* ---------- 잠들기: 불빛과 소리가 함께 천천히 줄어들다 꺼진다 ---------- */
 let SL=null; window.SLP=0; window.__sleepSkip=ms=>{ if(SL) SL.t0-=ms; }; window.__st=()=>({lamp:S.lamp,kettle:!!KT});
 function songGain(){ try{ const t=(typeof skI!=='undefined'&&skI>=0)?SKETCHES[skI]:TRACKS[trk]; return (t&&t.g)||1; }catch(_){ return 1; } }
@@ -1529,7 +1634,8 @@ function mkNoise(c,kind,sec){ const sr=c.sampleRate, n=Math.floor(sr*sec), xf=Ma
       else { b0=.99886*b0+w*.0555179; b1=.99332*b1+w*.0750759; b2=.969*b2+w*.153852; b3=.8665*b3+w*.3104856; b4=.55*b4+w*.5329522; b5=-.7616*b5-w*.016898; d[i]=(b0+b1+b2+b3+b4+b5+b6+w*.5362)*.11; b6=w*.115926; } }
     for(let i=0;i<xf;i++){ const k=i/xf; d[n-xf+i]=d[n-xf+i]*(1-k)+d[i]*k; } }   // 끝과 처음을 겹쳐 이음매가 들리지 않게
   return b; }
-function sleepSound(kind){ const c=actx(); if(!c) return; if(!AU.on) setAudio(true); if(kind&&kind!=='none'){ if(S.playing) songStop(); if(S.radio) radioOff(); if(typeof PJ!=='undefined'&&PJ) projOff(); } if(kind&&kind!=='none'&&S.snd) toggleRainSound(); if(kind!=='sym') symStop(); else { if(SN){ const o=SN; SN=null; o.g.gain.setTargetAtTime(0,c.currentTime,1.5); setTimeout(()=>o.nodes.forEach(x=>{ try{x.stop();}catch(_){} }),7000); } symStart(); return; }
+let SLK=null;
+function sleepSound(kind){ const c=actx(); if(!c) return; if(!AU.on) setAudio(true); SLK=kind; if(kind&&kind!=='none'){ if(window.__slPanel) holdMusic(); else { if(S.playing) songStop(); if(S.radio) radioOff(); if(typeof PJ!=='undefined'&&PJ) projOff(); } } if(kind&&kind!=='none'&&S.snd) toggleRainSound(); if(kind!=='sym') symStop(); else { if(SN){ const o=SN; SN=null; o.g.gain.setTargetAtTime(0,c.currentTime,1.5); setTimeout(()=>o.nodes.forEach(x=>{ try{x.stop();}catch(_){} }),7000); } symStart(); return; }
   if(SN){ const o=SN; SN=null; o.g.gain.setTargetAtTime(0,c.currentTime,1.5); setTimeout(()=>o.nodes.forEach(x=>{ try{x.stop();}catch(_){} }),7000); }
   if(!kind||kind==='none'){ upSleepSnd(); return; }
   const g=c.createGain(); g.gain.value=0; g.connect(AU.out); const nodes=[];
@@ -1615,7 +1721,7 @@ function wireDim(){ document.querySelectorAll('.dmr').forEach(el=>el.oninput=()=
     document.querySelectorAll(`.dmr[data-k="${el.dataset.k}"]`).forEach(x=>{ if(x!==el) x.value=el.value; }); document.querySelectorAll(`.dmv[data-k="${el.dataset.k}"]`).forEach(x=>x.textContent=Math.round(DIM[el.dataset.k]*100)+'%');
     if(el.dataset.k==='lamp'&&!S.lamp&&DIM.lamp>0) toggleLamp(); }); }
 function openSleep(){ if(SL){ show(`<h2>잠들기</h2><p>${Math.max(1,Math.ceil((SL.dur-(Date.now()-SL.t0))/60000))}분 뒤에 불빛과 소리가 다 꺼져요.</p><div class="row"><button class="ok" id="slX">그만두기</button></div>`); $('slX').onclick=()=>{ sleepStop(true); closePanel(); }; return; }
-  show(`<h2>잠들기</h2><p>안락의자에 기대면, 스탠드 불빛과 방 안의 소리가 함께 아주 천천히 줄어들다 꺼져요. ‘지금 소리 그대로’를 고르면 틀어 둔 노래·빗소리가 그대로 같이 잦아들고, 잠드는 소리를 고르면 듣던 노래는 꺼져요.</p>
+  show(`<h2>잠들기</h2><p>안락의자에 기대면, 스탠드 불빛과 방 안의 소리가 함께 아주 천천히 줄어들다 꺼져요. 잠드는 소리를 고르는 동안엔 듣던 노래·라디오·영상이 잠깐 멈춰요. 심포니는 기타 반주가 있어서 고르면 노래·라디오는 꺼진 채로 두고, 노이즈·바람이나 ‘지금 소리 그대로’를 고르면 이 창을 닫을 때 듣던 것이 다시 이어져요.</p>
    <label class="sl">잠드는 소리</label>
    <div class="row"><button class="chip" data-sn="sym">보라다방 심포니</button><button class="chip" data-sn="pink">핑크 노이즈</button><button class="chip" data-sn="brown">브라운 노이즈</button><button class="chip" data-sn="wave">숨 고르기 바람</button><button class="chip" data-sn="none">지금 소리 그대로</button></div>
    <small>심포니는 끄는 시간을 정하지 않으면 계속 이어져요. 통기타가 아주 느리게 끝없이 새로 연주하고, 시계 초침·주전자 기포·바람·빗소리가 그 박자에 맞춰 들어와요. 같은 소절이 되풀이되지 않고, 시간이 갈수록 음이 성글어져요. 핑크 노이즈은 낮은 소리 쪽이 두꺼워 백색 소음보다 부드럽게 들려요. 브라운 노이즈은 더 낮고 묵직하고, 숨 고르기 바람은 10초에 한 번 불어왔다 잦아들어서 1분에 여섯 번, 느린 숨의 빠르기예요. 소리는 작게, 냉장고 소리쯤이 알맞아요.</small>
@@ -1624,9 +1730,10 @@ function openSleep(){ if(SL){ show(`<h2>잠들기</h2><p>${Math.max(1,Math.ceil(
    ${dimUI()}
    <label class="sl">얼마 뒤에 꺼질까요</label>
    <div class="row"><button class="chip" data-m="15">15분</button><button class="chip" data-m="30">30분</button><button class="chip" data-m="60">1시간</button><button class="chip" data-m="0">끄지 않고 계속</button></div>`);
+  window.__slPanel=true; SLK=SYM?'sym':null; onLeave=()=>{ window.__slPanel=false; if(SLK==='sym'||SYM) HOLD=null; else resumeMusic(); };
   document.querySelectorAll('[data-sn]').forEach(b=>b.onclick=()=>sleepSound(b.dataset.sn)); upSleepSnd(); document.querySelectorAll('[data-wo]').forEach(b=>b.onclick=()=>{ if((b.dataset.wo==='1')!==AMB.open) toggleWindow(); }); upWin();
   wireDim(); document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{ if(!AU.on) setAudio(true); if(+b.dataset.m) sleepStart(+b.dataset.m); else { sleepStop(true); closePanel(); } }); }
-(()=>{ const mb=document.querySelector('[data-p="mug"]'); if(mb){ mb.removeAttribute('data-p'); mb.dataset.a='kettle'; const l=mb.querySelector('.lb'); if(l) l.textContent='물 올리기'; }
+(()=>{ const mb=document.querySelector('[data-p="mug"]'); if(mb){ mb.removeAttribute('data-p'); mb.dataset.a='kettle'; const l=mb.querySelector('.lb'); if(l) l.textContent='차 한 잔'; }
   const ab=document.querySelector('[data-p="phone"]'); if(ab){ ab.removeAttribute('data-p'); ab.dataset.a='sleep'; const l=ab.querySelector('.lb'); if(l) l.textContent='잠들기'; }
   const d=document.createElement('div'); d.id='sleepDim'; document.body.appendChild(d); const dm=document.createElement('div'); dm.id='roomDim'; document.body.appendChild(dm); applyDim(); const rd=document.querySelector('.rdim input'); if(rd){ rd.value=DIM.room; rd.addEventListener('click',e=>e.stopPropagation()); } wireDim(); })();
 
@@ -1672,7 +1779,7 @@ function myWinUI(){ const pnl=$('panel'); if(!pnl||pnl.hidden) return; const has
   if($('mwDel')) $('mwDel').onclick=async()=>{ await IDB.set('myWin',null); for(let i=VIEWS.length-1;i>=0;i--) if(VIEWS[i].mine) VIEWS.splice(i,1); for(let i=PICKS.length-1;i>=0;i--) if(PICKS[i].mine) PICKS.splice(i,1); roomSay('내 창을 지웠어요'); closePanel(); }; }
 const _openPlace=openPlace; openPlace=function(){ const r=_openPlace.apply(this,arguments); try{ myWinUI(); }catch(e){ console.warn(e); } return r; };
 
-const ACT={wopen:()=>toggleWindow(),rain:toggleRainSound,curtain:toggleCurtain,lamp:toggleLamp,play:togglePlay,radio:()=>openRadio(),kettle:()=>toggleKettle(),sleep:()=>openSleep(),proj:()=>openProj()};
+const ACT={wopen:()=>toggleWindow(),rain:toggleRainSound,curtain:toggleCurtain,lamp:toggleLamp,play:togglePlay,radio:()=>openRadio(),kettle:()=>openTea(),sleep:()=>openSleep(),proj:()=>openProj()};
 /* ---------- 프로젝터 ---------- */
 const VIDEOS=[{id:'xfmH8Zh2u1Q'},{id:'1GL8skLUhdM'},{id:'cGNnccgCSOs'}];          // 아내가 고른 영상들 (유튜브 주소의 끝 11글자)
 let YTp=null, ytReady=null, PJ=null; document.body.classList.toggle('nosk',!SKETCHES.length); document.body.classList.add('nobk');
@@ -1705,7 +1812,7 @@ function openProj(){
 }
 async function peekTitle(v){ await ytAPI(); if(!window.YT||!YT.Player) return; const d=document.createElement('div'); d.style.cssText='position:fixed;left:-9999px;width:200px;height:120px'; const h=document.createElement('div'); d.appendChild(h); document.body.appendChild(d);
   const p=new YT.Player(h,{host:'https://www.youtube-nocookie.com',videoId:v.id,events:{onReady:()=>{ const t=(p.getVideoData()||{}).title; if(t){ LS.set('vt_'+v.id,t); const l=$('vList'); if(l) l.innerHTML=projList(), document.querySelectorAll('.vid').forEach(b=>b.onclick=()=>projPlay(VIDEOS[+b.dataset.i])); } setTimeout(()=>{ try{p.destroy();}catch(e){} d.remove(); },300); }}}); }
-async function projPlay(v){
+async function projPlay(v){ symYield();
   if(S.playing) songStop(); if(S.radio) radioOff();
   PJ=v.id; stage.classList.add('cinema'); closePanel(); applyRoom();
   $('lbProj').textContent='프로젝터 끄기'; await ytAPI();
