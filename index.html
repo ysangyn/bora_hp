@@ -214,7 +214,13 @@ img.room.off{opacity:0;transition:opacity 1.2s}.lampoff img.room.off{opacity:1}
 .stage.isday:not(.gl) .glow{background:radial-gradient(circle,rgba(255,232,180,.75),rgba(255,206,140,.28) 30%,transparent 62%);mix-blend-mode:screen}
 .stage.isday.lampoff:not(.gl) .glow{opacity:0}
 
-/* 찻잔·시계 패널 */
+/* 찻잔·시계·소리 섞기 패널 */
+.snd.mixb{padding:6px 14px;border:1px solid var(--hair);border-radius:999px;letter-spacing:.14em;color:var(--ink);background:rgba(13,10,19,.35);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.mxbar{display:flex;height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.06);gap:2px}.mxbar i{display:block;min-width:6px;transition:flex .5s var(--ease)}.mxbar i.none{flex:1;background:transparent}
+.mxr{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1.6fr) 34px;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--hair)}#mxRows{display:flex;flex-direction:column}#mxRows .mxr:last-child{border-bottom:1px solid var(--hair)}
+.mxn{display:flex;flex-direction:column;gap:2px;font-family:var(--f-serif);font-size:15px;position:relative;padding-left:18px}.mxn i{position:absolute;left:0;top:7px;width:9px;height:9px;border-radius:50%}.mxn small{font-family:inherit;font-size:11px;color:var(--faint);line-height:1.4}
+.mxr b{font-family:var(--f-num);font-style:italic;font-weight:500;font-size:16px;text-align:right;color:var(--muted)}.mxr input{width:100%}
+.mxs{display:inline-flex;align-items:center}.mxx{padding:8px 6px;color:var(--faint);font-size:15px}
 .tea{border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:18px 0 16px;display:flex;flex-direction:column;gap:13px}
 .tea-top{display:flex;align-items:center;gap:18px}
 .cup{position:relative;flex:0 0 auto;width:82px;height:82px;border-radius:50%;background:radial-gradient(circle at 34% 28%,#fffdf6,#e9e1d2 58%,#c9bfae);box-shadow:0 10px 22px rgba(0,0,0,.45),inset 0 -3px 6px rgba(0,0,0,.18)}
@@ -824,6 +830,7 @@ body.hasnote .hs[data-p="mailbox"]{display:block!important}
   <div class="right">
    <div class="nowplaying" id="npBox"><span id="np">♪</span><span class="mctl"><button class="mc" id="npPrev" aria-label="이전 곡"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 6h2v12H7zM10 12l9-6v12z"/></svg></button><button class="mc pp" id="npPlay" aria-label="재생 또는 멈춤"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="pl1" d="M8 5v14l11-7z"/><path class="pa1" d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button><button class="mc" id="npNext" aria-label="다음 곡"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6h2v12h-2zM14 12 5 6v12z"/></svg></button></span></div>
    <div class="nowplaying radio" id="npR"></div>
+   <button class="snd mixb" id="bMix" type="button"><span>소리 섞기</span></button>
    <button class="snd" id="bSnd" aria-pressed="false"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span id="sndL">소리 끔</span></button>
   </div>
  </div>
@@ -922,16 +929,17 @@ async function bedLevel(k,v,tau){ if(!AU.ctx) return; const B=bedOf(k), vol=Math
   B.g.gain.setTargetAtTime(vol,AU.ctx.currentTime,tau||3); if(vol<=.0005&&B.on){ clearTimeout(B.timer); B.on=false; } }
 function placeKind(){ const n=(S.place&&S.place.name)||''; if(/레이캬비크|교토|제주|애월/.test(n)) return 'quiet'; if(/브루클린|파리|해운대|부산/.test(n)) return 'city'; return 'city'; }
 function summerNow(){ const m=new Date().getMonth()+1; return (S.place&&S.place.lat<0)?(m>=12||m<=3):(m>=6&&m<=9); }
+const MX=Object.assign({rain:1,out:1,boil:1,noise:1,sym:1},LS.get('mix',{}));   // 소리 섞기: 재료마다 손님이 정한 세기
 function ambUpdate(){ if(!AU.on||!AU.ctx||!AMB.out) return; const R=Math.random, M=k=>(AMB.mea[k]=Math.min(1.25,Math.max(.5,(AMB.mea[k]||1)+(R()-.5)*.3)));
   const snowy=WG.snowT>.5&&!window.__sym, rain=window.__sym?(window.__symLvl||.5):(S.snd&&!snowy)?(.35+.4*M('rr')):(S.w&&!S.w.guess&&S.w.kind==='rain')?.4:0;
   const h=Math.max(0,Math.min(1,(rain-.45)/.5)), op=AMB.open, fade=(1-(window.SLP||0)*.6)*(window.__sym?.7:1), pk=placeKind(), night=!(S.w&&S.w.isDay), calm=Math.max(.15,1-rain*.8);
   AMB.lp.frequency.setTargetAtTime(op?16000:650,AU.ctx.currentTime,.8);
-  bedLevel('lrain',rain?(.4*(1-h)+.12)*M('lr')*fade:0,4); bedLevel('hrain',rain?.45*h*M('hr')*fade:0,4);
-  bedLevel('glass',rain&&!op?(.1+.32*rain)*M('gl')*fade:0,3);                                   // 닫힌 창: 유리를 두드리는 비
-  bedLevel('street',pk==='city'&&!night?.2*M('st')*fade:0,5); bedLevel('traffic',pk==='city'&&night?.15*M('tr')*fade:0,5);
-  bedLevel('village',pk==='quiet'&&night?.2*M('vi')*fade:0,5); bedLevel('birds',!night&&!snowy?.15*calm*M('bi')*fade:0,5);
-  bedLevel('crickets',night&&summerNow()&&!snowy?.13*calm*M('cr')*fade:0,5); bedLevel('wind',(snowy||(pk==='quiet'&&!rain))?.13*M('wi')*fade:0,6);
-  if(!KT) bedLevel('boil',window.__sym?(op?.07:.2)*fade:0,6);                                  // 심포니: 주전자가 낮게 끓는다(창을 닫으면 더 가까이)
+  bedLevel('lrain',rain?(.4*(1-h)+.12)*M('lr')*fade*MX.rain:0,4); bedLevel('hrain',rain?.45*h*M('hr')*fade*MX.rain:0,4);
+  bedLevel('glass',rain&&!op?(.1+.32*rain)*M('gl')*fade*MX.rain:0,3);                                   // 닫힌 창: 유리를 두드리는 비
+  const fo=fade*MX.out; bedLevel('street',pk==='city'&&!night?.2*M('st')*fo:0,5); bedLevel('traffic',pk==='city'&&night?.15*M('tr')*fo:0,5);
+  bedLevel('village',pk==='quiet'&&night?.2*M('vi')*fo:0,5); bedLevel('birds',!night&&!snowy?.15*calm*M('bi')*fo:0,5);
+  bedLevel('crickets',night&&summerNow()&&!snowy?.13*calm*M('cr')*fo:0,5); bedLevel('wind',(snowy||(pk==='quiet'&&!rain))?.13*M('wi')*fo:0,6);
+  if(!KT) bedLevel('boil',window.__sym?(op?.07:.2)*fade*MX.boil:0,6); else if(AU.recOK) bedLevel('boil',.42*MX.boil,2);                                  // 심포니: 주전자가 낮게 끓는다(창을 닫으면 더 가까이)
   if(op&&pk==='city'&&!(window.SLP>0)&&!window.__sym&&R()<.012) ambOnce('siren',.12); }           // 열린 창 너머, 아주 가끔 먼 사이렌
 async function ambOnce(k,v){ await sload(k); const b=SB[k]; if(!b||!AMB.out) return; const c=AU.ctx, s=c.createBufferSource(), g=c.createGain(), lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1800; s.buffer=b; g.gain.value=v*SF[k][1]; s.connect(lp).connect(g).connect(AMB.out); s.start(); }
 function roomSay(t){ let d=$('roomSay'); if(!d){ d=document.createElement('div'); d.id='roomSay'; d.setAttribute('role','status'); document.body.appendChild(d); } d.textContent=t; d.classList.add('on'); clearTimeout(roomSay.t); roomSay.t=setTimeout(()=>d.classList.remove('on'),2600); }
@@ -1555,12 +1563,12 @@ function toggleKettle(){ const c=actx(); if(!c) return; if(!AU.on) setAudio(true
   const lay=(buf,type,freq,q,gain)=>{ const sr=c.createBufferSource(); sr.buffer=buf; sr.loop=true; const f=c.createBiquadFilter(); f.type=type; f.frequency.value=freq; if(q) f.Q.value=q; const gg=c.createGain(); gg.gain.value=gain; sr.connect(f).connect(gg).connect(g); sr.start(); srcs.push(sr); };
   lay(noise(4,true),'lowpass',420,0,.5);          // 주전자 바닥의 낮은 울림
   lay(noise(3,false),'bandpass',3200,.7,.022);    // 김 새는 소리
-  g.gain.setTargetAtTime(AU.recOK?.12:.5,c.currentTime,3); if(AU.recOK) bedLevel('boil',.42,3);
+  g.gain.setTargetAtTime((AU.recOK?.12:.5)*MX.boil,c.currentTime,3); if(AU.recOK) bedLevel('boil',.42*MX.boil,3);
   const bub=setInterval(()=>{ if(!KT||Math.random()<.35) return; const t=c.currentTime+Math.random()*.15, o=c.createOscillator(), og=c.createGain(), f0=280+Math.random()*700;   // 보글보글
     o.frequency.setValueAtTime(f0,t); o.frequency.exponentialRampToValueAtTime(f0*1.9,t+.035); og.gain.setValueAtTime(0,t); og.gain.linearRampToValueAtTime(.018+Math.random()*.02,t+.004); og.gain.exponentialRampToValueAtTime(.0001,t+.05);
     o.connect(og).connect(g); o.start(t); o.stop(t+.07); },70);
   const mea=setInterval(()=>{ if(KT) g.gain.setTargetAtTime(.32+Math.random()*.34,c.currentTime,4); },9000);   // 소리 크기가 저절로 천천히 오르내림
-  KT={g,srcs,bub,mea}; stage.classList.add('boil'); upKettle(); }
+  KT={g,srcs,bub,mea,base:AU.recOK?.12:.5}; stage.classList.add('boil'); upKettle(); }
 function upKettle(){ almUI(); const b=$('tKet'); if(b) b.textContent=KT?'불 끄기':'물 올리기'; }
 /* ---------- 찻잔: 지금 이 방에 어울리는 차 + 우리기 타이머 ---------- */
 // 찻장. caf 0 없음 · 1 조금 · 2 보통 · 3 많은 편. s=머그 한 잔 우리는 초(0이면 타이머 없음). c=찻물 빛깔.
@@ -1699,6 +1707,42 @@ function almUI(){ const ck=$('clock'); if(ck) ck.classList.toggle('alm',ALM.some
   const ul=$('aList'); if(ul){ const L=ALM.filter(a=>a.kind!=='tea'); ul.innerHTML=L.length?L.map(a=>`<div class="arow"><b>${hhmm(a.at)}</b><span>${escH(a.msg||'시간이 됐어요')} · ${mmss(a.at-Date.now())} 남음</span><button class="chip" data-adel="${a.id}">지우기</button></div>`).join(''):'<small>맞춰 둔 알림이 없어요.</small>'; ul.querySelectorAll('[data-adel]').forEach(b=>b.onclick=()=>almDel(b.dataset.adel)); }
   const h=$('ckHere'); if(h){ h.textContent=hhmm(Date.now()); const th=$('ckThere'), tz=S.w&&S.w.tz; if(th){ if(tz) th.textContent=new Intl.DateTimeFormat('ko-KR',{hour:'2-digit',minute:'2-digit',hourCycle:'h23',timeZone:tz}).format(new Date()); else { const n=new Date(), t=(n.getUTCHours()*60+n.getUTCMinutes()+Math.round(S.place.lon/15)*60+2880)%1440; th.textContent=String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0'); } } } }
 setInterval(almTick,1000); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) almTick(); });
+/* ---------- 소리 섞기: 방 안의 소리를 재료 삼아 나만의 자리를 만든다 ---------- */
+const MIXI=[['rain','빗소리','#8fb3d9','유리를 두드리는 비'],['out','창밖','#9fc79a','창을 열면 들어오는 거리와 밤'],['boil','주전자','#e0b070','낮게 끓는 물'],['noise','숨 고르기','#c9b4ee','바람·핑크·브라운 노이즈'],['sym','심포니','#f2c88f','느리게 이어지는 통기타']];
+const MIXP=[{n:'비 오는 창가',v:{rain:1.1,out:0,boil:0,noise:0,sym:0}},{n:'주전자 끓는 밤',v:{rain:.6,out:0,boil:1,noise:0,sym:0}},{n:'열어 둔 창',v:{rain:.5,out:1.1,boil:0,noise:0,sym:0}},{n:'바람과 기타',v:{rain:0,out:0,boil:.4,noise:.8,sym:.9}},{n:'고요',v:{rain:0,out:0,boil:0,noise:.7,sym:0}}];
+function mixNow(){ return {rain:S.snd?MX.rain:0,out:AMB.open?MX.out:0,boil:KT?MX.boil:0,noise:SN?MX.noise:0,sym:SYM?MX.sym:0}; }
+function mixSet(k,v,quiet){ const c=actx(); if(!c) return; if(!AU.on) setAudio(true); const on=v>.02; if(on) MX[k]=Math.max(.05,Math.min(1.5,v)); LS.set('mix',MX);
+  if(k==='rain'){ if(on!==!!S.snd) toggleRainSound(); }
+  else if(k==='out'){ if(on!==!!AMB.open) toggleWindow(); }
+  else if(k==='boil'){ if(on!==!!KT) toggleKettle(); if(KT) KT.g.gain.setTargetAtTime(KT.base*MX.boil,c.currentTime,.4); }
+  else if(k==='noise'){ if(on&&!SN) sleepSound(LS.get('mixNoise','wave')); else if(!on&&SN) sleepSound('none'); if(SN) SN.g.gain.setTargetAtTime(SN.base*MX.noise,c.currentTime,.4); }
+  else if(k==='sym'){ if(on&&!SYM){ if(S.playing) songStop(); if(S.radio) radioOff(); symStart(); } else if(!on&&SYM) symStop(); if(SYM) SYM.out.gain.setTargetAtTime(MX.sym,c.currentTime,.6); }
+  ambUpdate(); if(!quiet) mixUI(); }
+function mixApply(v){ MIXI.forEach(([k])=>mixSet(k,v[k]||0,true)); setTimeout(mixUI,150); }
+function mixUI(){ const box=$('mxRows'); if(!box) return; const now=mixNow(), tot=MIXI.reduce((a,[k])=>a+now[k],0);
+  $('mxBar').innerHTML=tot>0?MIXI.filter(([k])=>now[k]>0).map(([k,n,c])=>`<i style="flex:${now[k].toFixed(2)};background:${c}" title="${n}"></i>`).join(''):'<i class="none"></i>';
+  $('mxSum').textContent=tot>0?MIXI.filter(([k])=>now[k]>0).map(([k,n])=>`${n} ${Math.round(now[k]/tot*100)}`).join(' · '):'아직 아무 소리도 넣지 않았어요';
+  MIXI.forEach(([k])=>{ const r=box.querySelector(`[data-mx="${k}"]`); if(r&&document.activeElement!==r) r.value=now[k]; const o=box.querySelector(`[data-mxv="${k}"]`); if(o) o.textContent=now[k]>0?Math.round(now[k]*100):'—'; });
+  const nz=$('mxNz'); if(nz) nz.hidden=!SN; document.querySelectorAll('[data-nz]').forEach(b=>b.setAttribute('aria-pressed',!!SN&&SN.kind===b.dataset.nz));
+  const sv=LS.get('mixSaved',[]); $('mxSaved').innerHTML=sv.length?sv.map((p,i)=>`<span class="mxs"><button class="chip" data-ms="${i}">${escH(p.n)}</button><button class="mxx" data-mx-del="${i}" aria-label="${escH(p.n)} 지우기">×</button></span>`).join(''):'<small>섞은 소리가 마음에 들면 이름을 붙여 간직해 두세요.</small>';
+  document.querySelectorAll('[data-ms]').forEach(b=>b.onclick=()=>mixApply(LS.get('mixSaved',[])[+b.dataset.ms].v)); document.querySelectorAll('[data-mx-del]').forEach(b=>b.onclick=()=>{ const a=LS.get('mixSaved',[]); a.splice(+b.dataset.mxDel,1); LS.set('mixSaved',a); mixUI(); }); }
+function openMix(){ blip('paper');
+  show(`<h2>소리 섞기</h2><p>방 안의 소리를 재료처럼 섞어 오늘 밤의 자리를 만들어요. 작게, 냉장고 소리쯤이 알맞아요.</p>
+   <div class="mxbar" id="mxBar" aria-hidden="true"></div><small id="mxSum"></small>
+   <div id="mxRows">${MIXI.map(([k,n,c,d])=>`<label class="mxr"><span class="mxn"><i style="background:${c}"></i>${n}<small>${d}</small></span><input type="range" data-mx="${k}" min="0" max="1.5" step="0.05" aria-label="${n} 세기"><b data-mxv="${k}"></b></label>`).join('')}</div>
+   <div class="chips" id="mxNz" hidden><button class="chip" data-nz="wave">숨 고르기 바람</button><button class="chip" data-nz="pink">핑크 노이즈</button><button class="chip" data-nz="brown">브라운 노이즈</button></div>
+   <label class="sl">바로 섞어 보기</label><div class="chips">${MIXP.map((p,i)=>`<button class="chip" data-mp="${i}">${p.n}</button>`).join('')}<button class="chip" data-mp="-1">모두 끄기</button></div>
+   <label class="sl">나만의 자리</label><div class="chips" id="mxSaved"></div>
+   <div class="row"><input id="mxName" maxlength="14" placeholder="이 소리에 이름 붙이기" aria-label="자리 이름"><button class="ok" id="mxSave">간직하기</button></div>
+   <div class="row"><button class="chip" id="mxSleep">이 소리로 잠들기</button></div>
+   <small>노래·라디오는 턴테이블과 라디오에서 그대로 틀 수 있어요. 심포니는 기타 반주가 있어서 노래·라디오와 함께 켜지 않아요. 간직한 자리는 이 기기에만 저장돼요.</small>`);
+  window.__slPanel=false;
+  document.querySelectorAll('[data-mx]').forEach(r=>{ r.oninput=()=>{ mixSet(r.dataset.mx,+r.value,true); mixUI(); }; });
+  document.querySelectorAll('[data-nz]').forEach(b=>b.onclick=()=>{ LS.set('mixNoise',b.dataset.nz); sleepSound(b.dataset.nz); setTimeout(()=>{ if(SN) SN.g.gain.setTargetAtTime(SN.base*MX.noise,AU.ctx.currentTime,.4); mixUI(); },80); });
+  document.querySelectorAll('[data-mp]').forEach(b=>b.onclick=()=>{ const i=+b.dataset.mp; mixApply(i<0?{}:MIXP[i].v); });
+  $('mxSave').onclick=()=>{ const n=$('mxName').value.trim()||'나의 자리', a=LS.get('mixSaved',[]).filter(p=>p.n!==n); a.unshift({n,v:mixNow()}); LS.set('mixSaved',a.slice(0,6)); $('mxName').value=''; mixUI(); roomSay(`‘${n}’ 자리를 간직했어요`); };
+  $('mxSleep').onclick=()=>openSleep(); mixUI(); }
+$('bMix').addEventListener('click',e=>{ e.stopPropagation(); openMix(); });
 function openClock(){ blip('paper');
   show(`<h2>시계</h2><div class="ck2"><div><small>이 휴대폰</small><b id="ckHere"></b></div><div><small>창밖 ${escH(S.place.name)}</small><b id="ckThere"></b></div></div>
    <label class="sl">알림 맞추기</label>
@@ -1742,8 +1786,8 @@ function sleepSound(kind){ const c=actx(); if(!c) return; if(!AU.on) setAudio(tr
     const lfo=c.createOscillator(), lg=c.createGain(); lfo.frequency.value=.1; lg.gain.value=.5;
     const amp=c.createGain(); amp.gain.value=.52; lp.disconnect(); lp.connect(amp).connect(g); lfo.connect(lg).connect(amp.gain);
     const fl=c.createGain(); fl.gain.value=650; lfo.connect(fl).connect(lp.frequency); lfo.start(); nodes.push(lfo); }
-  src.start(); g.gain.setTargetAtTime(kind==='brown'?.42:kind==='wave'?.3:.12,c.currentTime,2.5);
-  SN={g,nodes,kind}; upSleepSnd(); }
+  const nb=kind==='brown'?.42:kind==='wave'?.3:.12; src.start(); g.gain.setTargetAtTime(nb*MX.noise,c.currentTime,2.5);
+  SN={g,nodes,kind,base:nb}; upSleepSnd(); }
 /* ---------- 보라다방 심포니 ---------- */
 // 어른아이 곡에서 읽은 코드 흐름(C 장조), 한 코드에 두 마디, 1분에 58박
 const SYM_PROG=[['C','Gsus4','C','Gsus4','Cmaj7','Em','Am','Am7'],['Dm','G','Em','Am','Dm7','Gsus4','C','C'],['C','F','G','C','Em','F','C','F'],['Am7','Em','F','C','Dm','Gsus4','Cadd9','C']];
@@ -1755,7 +1799,7 @@ async function symBuf(c){ if(SYB) return SYB; const r=await fetch('music/gm.json
   out.sort((a,b)=>a.m-b.m); SYB=out; return out; }
 function symImpulse(c,sec){ const sr=c.sampleRate,n=Math.floor(sr*sec),b=c.createBuffer(2,n,sr),pre=Math.floor(sr*.03); for(let ch=0;ch<2;ch++){ const d=b.getChannelData(ch); let y=0; for(let i=pre;i<n;i++){ const k=(i-pre)/(n-pre); y+=(.3-.25*k)*((Math.random()*2-1)-y); d[i]=y*Math.pow(1-k,2)*Math.min(1,(i-pre)/(sr*.04)); } } return b; }
 async function symStart(){ const c=actx(); if(!c||SYM) return; if(!AU.on) setAudio(true); let bufs; try{ bufs=await symBuf(c); }catch(e){ return; } if(!bufs.length) return;
-  const out=c.createGain(); out.gain.value=0; out.connect(AU.out); out.gain.setTargetAtTime(1,c.currentTime,8);   // 아주 천천히 들어온다
+  const out=c.createGain(); out.gain.value=0; out.connect(AU.out); out.gain.setTargetAtTime(MX.sym,c.currentTime,8);   // 아주 천천히 들어온다
   const dry=c.createGain(); dry.gain.value=.55; dry.connect(out); const rev=c.createConvolver(); rev.buffer=symImpulse(c,5.5); const wet=c.createGain(); wet.gain.value=.5; rev.connect(wet).connect(out);
   const beat=1, dl=c.createDelay(3), fb=c.createGain(), dlp=c.createBiquadFilter(), ds=c.createGain(); dl.delayTime.value=beat*1.5; fb.gain.value=.32; dlp.type='lowpass'; dlp.frequency.value=2200; ds.gain.value=.22; ds.connect(dl); dl.connect(dlp).connect(fb).connect(dl); dlp.connect(rev); dlp.connect(out);
   const bus=c.createGain(); bus.gain.value=1; bus.connect(dry); bus.connect(rev); bus.connect(ds);
