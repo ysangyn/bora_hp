@@ -747,7 +747,7 @@ var state={space:'wide',acc:'sparse',ginst:'auto',lv:0,made:false,feel:'',lead:'
 Object.keys(PARTDEF).forEach(k=>state.parts[k]=blank(k));
 const setTpl=id=>{ state.chordOv={}; state.tpl=id; state.form=TPL.find(t=>t.id===id).form.map(x=>({id:x,v:''})); state.sel=-1; if(state.pristine) Object.keys(PARTDEF).forEach(k=>{ state.parts[k]={lines:exLines(k),emph:[],pat:'auto'}; }); };
 try{ const s=JSON.parse(localStorage.getItem('bora_gtr6')||'null'); if(s&&Array.isArray(s.form)){ ['title','tpl','form','pristine','style','mood','key','tempo','song','hist','gtr','chordOv','lseed','temp','genre','lv','made','feel','lead','keyAuto','swing'].forEach(k=>{ if(k in s) state[k]=s[k]; }); Object.assign(state.seeds,s.seeds||{}); Object.keys(PARTDEF).forEach(k=>{ if(s.parts&&s.parts[k]&&Array.isArray(s.parts[k].lines)) state.parts[k]=Object.assign(blank(k),s.parts[k]); }); state.form=state.form.filter(it=>PARTDEF[it.id]||STRUCT[it.id]); } else setTpl('vc'); }catch(_){ setTpl('vc'); }
-if(state.style!=='auto'&&!STYLES.concat(AA).some(x=>x.id===state.style)) state.style='auto'; state.genre='aa'; if(!AA.some(x=>x.id===state.style)) state.style='auto'; if(state.lead==='hum') state.lead='thin';
+if(state.style!=='auto'&&!STYLES.concat(AA).some(x=>x.id===state.style)) state.style='auto'; state.genre='aa'; if(!AA.some(x=>x.id===state.style)) state.style='auto'; if(state.lead==='hum'&&!SAMP.b) state.lead='thin';
 const PKEYS=['title','tpl','form','pristine','style','mood','key','tempo','seeds','parts','song','hist','gtr','chordOv','lseed','temp','genre','lv','made','feel','lead','keyAuto','swing','ginst','acc'];
 const persist=()=>{ try{ const s={}; PKEYS.forEach(k=>s[k]=state[k]); localStorage.setItem('bora_gtr6',JSON.stringify(s)); }catch(_){} };
 let song=null, deb=0;
@@ -878,7 +878,7 @@ const restruct=()=>{ renderParts(); prepare(); };
 chips($('genre'),[{id:'aa',name:'어른아이',note:'어른아이 곡의 코드 버릇'},{id:'folk',name:'통기타 포크',note:'기타 한 대'},{id:'pop',name:'어쿠스틱 팝',note:'통기타 + 베이스 + 드럼'},{id:'rock',name:'모던 락',note:'일렉 기타 + 베이스 + 드럼'}],'genre',()=>{ state.tempo=0; prepare(); });
 chips($('tpl'),TPL,'tpl',restruct); chips($('style'),[{id:'auto',name:'알아서'}].concat(AA.map(a=>({id:a.id,name:a.name+'처럼'}))),'style',()=>{ state.chordOv={}; prepare(); });
 chips($('ginst'),[{id:'auto',name:'알아서'},{id:'gm',name:'통기타',note:'마틴'},{id:'gb',name:'할로바디 기타'},{id:'g',name:'부드러운 통기타'}],'ginst');
-chips($('lead'),[{id:'thin',name:'듬성듬성'},{id:'gtr',name:'글자마다'},{id:'off',name:'반주만'}],'lead',()=>{});
+const leadChips=()=>chips($('lead'),(SAMP.b||BUF.bora.length?[{id:'hum',name:'허밍'}]:[]).concat([{id:'thin',name:'듬성듬성'},{id:'gtr',name:'글자마다'},{id:'off',name:'반주만'}]),'lead',()=>{}); leadChips();
 chips($('acc'),[{id:'sparse',name:'여백 있게'},{id:'arp',name:'아르페지오'}],'acc');
 chips($('space'),[{id:'near',name:'가깝게'},{id:'wide',name:'넓게'},{id:'far',name:'아주 넓게'}],'space',()=>{});
 chips($('swing'),[{id:'auto',name:'알아서'},{id:'off',name:'반듯하게'},{id:'on',name:'흔들리게'}],'swing'); chips($('mood'),MOODS,'mood'); chips($('gsel'),[{id:'auto',name:'알아서'},{id:'arp',name:'아르페지오'},{id:'strum',name:'스트로크'},{id:'mix',name:'벌스는 아르페지오, 후렴은 스트로크'}],'gtr');
@@ -902,7 +902,7 @@ $('xMidi').onclick=()=>{ if(song) save(new Blob([midi()],{type:'audio/midi'}),fn
 $('xWav').onclick=async()=>{ if(!song) return; $('xWav').disabled=true; $('xWav').textContent='만드는 중…'; try{ save(await wavOut(),fname()+'.wav'); }catch(e){} $('xWav').disabled=false; $('xWav').textContent='소리 파일 저장'; };
 $('xVoice').onclick=()=>$('vf').click();
 const VDEF='허밍은 보라 님이 녹음한 “음—” 여덟 음과 숨소리로 부릅니다.'; $('vinfo').textContent=SAMP.b?VDEF:'지금 허밍은 임시 소리예요. bora_hum.zip을 넣으면 그 목소리로 바뀝니다.';
-$('vf').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; try{ const got=await loadVoice(f); $('vinfo').textContent=BUF.bora.length?`새 녹음으로 바꿨어요. 읽은 음: ${got.join(', ')}.`:'허밍 녹음을 찾지 못했어요. 녹음 페이지에서 저장한 bora_hum.zip인지 확인해 주세요.'; prepare(); }catch(_){ $('vinfo').textContent='이 파일은 열 수 없어요. bora_hum.zip을 그대로 넣어 주세요.'; } };
+$('vf').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; try{ const got=await loadVoice(f); leadChips(); $('vinfo').textContent=BUF.bora.length?`새 녹음으로 바꿨어요. 읽은 음: ${got.join(', ')}.`:'허밍 녹음을 찾지 못했어요. 녹음 페이지에서 저장한 bora_hum.zip인지 확인해 주세요.'; prepare(); }catch(_){ $('vinfo').textContent='이 파일은 열 수 없어요. bora_hum.zip을 그대로 넣어 주세요.'; } };
 window.addEventListener('resize',()=>draw(-1));
 /* 마음 한 줄 → 노래 */
 function autoLines(text){ const out=[]; text.replace(/\r/g,'').replace(/([.!?…~。])\s+/g,'$1\n').split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(seg=>{ const words=seg.split(/\s+/).filter(w=>sylsOf(w).length), ks=words.map(w=>sylsOf(w).length), n=ks.reduce((a,b)=>a+b,0); if(!n) return;
