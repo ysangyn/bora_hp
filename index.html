@@ -1009,7 +1009,7 @@ async function bedLevel(k,v,tau){ if(!AU.ctx) return; const B=bedOf(k), vol=Math
   B.g.gain.setTargetAtTime(vol,AU.ctx.currentTime,tau||3); if(vol<=.0005&&B.on){ clearTimeout(B.timer); B.on=false; } }
 function placeKind(){ const n=(S.place&&S.place.name)||''; if(/레이캬비크|교토|제주|애월/.test(n)) return 'quiet'; if(/브루클린|파리|해운대|부산/.test(n)) return 'city'; return 'city'; }
 function summerNow(){ const m=new Date().getMonth()+1; return (S.place&&S.place.lat<0)?(m>=12||m<=3):(m>=6&&m<=9); }
-const MX=Object.assign({rain:1,out:1,boil:1,noise:1,sym:1},LS.get('mix',{}));
+const MX=Object.assign({rain:1,out:1,boil:1,noise:1,sym:1,tick:1},LS.get('mix',{}));
 let SOFT=LS.get('sndSoft',true);   // 소리 결: 처음의 부드러운 합성 소리(기본) / 실제 녹음
 function sndSoft(v){ SOFT=!!v; LS.set('sndSoft',SOFT); if(KT){ toggleKettle(); toggleKettle(); } setRain(); ambUpdate(); }
 window.__snd=()=>({soft:SOFT,rec:AU.recOK,rain:AU.rain?+AU.rain.gain.value.toFixed(3):null,base:AU.rainBase,snd:S.snd,beds:Object.fromEntries(Object.entries(AMB.beds).map(([k,v])=>[k,+v.g.gain.value.toFixed(3)])),kt:KT?+KT.g.gain.value.toFixed(3):null});
@@ -1933,7 +1933,7 @@ function openFocus(re){ if(!re) blip('paper');
   show(`<h2>집중 모드</h2><p>공부하거나 일할 때, 시간을 나눠 집중하고 쉬어요. 방의 소리는 곁에 낮게 깔아 둘게요.</p>
    <label class="sl">집중과 쉼</label><div class="chips" id="fcP">${FCP.map(([f,b],i)=>`<button class="chip" data-fp="${i}">${f}분 집중 · ${b}분 쉼</button>`).join('')}</div>
    <label class="sl">몇 번 할까요</label><div class="chips" id="fcN">${[1,2,3,4,6].map(n=>`<button class="chip" data-fn="${n}">${n}번</button>`).join('')}</div>
-   <label class="sl">곁에 둘 소리</label><div class="chips" id="fcS"><button class="chip" data-fs="keep">지금 소리 그대로</button><button class="chip" data-fs="rain">부슬비</button><button class="chip" data-fs="brown">브라운 노이즈</button><button class="chip" data-fs="none">조용히</button></div>
+   <label class="sl">곁에 둘 소리</label><div class="chips" id="fcS"><button class="chip" data-fs="keep">지금 소리 그대로</button><button class="chip" data-fs="rain">부슬비</button><button class="chip" data-fs="brown">브라운 노이즈</button><button class="chip" data-fs="tick">시계 소리</button><button class="chip" data-fs="none">조용히</button></div>
    <div class="row"><button class="ok" id="fcGo">시작하기</button></div><small id="fcSum"></small>`);
   const up=()=>{ document.querySelectorAll('[data-fp]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.fp===st.p)); document.querySelectorAll('[data-fn]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.fn===st.n)); document.querySelectorAll('[data-fs]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.fs===st.s));
     const [f,b]=FCP[st.p], tot=f*st.n+b*(st.n-1); $('fcSum').textContent=`모두 ${tot>=60?Math.floor(tot/60)+'시간 '+(tot%60?tot%60+'분':''):tot+'분'}쯤 걸려요. 노래와 라디오는 틀어 둔 그대로예요.`; LS.set('focusSet',st); };
@@ -1941,20 +1941,30 @@ function openFocus(re){ if(!re) blip('paper');
   $('fcGo').onclick=()=>{ const [f,b]=FCP[st.p];
     if(st.s==='rain'){ if(sleepKind()) sleepSound('none'); rainLv(0); if(!S.snd) toggleRainSound(); }
     else if(st.s==='brown'){ if(S.snd) toggleRainSound(); sleepSound('brown'); }
-    else if(st.s==='none'){ if(S.snd) toggleRainSound(); if(sleepKind()) sleepSound('none'); }
+    else if(st.s==='none'){ if(S.snd) toggleRainSound(); if(sleepKind()) sleepSound('none'); tickSet(false); }
+    else if(st.s==='tick'){ tickSet(true); }
     fcStart(f,b,st.n); closePanel(); }; up(); }
 setTimeout(()=>{ const pl=$('fcPill'); if(pl) pl.onclick=()=>openFocus(); fcUI(); },0); setInterval(fcTick,1000); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) fcTick(); });
 setInterval(almTick,1000); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) almTick(); });
 /* ---------- 소리 섞기: 방 안의 소리를 재료 삼아 나만의 자리를 만든다 ---------- */
-const MIXI=[['rain','빗소리','#8fb3d9','유리를 두드리는 비'],['out','창밖','#9fc79a','창을 열면 들어오는 거리와 밤'],['boil','주전자','#e0b070','낮게 끓는 물'],['noise','숨 고르기','#c9b4ee','바람·핑크·브라운 노이즈'],['sym','심포니','#f2c88f','느리게 이어지는 통기타']];
+const MIXI=[['rain','빗소리','#8fb3d9','유리를 두드리는 비'],['out','창밖','#9fc79a','창을 열면 들어오는 거리와 밤'],['boil','주전자','#e0b070','낮게 끓는 물'],['noise','숨 고르기','#c9b4ee','바람·핑크·브라운 노이즈'],['sym','심포니','#f2c88f','느리게 이어지는 통기타'],['tick','시계','#d8c9a8','2초에 한 번, 느린 괘종 소리']];
 const MIXP=[{n:'비 오는 창가',v:{rain:1.1,out:0,boil:0,noise:0,sym:0}},{n:'주전자 끓는 밤',v:{rain:.6,out:0,boil:1,noise:0,sym:0}},{n:'열어 둔 창',v:{rain:.5,out:1.1,boil:0,noise:0,sym:0}},{n:'바람과 기타',v:{rain:0,out:0,boil:.4,noise:.8,sym:.9}},{n:'고요',v:{rain:0,out:0,boil:0,noise:.7,sym:0}}];
-function mixNow(){ return {rain:S.snd?MX.rain:0,out:AMB.open?MX.out:0,boil:KT?MX.boil:0,noise:SN?MX.noise:0,sym:SYM?MX.sym:0}; }
+/* 시계: 2초에 한 번 낮고 둥근 '똑'. 잠들기 타이머가 돌면 저절로 잦아든다 */
+let TK=null;
+function tickSet(on){ const c=actx(); if(!c) return; if(on&&!TK){ if(!AU.on) setAudio(true); const g=c.createGain(); g.gain.value=0; g.connect(AU.out); g.gain.setTargetAtTime(1,c.currentTime,1.2); TK={g,next:c.currentTime+.4,n:0,iv:setInterval(tickRun,700)}; tickRun(); }
+  else if(!on&&TK){ const k=TK; TK=null; clearInterval(k.iv); k.g.gain.setTargetAtTime(0,c.currentTime,.6); setTimeout(()=>{ try{ k.g.disconnect(); }catch(_){} },4000); } }
+function tickRun(){ if(!TK||!AU.ctx) return; const c=AU.ctx, sl=window.SLP||0, lv=.05*MX.tick*Math.pow(Math.max(0,1-sl*1.5),2);
+  while(TK.next<c.currentTime+1.6){ const t=Math.max(TK.next,c.currentTime+.02), hi=TK.n++%2===0, f=hi?392:330; TK.next+=2; if(lv<.001) continue;
+    const o=c.createOscillator(), g=c.createGain(), lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=900; o.type='triangle'; o.frequency.setValueAtTime(f*1.25,t); o.frequency.exponentialRampToValueAtTime(f,t+.03);
+    g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(lv,t+.006); g.gain.exponentialRampToValueAtTime(.0001,t+.22); o.connect(lp).connect(g).connect(TK.g); o.start(t); o.stop(t+.26); } }
+function mixNow(){ return {tick:TK?MX.tick:0,rain:S.snd?MX.rain:0,out:AMB.open?MX.out:0,boil:KT?MX.boil:0,noise:SN?MX.noise:0,sym:SYM?MX.sym:0}; }
 function mixSet(k,v,quiet){ const c=actx(); if(!c) return; if(!AU.on) setAudio(true); const on=v>.02; if(on) MX[k]=Math.max(.05,Math.min(1.5,v)); LS.set('mix',MX);
   if(k==='rain'){ if(on!==!!S.snd) toggleRainSound(); }
   else if(k==='out'){ if(on!==!!AMB.open) toggleWindow(); }
   else if(k==='boil'){ if(on!==!!KT) toggleKettle(); if(KT) KT.g.gain.setTargetAtTime(KT.base*MX.boil,c.currentTime,.4); }
   else if(k==='noise'){ if(on&&!SN) sleepSound(LS.get('mixNoise','wave')); else if(!on&&SN) sleepSound('none'); if(SN) SN.g.gain.setTargetAtTime(SN.base*MX.noise,c.currentTime,.4); }
   else if(k==='sym'){ if(on&&!SYM){ if(S.playing) songStop(); if(S.radio) radioOff(); symStart(); } else if(!on&&SYM) symStop(); if(SYM) SYM.out.gain.setTargetAtTime(MX.sym,c.currentTime,.6); }
+  else if(k==='tick'){ tickSet(on); }
   ambUpdate(); if(!quiet) mixUI(); }
 function mixApply(v){ MIXI.forEach(([k])=>mixSet(k,v[k]||0,true)); setTimeout(mixUI,150); }
 function mixUI(){ const box=$('mxRows'); if(!box) return; const now=mixNow(), tot=MIXI.reduce((a,[k])=>a+now[k],0);
