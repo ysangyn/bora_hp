@@ -820,6 +820,8 @@ body.hasnote .hs[data-p="mailbox"]{display:block!important}
 .bv-cork{background-image:radial-gradient(ellipse at 78% 8%,rgba(255,226,170,.22),transparent 55%),linear-gradient(160deg,transparent 40%,rgba(30,16,6,.42)),url(img/ui/cork_1024.webp)!important;background-size:auto,auto,340px 340px!important;background-color:#a9784e!important}
 .bv-cork .bv-pol::before{width:20px;height:20px;margin-left:-10px;top:-11px;background:var(--pinimg,url(img/ui/pin_red.webp)) center/contain no-repeat;border-radius:0;box-shadow:none;filter:drop-shadow(2px 4px 3px rgba(20,10,4,.55))}
 .bv-cork .bv-pol:nth-child(4n+2){--pinimg:url(img/ui/pin_mustard.webp)}.bv-cork .bv-pol:nth-child(4n+3){--pinimg:url(img/ui/pin_green.webp)}.bv-cork .bv-pol:nth-child(4n){--pinimg:url(img/ui/pin_cream.webp)}
+
+#mxNz{margin:-2px 0 10px}#mxNz .chip{font-size:12.5px;padding:7px 12px}
 </style>
 </head>
 <body>
@@ -1014,9 +1016,9 @@ function blip(type){ if(!AU.on) return; const c=actx(); if(!c) return; const t=c
 /* ---------- 창밖 소리: 실제 녹음을 매번 다른 자리에서 꺼내 겹쳐 이어 붙인다(같은 구간이 맞물려 되풀이되지 않게) ---------- */
 const SF={lrain:['sound/rain.mp3',1.22],hrain:['sound/rain.mp3',1.2],glass:['sound/rain-window.mp3',2.72],street:['sound/city.mp3',.73],traffic:['sound/city.mp3',.8],birds:['sound/birds.mp3',1.3],crickets:['sound/summer-night.mp3',.355],wind:['sound/wind.mp3',.73],waves:['sound/waves.mp3',.86]};   // 출처: sound/SOURCES.md (Blanket 앱이 파일별로 밝힌 CC0·CC BY·퍼블릭 도메인)
 const SB={}, SPR={}, AMB={beds:{},open:LS.get('wopen',false),iv:0,out:null,lp:null,mea:{}};
-function sload(k){ if(!SF[k]) return Promise.resolve(null); if(SPR[k]) return SPR[k]; const c=actx(); SPR[k]=fetch(SF[k][0]).then(r=>{ if(!r.ok) throw 0; return r.arrayBuffer(); }).then(a=>new Promise((res,rej)=>c.decodeAudioData(a,res,rej))).then(b=>(SB[k]=b)).catch(()=>null); return SPR[k]; }
+const SURL={}; function sload(k){ if(!SF[k]) return Promise.resolve(null); if(SPR[k]) return SPR[k]; const c=actx(), u=SF[k][0]; if(!SURL[u]) SURL[u]=fetch(u).then(r=>{ if(!r.ok) throw 0; return r.arrayBuffer(); }).then(a=>new Promise((res,rej)=>c.decodeAudioData(a,res,rej))).catch(()=>null); SPR[k]=SURL[u].then(b=>(SB[k]=b)); return SPR[k]; }
 function ambStart(){ const c=actx(); if(!c) return; if(!AMB.out){ AMB.out=c.createGain(); AMB.out.gain.value=.8; AMB.lp=c.createBiquadFilter(); AMB.lp.type='lowpass'; AMB.lp.frequency.value=AMB.open?16000:650; AMB.lim=c.createDynamicsCompressor(); AMB.lim.threshold.value=-10; AMB.lim.knee.value=6; AMB.lim.ratio.value=12; AMB.lim.attack.value=.005; AMB.lim.release.value=.25; AMB.out.connect(AMB.lp).connect(AMB.lim).connect(AU.out);
-    sload('lrain').then(b=>{ AU.recHas=!!b; ambUpdate(); }); }
+    AU.recHas=true; }
   if(!AMB.iv) AMB.iv=setInterval(ambUpdate,6000); ambUpdate(); }
 function bedOf(k){ if(AMB.beds[k]) return AMB.beds[k]; const c=AU.ctx, g=c.createGain(); g.gain.value=0; g.connect(k==='glass'||k==='boil'?AU.out:AMB.out); return (AMB.beds[k]={k,g,on:false,timer:0}); }
 function bedPlay(B,t){ const c=AU.ctx, b=SB[B.k]; if(!b||!B.on) return; t=Math.max(t,c.currentTime+.05); const xf=Math.min(4,b.duration/6), seg=Math.min(b.duration-.5,16+Math.random()*24), off=Math.random()*Math.max(0,b.duration-seg);
@@ -1044,14 +1046,14 @@ function mixLink(){ const n=mixNow(), q=MIXI.map(([k])=>k[0]+Math.round((n[k]||0
 let SOFT=LS.get('sndSoft',true);   // 소리 결: 처음의 부드러운 합성 소리(기본) / 실제 녹음
 function sndSoft(v){ SOFT=!!v; LS.set('sndSoft',SOFT); if(KT){ toggleKettle(); toggleKettle(); } setRain(); ambUpdate(); }
 window.__snd=()=>({soft:SOFT,rec:AU.recOK,rain:AU.rain?+AU.rain.gain.value.toFixed(3):null,base:AU.rainBase,snd:S.snd,beds:Object.fromEntries(Object.entries(AMB.beds).map(([k,v])=>[k,+v.g.gain.value.toFixed(3)])),kt:KT?+KT.g.gain.value.toFixed(3):null});
-let RL=LS.get('rainLv',0); const RLN=['부슬비','보통 비','장대비'], RLV=[.26,.5,.82], RLS=[.34,.62,1];   // 비 세기: 기본은 창가에 토닥이는 부슬비
+let RL=0; const RLN=['부슬비','보통 비','장대비'], RLV=[.26,.5,.82], RLS=[.34,.62,1];   // 비 세기: 기본은 창가에 토닥이는 부슬비
 function rainLv(n){ RL=n; LS.set('rainLv',n); setRain(); ambUpdate(); }
 function isSea(){ const n=(S.place&&S.place.name)||''; return /해운대|애월|해변|해수욕장|바닷가|beach|coast/i.test(n); }
 let SEA=null;
 function seaLevel(v){ const c=AU.ctx; if(!c||!AMB.out) return; bedLevel('waves',SOFT?0:v,4); if(!SOFT) v=0; if(v>.001&&!SEA){ const g=c.createGain(); g.gain.value=0; const src=c.createBufferSource(); src.buffer=mkNoise(c,'pink',12); src.loop=true; const hp=c.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=160; const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1100; lp.Q.value=.3; const amp=c.createGain(); amp.gain.value=.5; const lfo=c.createOscillator(), lg=c.createGain(), fl=c.createGain(); lfo.frequency.value=.085; lg.gain.value=.42; fl.gain.value=700; src.connect(hp).connect(lp).connect(amp).connect(g).connect(AMB.out); lfo.connect(lg).connect(amp.gain); lfo.connect(fl).connect(lp.frequency); src.start(); lfo.start(); SEA={g,nodes:[src,lfo]}; }
   if(SEA) SEA.g.gain.setTargetAtTime(Math.max(0,v),c.currentTime,4); if(v<=.001&&SEA){ const o=SEA; SEA=null; setTimeout(()=>o.nodes.forEach(x=>{ try{x.stop();}catch(_){} }),14000); } }   // 소리 섞기: 재료마다 손님이 정한 세기
 function ambUpdate(){ if(!AU.on||!AU.ctx||!AMB.out) return; const R=Math.random, M=k=>(AMB.mea[k]=Math.min(1.25,Math.max(.5,(AMB.mea[k]||1)+(R()-.5)*.3)));
-  const snowy=WG.snowT>.5&&!window.__sym, rain=window.__sym?(window.__symLvl||.5):(S.snd&&!snowy)?RLV[RL]*(.9+.2*(M('rr')-.5)):0, rs=window.__sym?1:RLS[RL];
+  const snowy=WG.snowT>.5, rain=(S.snd&&!snowy)?(window.__sym?(.16+.12*(window.__symLvl||.5)):RLV[RL]*(.9+.2*(M('rr')-.5))):0, rs=window.__sym?1:RLS[RL];
   const h=Math.max(0,Math.min(1,(rain-.45)/.5)), op=AMB.open, fade=(1-(window.SLP||0)*.6)*(window.__sym?.7:1)*((S.playing||S.radio)?.4:1), pk=placeKind(), night=!(S.w&&S.w.isDay), calm=Math.max(.15,1-rain*.8);
   AMB.lp.frequency.setTargetAtTime(op?16000:2600,AU.ctx.currentTime,.8);   // 닫힌 창: 높은 소리만 조금 누른다(예전 650Hz는 비가 웅웅거리는 잡음으로 들렸다)
   const rc=SOFT?0:1, so=SOFT?(op?.6:0):1;
@@ -1171,7 +1173,7 @@ const VIEWS=[
   {n:'교토 기온',lat:35.0037,lon:135.775,r:30,src:'img/kyoto_n.webp',mask:'img/m_kyoto_n.png',dsrc:'img/kyoto_d.webp',dmask:'img/m_kyoto_d.png',au:[0,.4],pr:'rain',ia:1.5,s:1.3,c:[.48,.45]}
 ];
 function cityView(){ return VIEWS.find(v=>km(S.place.lat,S.place.lon,v.lat,v.lon)<=v.r)||null; }
-function setRain(){ if(window.__sym){ WG.snowT=0; return; } if(typeof SN!=='undefined'&&SN){ WG.snowT=0; WG.rainT=SN.kind==='wave'?.55:.8; return; } const w=S.w, v=cityView(); const t=w&&!w.guess?w.temp:null, snowy=(w&&!w.guess&&w.kind==='snow') || (t!=null ? t<=(v&&v.pr==='snow'?6:1.5) : !!(v&&v.pr==='snow'));   // 날씨를 알면 그대로, 모르면 그 장소에 어울리는 쪽으로
+function setRain(){ if(typeof SN!=='undefined'&&SN){ WG.snowT=0; WG.rainT=SN.kind==='wave'?.55:.8; return; } const w=S.w, v=cityView(); const t=w&&!w.guess?w.temp:null, snowy=(w&&!w.guess&&w.kind==='snow') || (t!=null ? t<=(v&&v.pr==='snow'?6:1.5) : !!(v&&v.pr==='snow'));   // 날씨를 알면 그대로, 모르면 그 장소에 어울리는 쪽으로
   { const rainy=!snowy&&!!w&&!w.guess&&w.kind==='rain'; if(!S.rainMan&&AU.on&&!!S.snd!==rainy){ S.snd=rainy; rainSound(rainy,false); } }   // 비 오는 풍경에만 빗소리
   WG.snowT=snowy?(S.snd?1.5:1):0;
   WG.rainT = snowy ? .12 : S.snd ? [.5,.75,1][RL] : (w&&!w.guess&&w.kind==='rain') ? 1 : 0;   // 비가 오지 않는 풍경에는 빗줄기도 그리지 않는다
@@ -1997,7 +1999,7 @@ function openFocus(re){ if(!re) blip('paper');
 setTimeout(()=>{ const pl=$('fcPill'); if(pl) pl.onclick=()=>openFocus(); fcUI(); },0); setInterval(fcTick,1000); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) fcTick(); });
 setInterval(almTick,1000); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) almTick(); });
 /* ---------- 소리 섞기: 방 안의 소리를 재료 삼아 나만의 자리를 만든다 ---------- */
-const MIXI=[['rain','빗소리','#8fb3d9','유리를 두드리는 비'],['out','창밖','#9fc79a','창을 열면 들어오는 거리와 밤'],['boil','주전자','#e0b070','낮게 끓는 물'],['noise','숨 고르기','#c9b4ee','바람·핑크·브라운 노이즈'],['sym','심포니','#f2c88f','느리게 이어지는 통기타'],['tick','시계','#d8c9a8','2초에 한 번, 느린 괘종 소리']];
+const MIXI=[['rain','빗소리','#8fb3d9','창가에 내리는 비'],['out','창밖','#9fc79a','창을 열면 들어오는 거리와 밤'],['boil','주전자','#e0b070','낮게 끓는 물'],['noise','숨 고르기','#c9b4ee','바람·핑크·브라운 노이즈'],['sym','심포니','#f2c88f','느리게 이어지는 통기타'],['tick','시계','#d8c9a8','2초에 한 번, 느린 괘종 소리']];
 const MIXP=[{n:'비 오는 창가',v:{rain:1.1,out:0,boil:0,noise:0,sym:0}},{n:'주전자 끓는 밤',v:{rain:.6,out:0,boil:1,noise:0,sym:0}},{n:'열어 둔 창',v:{rain:.5,out:1.1,boil:0,noise:0,sym:0}},{n:'바람과 기타',v:{rain:0,out:0,boil:.4,noise:.8,sym:.9}},{n:'고요',v:{rain:0,out:0,boil:0,noise:.7,sym:0}}];
 /* 시계: 2초에 한 번 낮고 둥근 '똑'. 잠들기 타이머가 돌면 저절로 잦아든다 */
 let TK=null;
@@ -2023,7 +2025,7 @@ function mixUI(){ const box=$('mxRows'); if(!box) return; const now=mixNow(), to
   MIXI.forEach(([k])=>{ const r=box.querySelector(`[data-mx="${k}"]`); if(r&&document.activeElement!==r) r.value=now[k]; const o=box.querySelector(`[data-mxv="${k}"]`); if(o) o.textContent=now[k]>0?Math.round(now[k]*100):'—'; });
   document.querySelectorAll('[data-sf]').forEach(b=>{ b.setAttribute('aria-pressed',(b.dataset.sf==='1')===SOFT); b.onclick=e=>{ e.stopPropagation(); sndSoft(b.dataset.sf==='1'); mixUI(); }; });
   const rl=$('mxRl'); if(rl){ rl.querySelectorAll('[data-rl]').forEach(b=>{ b.setAttribute('aria-pressed',!!S.snd&&+b.dataset.rl===RL); b.onclick=e=>{ e.stopPropagation(); rainLv(+b.dataset.rl); if(!S.snd) mixSet('rain',MX.rain); else mixUI(); }; }); }
-  const nz=$('mxNz'); if(nz) nz.hidden=!SN; document.querySelectorAll('[data-nz]').forEach(b=>b.setAttribute('aria-pressed',!!SN&&SN.kind===b.dataset.nz));
+  document.querySelectorAll('[data-nz]').forEach(b=>b.setAttribute('aria-pressed',!!SN&&SN.kind===b.dataset.nz));
   const sv=LS.get('mixSaved',[]); $('mxSaved').innerHTML=sv.length?sv.map((p,i)=>`<span class="mxs"><button class="chip" data-ms="${i}">${escH(p.n)}</button><button class="mxx" data-mx-del="${i}" aria-label="${escH(p.n)} 지우기">×</button></span>`).join(''):'<small>섞은 소리가 마음에 들면 이름을 붙여 간직해 두세요.</small>';
   document.querySelectorAll('[data-ms]').forEach(b=>b.onclick=()=>mixApply(LS.get('mixSaved',[])[+b.dataset.ms].v)); document.querySelectorAll('[data-mx-del]').forEach(b=>b.onclick=()=>{ const a=LS.get('mixSaved',[]); a.splice(+b.dataset.mxDel,1); LS.set('mixSaved',a); mixUI(); }); }
 const CRED=[['비','Rain','alex36917','https://freesound.org/people/alex36917/sounds/524605/','CC BY','길이 그대로, 창 닫힌 소리는 높은 소리를 깎음'],
@@ -2040,13 +2042,10 @@ function openCredits(){ blip('paper');
   $('crBack').onclick=e=>{ e.stopPropagation(); openMix(); }; }
 function openMix(){ blip('paper');
   show(`<h2>소리 섞기</h2><p>방 안의 소리를 재료처럼 섞어 오늘 밤의 자리를 만들어요. 작게, 냉장고 소리쯤이 알맞아요.</p>
-   <div class="chips" id="mxSoft"><button class="chip" data-sf="1">부드러운 소리</button><button class="chip" data-sf="0">실제 녹음 소리</button></div>
    <div class="row"><button class="ok" id="mxAuto">지금에 맞게 알아서</button></div>
    <div class="mxbar" id="mxBar" aria-hidden="true"></div><small id="mxSum"></small>
-   <div id="mxRows">${MIXI.map(([k,n,c,d])=>`<label class="mxr"><span class="mxn"><i style="background:${c}"></i>${n}<small>${d}</small></span><input type="range" data-mx="${k}" min="0" max="1.5" step="0.05" aria-label="${n} 세기"><b data-mxv="${k}"></b></label>`).join('')}</div>
+   <div id="mxRows">${MIXI.map(([k,n,c,d])=>`<label class="mxr"><span class="mxn"><i style="background:${c}"></i>${n}<small>${d}</small></span><input type="range" data-mx="${k}" min="0" max="1.5" step="0.05" aria-label="${n} 세기"><b data-mxv="${k}"></b></label>${k==='noise'?'<div class="chips" id="mxNz"><button class="chip" data-nz="wave">바람</button><button class="chip" data-nz="pink">핑크 노이즈</button><button class="chip" data-nz="brown">브라운 노이즈</button></div>':''}`).join('')}</div>
    <label class="mxr"><span class="mxn"><i style="background:#8a7fa8"></i>소리 빛깔<small>왼쪽은 어둡고 포근하게, 오른쪽은 밝고 또렷하게</small></span><input type="range" id="mxTone" min="0" max="1" step="0.02" aria-label="소리 빛깔"><b></b></label>
-   <div class="chips" id="mxRl"><button class="chip" data-rl="0">부슬비</button><button class="chip" data-rl="1">보통 비</button><button class="chip" data-rl="2">장대비</button></div>
-   <div class="chips" id="mxNz" hidden><button class="chip" data-nz="wave">숨 고르기 바람</button><button class="chip" data-nz="pink">핑크 노이즈</button><button class="chip" data-nz="brown">브라운 노이즈</button></div>
    <label class="sl">바로 섞어 보기</label><div class="chips">${MIXP.map((p,i)=>`<button class="chip" data-mp="${i}">${p.n}</button>`).join('')}<button class="chip" data-mp="-1">모두 끄기</button></div>
    <label class="sl">나만의 자리</label><div class="chips" id="mxSaved"></div>
    <div class="row"><input id="mxName" maxlength="14" placeholder="이 소리에 이름 붙이기" aria-label="자리 이름"><button class="ok" id="mxSave">간직하기</button></div>
@@ -2159,7 +2158,7 @@ async function symBuf(c){ if(SYB) return SYB; const r=await fetch('music/gm.json
 function symImpulse(c,sec){ const sr=c.sampleRate,n=Math.floor(sr*sec),b=c.createBuffer(2,n,sr),pre=Math.floor(sr*.03); for(let ch=0;ch<2;ch++){ const d=b.getChannelData(ch); let y=0; for(let i=pre;i<n;i++){ const k=(i-pre)/(n-pre); y+=(.3-.25*k)*((Math.random()*2-1)-y); d[i]=y*Math.pow(1-k,2)*Math.min(1,(i-pre)/(sr*.04)); } } return b; }
 async function symStart(){ const c=actx(); if(!c||SYM) return; if(!AU.on) setAudio(true); let bufs; try{ bufs=await symBuf(c); }catch(e){ return; } if(!bufs.length) return;
   const out=c.createGain(); out.gain.value=0; out.connect(AU.out); out.gain.setTargetAtTime(MX.sym,c.currentTime,8);   // 아주 천천히 들어온다
-  const dry=c.createGain(); dry.gain.value=.55; dry.connect(out); const rev=c.createConvolver(); rev.buffer=symImpulse(c,5.5); const wet=c.createGain(); wet.gain.value=.5; rev.connect(wet).connect(out);
+  const dry=c.createGain(); dry.gain.value=.75; dry.connect(out); const rev=c.createConvolver(); rev.buffer=symImpulse(c,2.6); const wet=c.createGain(); wet.gain.value=.3; rev.connect(wet).connect(out);
   const beat=1, dl=c.createDelay(3), fb=c.createGain(), dlp=c.createBiquadFilter(), ds=c.createGain(); dl.delayTime.value=beat*1.5; fb.gain.value=.32; dlp.type='lowpass'; dlp.frequency.value=2200; ds.gain.value=.22; ds.connect(dl); dl.connect(dlp).connect(fb).connect(dl); dlp.connect(rev); dlp.connect(out);
   const bus=c.createGain(); bus.gain.value=1; bus.connect(dry); bus.connect(rev); bus.connect(ds);
   // 바닥에 아주 옅게 깔리는 비 (끝없이 이어지는 소음)
@@ -2168,8 +2167,8 @@ async function symStart(){ const c=actx(); if(!c||SYM) return; if(!AU.on) setAud
   SYM.iv=setInterval(symTick,200); symTick(); window.__sym=true; stage.classList.add('boil'); upSleepSnd(); }
 function symStop(){ if(!SYM) return; const s=SYM; SYM=null; clearInterval(s.iv); window.__sym=false; if(!KT) stage.classList.remove('boil'); stage.classList.remove('static'); if(s.st){ try{ s.st.g.gain.setTargetAtTime(0,s.c.currentTime,1); }catch(_){} } setRain(); s.out.gain.setTargetAtTime(0,s.c.currentTime,1.8); setTimeout(()=>{ try{ s.rn.stop(); s.out.disconnect(); }catch(_){} },9000); upSleepSnd(); }
 function symNote(t,m,v,len,pan){ const c=SYM.c, bs=SYB; let best=bs[0]; for(const x of bs) if(Math.abs(x.m-m)<Math.abs(best.m-m)) best=x;
-  const s=c.createBufferSource(); s.buffer=best.b; s.playbackRate.value=Math.pow(2,(m-best.m)/12); const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=900+v*3200; lp.Q.value=.3;
-  const g=c.createGain(); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(v*.9,t+.012); g.gain.setTargetAtTime(0,t+len,1.2);
+  const s=c.createBufferSource(); s.buffer=best.b; s.playbackRate.value=Math.pow(2,(m-best.m)/12); const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1500+v*4600; lp.Q.value=.3;
+  const g=c.createGain(); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(v*2.4,t+.012); g.gain.setTargetAtTime(0,t+len,1.2);
   const p=c.createStereoPanner?c.createStereoPanner():c.createGain(); if(p.pan) p.pan.value=pan; s.connect(lp).connect(g).connect(p).connect(SYM.bus); s.start(t); s.stop(t+len+6); }
 function symTick(){ if(!SYM) return; const c=SYM.c, ahead=c.currentTime+2.2, R=Math.random;
   const mins=(Date.now()-SYM.started)/60000, dens=SL?Math.max(.3,1-(window.SLP||0)*.75):.82+.18*Math.sin(mins/7);   // 꺼짐 시간을 정했으면 갈수록 성글어지고, 끄지 않으면 은은하게 오르내리며 계속
@@ -2185,7 +2184,7 @@ function symTick(){ if(!SYM) return; const c=SYM.c, ahead=c.currentTime+2.2, R=M
 // 비: 몇 분에 걸쳐 굵어졌다 가늘어졌다. 창밖 빗줄기도 같이
 function symWeather(t){ const R=Math.random, c=SYM.c; if(R()<.25) SYM.lvlT=Math.min(1,Math.max(.15,SYM.lvlT+(R()-.5)*.5)); if(R()<.03) SYM.lvlT=.95;   // 가끔 한차례 쏟아짐
   SYM.lvl+=(SYM.lvlT-SYM.lvl)*.35; const L=SYM.lvl;
-  SYM.rg.gain.setTargetAtTime((AU.recOK?0:1)*(.025+.09*L),t,4); window.__symLvl=L; ambUpdate(); SYM.rbp.frequency.setTargetAtTime(1100+900*L,t,4); WG.rainT=.3+.75*L; WG.snowT=0;
+  SYM.rg.gain.setTargetAtTime((AU.recOK?0:1)*(.025+.09*L),t,4); window.__symLvl=L; ambUpdate(); SYM.rbp.frequency.setTargetAtTime(1100+900*L,t,4); if(S.snd&&WG.snowT<.5) WG.rainT=.3+.5*L;
   const fade=1-(window.SLP||0);
   if(L>.6&&Date.now()>SYM.thunderAt&&R()<.3&&fade>.5){ SYM.thunderAt=Date.now()+180000+R()*300000; symThunder(t); }   // 아주 가끔, 비가 굵을 때만
   if(!SYM.st&&Date.now()>SYM.stNext&&R()<.4) symStatic(t); }
