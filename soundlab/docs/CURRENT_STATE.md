@@ -1,6 +1,6 @@
 # CURRENT STATE / 확인된 사실과 미확인 상태
 
-기준: 2026-11-13 (Claude 갱신). 운영 커밋 `027e9e9` = `main` 최신, GitHub Actions 배포 성공 확인. 자료묶음 발췌도 같은 커밋. GPT의 독립 감사 원본(`BORA_음향_독립감사_2026-11-13.md`)은 아직 저장소에 없음 → `evidence/`에 넣을 것.
+기준: 2026-11-13 (Claude 갱신). 운영 커밋 `027e9e9`(기록 정리 뒤 `1ce99d4`, `HASH_MAP.md` 참고) = 당시 `main` 최신, GitHub Actions 배포 성공 확인. 자료묶음 발췌도 같은 커밋. GPT의 독립 감사 원본(`BORA_음향_독립감사_2026-11-13.md`)은 아직 저장소에 없음 → `evidence/`에 넣을 것.
 
 | 주제 | 확인된 사실 | 한계/다음 검증 |
 |---|---|---|
@@ -36,5 +36,6 @@
 |---|---|---|
 | 합성음 오프라인 렌더 | 지금 코드 그대로는 OfflineAudioContext로 재현 불가. 타이머(setInterval/setTimeout) 예약과 시드 없는 Math.random(26곳) | index.html 981, 1001, 1006, 1683, 1966, 2117줄 |
 | 소리 섞기 % 표시 | 막대값끼리의 비율. 실제 게인 비율도, 지각 비율도 아님 | index.html 1984줄 |
-| 녹음 13개 출처 | remvze/moodist 커밋 11c0be2의 파일을 자르고 다시 압축. 파일별 라이선스(Pixabay/CC0) 미상 | `sound/SOURCES.md` |
+| 녹음 출처 | 2546e6d부터 Blanket의 7개(파일별 원본·라이선스 확인)로 교체. 이전 13개(Moodist, 라이선스 미상)는 제거. **`results/1ce99d4/`의 측정값은 예전 13개 기준이라 지금 파일과 다름** | `sound/SOURCES.md` |
+| 기타 샘플 | `music/gm.json` 13음 출처 미확인 (D-009) | |
 | 라디오 | 교차 출처 방송이라 Web Audio 체인에 넣으면 CORS 없이는 무음이 될 수 있음 | Web Audio 명세 (방송별 미시험) |
