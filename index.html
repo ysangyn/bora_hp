@@ -815,6 +815,11 @@ body.hasnote .hs[data-p="mailbox"]{display:block!important}
 .onair .dial{opacity:.85}
 .record,.steam,.glow,.clock{z-index:4}
 .cam{transform:none!important}
+
+/* 사진첩 실사 질감 (img/ui) */
+.bv-cork{background-image:radial-gradient(ellipse at 78% 8%,rgba(255,226,170,.22),transparent 55%),linear-gradient(160deg,transparent 40%,rgba(30,16,6,.42)),url(img/ui/cork_1024.webp)!important;background-size:auto,auto,340px 340px!important;background-color:#a9784e!important}
+.bv-cork .bv-pol::before{width:20px;height:20px;margin-left:-10px;top:-11px;background:var(--pinimg,url(img/ui/pin_red.webp)) center/contain no-repeat;border-radius:0;box-shadow:none;filter:drop-shadow(2px 4px 3px rgba(20,10,4,.55))}
+.bv-cork .bv-pol:nth-child(4n+2){--pinimg:url(img/ui/pin_mustard.webp)}.bv-cork .bv-pol:nth-child(4n+3){--pinimg:url(img/ui/pin_green.webp)}.bv-cork .bv-pol:nth-child(4n){--pinimg:url(img/ui/pin_cream.webp)}
 </style>
 </head>
 <body>
