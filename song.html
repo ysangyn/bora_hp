@@ -423,7 +423,7 @@ function compose(plan,o){ const text=plan.map(b=>b.lines.map(l=>l.text).join(' '
   return song; }
 
 /* ════════ 5. 기타 편곡 ════════ */
-function guitar(song,R){ const LAB=window.__LAB||(/[?&]lab=1/.test(location.search)?{anchor:true,push:true,hammer:true}:{}), LR=rng((song.seed||1)+777); const ev=[], bars=song.bars, mood=song.mood, spv=R()<.5, restP=song.moodId==='sad'?.2:song.moodId==='calm'?.08:0;
+function guitar(song,R){ const LAB=window.__LAB||(/[?&]lab=0/.test(location.search)?{}:{anchor:true,push:true,hammer:true}), LR=rng((song.seed||1)+777); const ev=[], bars=song.bars, mood=song.mood, spv=R()<.5, restP=song.moodId==='sad'?.2:song.moodId==='calm'?.08:0;
   const mkArp=rp=>{ const seq=[]; let pv=''; for(let s=1;s<8;s++){ if(s===4&&R()<.7){ seq.push('alt'); pv='alt'; continue; } let c; do{ c='gbe'[Math.floor(R()*3)]; }while(c===pv); if(R()<rp){ seq.push(''); continue; } seq.push(c); pv=c; } return seq; };
   const mkStrum=(pd,pu,v)=>{ let h; do{ h=[[0,1,.9]]; for(let s=1;s<8;s++){ if(s%2===0){ if(R()<pd) h.push([s,1,s===4?.75:.64]); } else if(R()<pu) h.push([s,0,.5]); } }while(h.length<3); return h; };
   const GEN=song.songNo?{arpV:mkArp(restP),arpC:mkArp(0),st:mkStrum(.75,.6),stB:mkStrum(.5,.3)}:null, SCP={rain:['e','b','g','alt','e','b','g'],snow:['','e','','b','','e',''],night:['g','','b','alt','','g',''],sea:['g','b','e','alt','e','b','g'],walk:['b','alt','g','bass','e','alt','b'],wind:['g','b','e','b','alt','b','e'],sleep:['','g','b','alt','','b','']};
