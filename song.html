@@ -423,7 +423,7 @@ function compose(plan,o){ const text=plan.map(b=>b.lines.map(l=>l.text).join(' '
   return song; }
 
 /* ════════ 5. 기타 편곡 ════════ */
-function guitar(song,R){ const LAB=window.__LAB||(/[?&]lab=0/.test(location.search)?{}:{anchor:true,push:true,hammer:true}), LR=rng((song.seed||1)+777); const ev=[], bars=song.bars, mood=song.mood, spv=R()<.5, restP=song.moodId==='sad'?.2:song.moodId==='calm'?.08:0;
+function guitar(song,R){ const LAB=window.__LAB||(/[?&]lab=0/.test(location.search)?{feel:false}:{anchor:true,push:true,hammer:true}), LR=rng((song.seed||1)+777); const ev=[], bars=song.bars, mood=song.mood, spv=R()<.5, restP=song.moodId==='sad'?.2:song.moodId==='calm'?.08:0;
   const mkArp=rp=>{ const seq=[]; let pv=''; for(let s=1;s<8;s++){ if(s===4&&R()<.7){ seq.push('alt'); pv='alt'; continue; } let c; do{ c='gbe'[Math.floor(R()*3)]; }while(c===pv); if(R()<rp){ seq.push(''); continue; } seq.push(c); pv=c; } return seq; };
   const mkStrum=(pd,pu,v)=>{ let h; do{ h=[[0,1,.9]]; for(let s=1;s<8;s++){ if(s%2===0){ if(R()<pd) h.push([s,1,s===4?.75:.64]); } else if(R()<pu) h.push([s,0,.5]); } }while(h.length<3); return h; };
   const GEN=song.songNo?{arpV:mkArp(restP),arpC:mkArp(0),st:mkStrum(.75,.6),stB:mkStrum(.5,.3)}:null, SCP={rain:['e','b','g','alt','e','b','g'],snow:['','e','','b','','e',''],night:['g','','b','alt','','g',''],sea:['g','b','e','alt','e','b','g'],walk:['b','alt','g','bass','e','alt','b'],wind:['g','b','e','b','alt','b','e'],sleep:['','g','b','alt','','b','']};
@@ -484,6 +484,20 @@ function guitar(song,R){ const LAB=window.__LAB||(/[?&]lab=0/.test(location.sear
     Object.keys(byBar).forEach(bi=>{ const b=bars[bi]; if(!b||b.fin||LR()>.28) return; const k=b.k, cands=byBar[bi].filter(e=>e.s>=1&&e.s<=3&&(e.slot%8)>=1&&(e.slot%8)<=5&&Number.isInteger(e.slot)&&e.m-(TUNE[e.s]+k)===2);
       if(!cands.length) return; const e=cands[0], open=TUNE[e.s]+k, scale=[0,2,4,5,7,9,11].map(x=>(x+k)%12); if(!scale.includes(open%12)) return;
       const m=e.m; e.m=open; e.vel*=.9; ev.push({slot:e.slot+.33,s:e.s,m,vel:e.vel*.62,off:e.off||0,soft:true}); }); }
+  /* 손맛: 본 노래의 뜯는 무늬도 사람이 치듯. (전주는 위에서 따로 다듬었다)
+     - 박의 무게: 첫 박이 가장 또렷하고, 셋째 박 다음, 엇박은 여리게
+     - 단락의 숨: 같은 소절 안에서 가운데로 갈수록 조금 차오르고, 소절 끝 마디는 살짝 가라앉는다
+     - 시간: 엇박은 아주 조금 뒤로 기대고, 마디 안의 흔들림은 제멋대로가 아니라 천천히 이어지게(한 번 늦으면 다음 음도 비슷하게)
+     - 같은 박에 함께 치는 음(스트럼)은 함께 움직여 굴림 순서가 흐트러지지 않는다
+     ?lab=0 이면 예전 그대로 */
+  if(LAB.feel!==false){ const FR=rng((song.seed||1)+31337), W=[1,.9,.95,.88,.97,.89,.93,.86], secLen={}, secPos={};
+    bars.forEach((b,bi)=>{ secLen[b.sec]=(secLen[b.sec]||0)+1; secPos[bi]=secLen[b.sec]-1; });
+    let drift=0; const slotOff={}, barArc={};
+    bars.forEach((b,bi)=>{ const n=secLen[b.sec]||1, j=secPos[bi]; barArc[bi]=n<2?1:(.9+.14*Math.sin(Math.PI*(j+.5)/n))*(j===n-1&&n>2?.94:1); });
+    ev.forEach(e=>{ if(e.mute) return; const bi=Math.floor(e.slot/8), b=bars[bi]; if(!b||b.fin||(LAB.intro!==false&&b.type==='intro'&&(!b.pat||b.pat==='auto'))) return;
+      const pos=e.slot-bi*8, ip=Math.floor(pos+1e-6), frac=pos-ip, key=e.slot.toFixed(3);
+      if(!(key in slotOff)){ drift=drift*.7+(FR()+FR()+FR()-1.5)*.006; slotOff[key]=drift+(ip%2===1&&frac<.01?.007:0)+(frac>.01?.004:0); }
+      e.off=(e.off||0)+slotOff[key]; e.vel*=(frac<.01?W[ip%8]:.9)*barArc[bi]*(.95+FR()*.1); e.feel=true; }); }
   ev.sort((a,b)=>a.slot-b.slot||(a.mute?-1:1)); return ev; }
 
 /* ════════ 5-2. 밴드 편곡 (드럼·베이스·일렉 기타) ════════ */
@@ -706,9 +720,9 @@ function schedule(c,song,t0,opt){ const R=rng(song.seed+99), nodes=[], from=opt.
         x.off=(x._ws?.006:.016)+(j===n-1?.014:0)+gs();                                      // 낱말 첫 음은 거의 제 박, 나머지는 조금 뒤로
         const p=j>0?ph[j-1]:null; if(p&&x.slot-p.slot<=1&&Math.abs(x.m-p.m)<=2&&x.m!==p.m&&!x._ws&&LQ()<.55){ x.soft=true; x.vel*=.66; x.off-=.006; } });   // 가까운 이웃 음은 해머링·풀링처럼 여리게 잇는다
       i0=i+1; } }
-  (song.genre==='rock'?[]:song.gtr.concat(lead)).sort((a,b)=>a.slot-b.slot||(a.mute?-1:1)).forEach(e=>{ if(e.slot<from-.2||e.slot>=to) return; const t=T(e.slot)+(e.off||0)+(e.mute?0:(R()-.5)*.012); const old=ring[e.s];
+  (song.genre==='rock'?[]:song.gtr.concat(lead)).sort((a,b)=>a.slot-b.slot||(a.mute?-1:1)).forEach(e=>{ if(e.slot<from-.2||e.slot>=to) return; const t=T(e.slot)+(e.off||0)+(e.mute?0:(R()-.5)*(e.feel?.004:.012)); const old=ring[e.s];
     if(old){ old.g.gain.cancelScheduledValues(Math.max(t-.004,old.t+.02)); old.g.gain.setTargetAtTime(0,Math.max(t-.004,old.t+.02),e.mute?.045:.012); try{ old.s.stop(t+.4); }catch(_){} ring[e.s]=null; }
-    if(e.mute) return; const vel=Math.min(1,e.vel*(.9+R()*.2)), sm=pick(BUF[song.ginst]&&BUF[song.ginst].length?BUF[song.ginst]:BUF.g,e.m,vel); if(!sm) return;
+    if(e.mute) return; const vel=Math.min(1,e.vel*(e.feel?.97+R()*.06:.9+R()*.2)), sm=pick(BUF[song.ginst]&&BUF[song.ginst].length?BUF[song.ginst]:BUF.g,e.m,vel); if(!sm) return;
     const s=c.createBufferSource(); s.buffer=sm.buf; s.playbackRate.value=sm.rate; const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=(e.soft?1500:2000)+vel*5600; lp.Q.value=.4;
     const g=c.createGain(), gv=sm.layered?.5+.5*vel:Math.pow(vel,1.15); if(sm.layered) lp.frequency.value=5200+vel*5000; else lp.frequency.value=(e.soft?900:1200)+vel*vel*8500;   // 여리게 칠수록 어둡고 부드럽게
     const gk={g:.82,gm:1.2,gb:1.08}[song.ginst]||1; g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(gv*gk,t+.002+(1-vel)*.012); s.connect(lp).connect(g); const p=c.createStereoPanner?c.createStereoPanner():null; if(p){ p.pan.value=e.s===6?.12:-.22+e.s*.07; g.connect(p).connect(gbus); } else g.connect(gbus);
