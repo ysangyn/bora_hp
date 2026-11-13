@@ -697,7 +697,15 @@ function schedule(c,song,t0,opt){ const R=rng(song.seed+99), nodes=[], from=opt.
     const ch=c.createDelay(.06), lfo=c.createOscillator(), lg=c.createGain(), cg=c.createGain(); ch.delayTime.value=.014; lfo.frequency.value=.37; lg.gain.value=.0022; lfo.connect(lg).connect(ch.delayTime); lfo.start(); nodes.push(lfo);
     cg.gain.value=state.space==='near'?.12:.28; const cp=c.createStereoPanner?c.createStereoPanner():c.createGain(); if(cp.pan) cp.pan.value=.45; air.connect(ch).connect(cg).connect(cp).connect(master); }
   const ring=[null,null,null,null,null,null,null];
-  const HP=opt.mix||opt.hum?humPlan(song):null, lead=song.notes.filter(n=>n.inst==='g'||(opt.leadGtr&&n.abs>=from&&n.abs<to&&(!opt.mix||!HP.isHum(n))&&(!opt.leadThin||n.end||(n.wordStart&&!n.fn)))).map(n=>({slot:n.abs,s:6,m:n.m,vel:n.inst?.78:(n.em?.95:n.anchor?.82:.68)*(n.type==='outro'?.7:1),off:0}));
+  const HP=opt.mix||opt.hum?humPlan(song):null, lead=song.notes.filter(n=>n.inst==='g'||(opt.leadGtr&&n.abs>=from&&n.abs<to&&(!opt.mix||!HP.isHum(n))&&(!opt.leadThin||n.end||(n.wordStart&&!n.fn)))).map(n=>({slot:n.abs,s:6,m:n.m,vel:n.inst?.78:(n.em?.95:n.anchor?.82:.68)*(n.type==='outro'?.7:1),off:0,_e:!!n.end,_ws:!!n.wordStart}));
+  // 멜로디 기타: 글자마다 똑같은 세기로 격자에 찍지 않는다. 줄마다 숨(세기 곡선), 박 뒤로 살짝 기대기, 이웃한 음은 다시 뜯지 않고 이어서
+  if((window.__LAB||{}).lead!==false&&lead.length){ const LQ=rng((song.seed||1)+4242), gs=()=>(LQ()+LQ()+LQ()-1.5)*.011; lead.sort((x,y)=>x.slot-y.slot); let i0=0;
+    for(let i=0;i<lead.length;i++){ const last=i===lead.length-1||lead[i]._e||lead[i+1].slot-lead[i].slot>3; if(!last) continue; const ph=lead.slice(i0,i+1), n=ph.length, ms=ph.map(x=>x.m), lo=Math.min(...ms), hi=Math.max(...ms), pk=ms.indexOf(hi);
+      ph.forEach((x,j)=>{ const pos=n>1?j/(n-1):.5, arc=.8+.28*Math.sin(Math.PI*Math.min(1,pos*.85+.1)), top=hi>lo?(x.m-lo)/(hi-lo):.5;
+        x.vel*=arc*(.9+.14*top)*(.93+LQ()*.14)*(j===n-1&&n>1?.86:1)*(j===0?.94:1);
+        x.off=(x._ws?.006:.016)+(j===n-1?.014:0)+gs();                                      // 낱말 첫 음은 거의 제 박, 나머지는 조금 뒤로
+        const p=j>0?ph[j-1]:null; if(p&&x.slot-p.slot<=1&&Math.abs(x.m-p.m)<=2&&x.m!==p.m&&!x._ws&&LQ()<.55){ x.soft=true; x.vel*=.66; x.off-=.006; } });   // 가까운 이웃 음은 해머링·풀링처럼 여리게 잇는다
+      i0=i+1; } }
   (song.genre==='rock'?[]:song.gtr.concat(lead)).sort((a,b)=>a.slot-b.slot||(a.mute?-1:1)).forEach(e=>{ if(e.slot<from-.2||e.slot>=to) return; const t=T(e.slot)+(e.off||0)+(e.mute?0:(R()-.5)*.012); const old=ring[e.s];
     if(old){ old.g.gain.cancelScheduledValues(Math.max(t-.004,old.t+.02)); old.g.gain.setTargetAtTime(0,Math.max(t-.004,old.t+.02),e.mute?.045:.012); try{ old.s.stop(t+.4); }catch(_){} ring[e.s]=null; }
     if(e.mute) return; const vel=Math.min(1,e.vel*(.9+R()*.2)), sm=pick(BUF[song.ginst]&&BUF[song.ginst].length?BUF[song.ginst]:BUF.g,e.m,vel); if(!sm) return;
