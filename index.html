@@ -2182,14 +2182,17 @@ const SYM_PROG=[['C','Gsus4','C','Gsus4','Cmaj7','Em','Am','Am7'],['Dm','G','Em'
 const SYM_CH={C:[48,52,55,60,64],Gsus4:[43,50,55,60,62],G:[43,50,55,59,62],Cmaj7:[48,52,55,59,64],Em:[40,47,52,55,59],Am:[45,52,57,60,64],Am7:[45,52,55,60,64],Dm:[50,57,62,65,69],Dm7:[50,57,60,65,69],F:[41,48,53,57,60],Cadd9:[48,52,55,62,64]};
 const SYM_SCALE=[60,62,64,67,69,72,74,76];
 let SYM=null, SYB=null;
-async function symBuf(c){ if(SYB) return SYB; const r=await fetch('music/gm.json'); const j=await r.json(); const out=[];
-  await Promise.all(Object.keys(j).map(m=>new Promise(res=>{ const bin=atob(j[m]), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); c.decodeAudioData(u.buffer,b=>{ out.push({m:+m,b}); res(); },()=>res()); })));
+async function symBuf(c){ if(SYB) return SYB; const out=[];
+  /* 새 연주는 노래 짓기의 '부드러운 통기타'(3.8초 동안 끝까지 자연스럽게 사라짐)를 쓴다. 예전 샘플은 높은 음이 1~2초에서 들리는 크기로 잘려 '뚝' 끊겼다 */
+  const srcs=SYM2?[['music/gs.json',m=>true],['music/gm.json',m=>+m>69]]:[['music/gm.json',m=>true]];
+  for(const [u0,ok] of srcs){ const j=await (await fetch(u0)).json();
+  await Promise.all(Object.keys(j).filter(ok).map(m=>new Promise(res=>{ const bin=atob(j[m]), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); c.decodeAudioData(u.buffer,b=>{ out.push({m:+m,b}); res(); },()=>res()); }))); }
   out.sort((a,b)=>a.m-b.m); SYB=out; return out; }
 function symImpulse(c,sec){ const sr=c.sampleRate,n=Math.floor(sr*sec),b=c.createBuffer(2,n,sr),pre=Math.floor(sr*.03); for(let ch=0;ch<2;ch++){ const d=b.getChannelData(ch); let y=0; for(let i=pre;i<n;i++){ const k=(i-pre)/(n-pre); y+=(.3-.25*k)*((Math.random()*2-1)-y); d[i]=y*Math.pow(1-k,2)*Math.min(1,(i-pre)/(sr*.04)); } } return b; }
 async function symStart(){ const c=actx(); if(!c||SYM) return; if(!AU.on) setAudio(true); let bufs; try{ bufs=await symBuf(c); }catch(e){ return; } if(!bufs.length) return;
   const out=c.createGain(); out.gain.value=0; out.connect(AU.out); out.gain.setTargetAtTime(MX.sym,c.currentTime,8);   // 아주 천천히 들어온다
   const dry=c.createGain(); dry.gain.value=.75; dry.connect(out); const rev=c.createConvolver(); rev.buffer=symImpulse(c,2.6); const wet=c.createGain(); wet.gain.value=.3; rev.connect(wet).connect(out);
-  const beat=1, dl=c.createDelay(3), fb=c.createGain(), dlp=c.createBiquadFilter(), ds=c.createGain(); dl.delayTime.value=beat*1.5; fb.gain.value=.32; dlp.type='lowpass'; dlp.frequency.value=2200; ds.gain.value=.22; ds.connect(dl); dl.connect(dlp).connect(fb).connect(dl); dlp.connect(rev); dlp.connect(out);
+  const beat=1, dl=c.createDelay(3), fb=c.createGain(), dlp=c.createBiquadFilter(), ds=c.createGain(); dl.delayTime.value=beat*1.5; fb.gain.value=.32; dlp.type='lowpass'; dlp.frequency.value=2200; ds.gain.value=SYM2?.04:.22; ds.connect(dl); dl.connect(dlp).connect(fb).connect(dl); dlp.connect(rev); dlp.connect(out);
   const bus=c.createGain(); bus.gain.value=1; bus.connect(dry); bus.connect(rev); bus.connect(ds);
   // 바닥에 아주 옅게 깔리는 비 (끝없이 이어지는 소음)
   const rn=c.createBufferSource(); rn.buffer=mkNoise(c,'pink',12); rn.loop=true; const rbp=c.createBiquadFilter(); rbp.type='bandpass'; rbp.frequency.value=1500; rbp.Q.value=.5; const rg=c.createGain(); rg.gain.value=SYM2?0:.05; rn.connect(rbp).connect(rg).connect(out); rn.start();
@@ -2199,7 +2202,7 @@ async function symStart(){ const c=actx(); if(!c||SYM) return; if(!AU.on) setAud
 function symStop(){ if(!SYM) return; const s=SYM; SYM=null; clearInterval(s.iv); window.__sym=false; if(!KT) stage.classList.remove('boil'); stage.classList.remove('static'); if(s.st){ try{ s.st.g.gain.setTargetAtTime(0,s.c.currentTime,1); }catch(_){} } setRain(); s.out.gain.setTargetAtTime(0,s.c.currentTime,1.8); setTimeout(()=>{ try{ s.rn.stop(); s.out.disconnect(); }catch(_){} },9000); upSleepSnd(); }
 function symNote(t,m,v,len,pan,br){ const c=SYM.c, bs=SYB; if(window.__notes) window.__notes.push([+t.toFixed(3),m,+v.toFixed(3)]); let best=bs[0]; for(const x of bs) if(Math.abs(x.m-m)<Math.abs(best.m-m)) best=x;
   const s=c.createBufferSource(); s.buffer=best.b; s.playbackRate.value=Math.pow(2,(m-best.m)/12); const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1500+v*4600+(br||0); lp.Q.value=.3;
-  const g=c.createGain(); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(v*2.4,t+.012); g.gain.setTargetAtTime(0,t+len,1.2);
+  const g=c.createGain(), endT=t+best.b.duration/s.playbackRate.value, rel=Math.max(t+.3,Math.min(t+len,endT-1.1)); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(v*(SYM2?2.6:2.4),t+.012); g.gain.setTargetAtTime(0,rel,SYM2?.28:1.2);   // 샘플이 다하기 전에 닫아 '뚝' 끊기지 않게
   const p=c.createStereoPanner?c.createStereoPanner():c.createGain(); if(p.pan) p.pan.value=pan; s.connect(lp).connect(g).connect(p).connect(SYM.bus); s.start(t); s.stop(t+len+6); }
 /* 심포니 새 연주(기본). 박자마다 음을 뿌리던 방식 대신, 손가락으로 뜯는 통기타 한 대처럼 친다.
    - 코드 하나에 두 마디(8분음표 16칸), 뜯는 무늬 네 가지. 위 두 줄(솔·레)은 되도록 그대로 울려 둔다.
@@ -2208,13 +2211,13 @@ function symNote(t,m,v,len,pan,br){ const c=SYM.c, bs=SYB; if(window.__notes) wi
    - 음은 조금씩 늦거나 이르게, 윗줄은 살짝 뒤로 기대어.
    주소에 ?sym=1 을 붙이면 예전 방식 */
 const SYM2=(()=>{ try{ return new URLSearchParams(location.search).get('sym')!=='1'; }catch(e){ return true; } })();
-const SYM_V={Cadd9:[48,55,64,67,74],'G/B':[47,55,62,67,74],Am7:[45,55,60,67,74],Fadd9:[41,53,57,67,72],Em7:[40,52,59,67,74],Dm7:[50,57,60,65,72],Gsus4:[43,55,60,67,74],G:[43,55,59,67,74],Cmaj7:[48,55,59,64,74]};
+const SYM_V={Cadd9:[48,55,62,64,67],'G/B':[47,55,59,62,67],Am7:[45,52,55,60,67],Fadd9:[41,53,57,60,67],Em7:[40,52,55,59,67],Dm7:[50,57,60,65,69],Gsus4:[43,55,60,62,67],G:[43,55,59,62,67],Cmaj7:[48,55,59,64,67]};   // 부드러운 기타가 끝까지 울리는 음역(67 아래) 안에서
 const SYM_SEC=[['Cadd9','G/B','Am7','Fadd9'],['Am7','Fadd9','Cadd9','G/B'],['Cadd9','Em7','Fadd9','Gsus4'],['Fadd9','Cadd9','G/B','Am7'],['Dm7','Gsus4','Cmaj7','Am7'],['Cadd9','Am7','Fadd9','G']];
 const SYM_PAT=[[[0,'b',1],[2,1,.7],[3,3,.85],[5,2,.65],[6,4,.9],[8,'f',.7],[10,2,.65],[11,3,.8],[13,1,.6],[14,4,.75]],
   [[0,'b',1],[2,2,.7],[3,4,.9],[6,3,.75],[9,1,.6],[11,3,.8],[12,4,.85],[15,'n',.7]],
   [[0,'b',1],[3,2,.7],[4,3,.85],[7,4,.8],[10,1,.6],[12,3,.75]],
   [[0,'b',.95],[0,4,.8],[4,2,.6],[6,3,.7]]];
-const SYM_PENT=[55,57,60,62,64,67,69,72,74,76];
+const SYM_PENT=[55,57,60,62,64,67,69,72,74,76].map(m=>SYM2&&m>69?m-12:m);
 const symBass=m=>m<46?m+12:m;                                   // 샘플이 낮은 미까지라, 너무 낮은 음은 한 옥타브 올린다
 function symMotif(){ const R=Math.random; let i=5+Math.floor(R()*4); const n=[i]; const st=[-1,-1,-2,1,-1,0,1]; for(let k=0;k<3;k++){ i=Math.max(2,Math.min(9,i+st[Math.floor(R()*st.length)])); n.push(i); }
   return {n,r:[[0,2,3,6],[0,3,4,8],[0,1,4,6],[0,2,6,8]][Math.floor(R()*4)]}; }
@@ -2230,7 +2233,7 @@ function symBar2(t0,e){ const R=Math.random, S2=SYM, sec=SYM_SEC[S2.sec], ci=S2.
     symNote(t0+st*e+jit()+(top?.014+R()*.016:0)+(st===0&&r===4?.022:0),role(r),v,bass?5:top?4.2:3.2,bass?-.12:top?.22:(r===1?-.3:.05),top?1100:bass?0:500); }
   if(ci===0&&fi>.6&&R()<.4){ [1,2,3,4].forEach((r,i)=>symNote(t0+.05+i*.045+jit(),V[r],.11*arc,4,-.2+i*.13)); }     // 단락 첫머리에 가끔 화음을 훑어 준다
   // 가락: 둘째 코드에서 묻고, 넷째 코드에서 답한다
-  if(el>20&&S2.mo&&(ci===1||ci===3)&&S2.moOn){ const ans=ci===3, M=S2.mo, ct=[60,64,67,72,76,55];
+  if(el>20&&S2.mo&&(ci===1||ci===3)&&S2.moOn){ const ans=ci===3, M=S2.mo, ct=[60,64,67,55,52,48];
     M.n.forEach((ix,i)=>{ let m=SYM_PENT[Math.max(0,ix-(ans?1:0))]; if(ans&&i===M.n.length-1) m=ct.reduce((a,b)=>Math.abs(b-m)<Math.abs(a-m)?b:a);
       if(!ans&&i===M.n.length-1&&R()<.3) return;                                                 // 묻는 쪽은 가끔 끝을 열어 둔다
       const ph=.75+.25*Math.sin(Math.PI*(i+.6)/M.n.length), tt=t0+(8+M.r[i])*e+.02+R()*.022;
