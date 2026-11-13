@@ -2130,6 +2130,10 @@ const SYM_PROG=[['C','Gsus4','C','Gsus4','Cmaj7','Em','Am','Am7'],['Dm','G','Em'
 const SYM_CH={C:[48,52,55,60,64],Gsus4:[43,50,55,60,62],G:[43,50,55,59,62],Cmaj7:[48,52,55,59,64],Em:[40,47,52,55,59],Am:[45,52,57,60,64],Am7:[45,52,55,60,64],Dm:[50,57,62,65,69],Dm7:[50,57,60,65,69],F:[41,48,53,57,60],Cadd9:[48,52,55,62,64]};
 const SYM_SCALE=[60,62,64,67,69,72,74,76];
 let SYM=null, SYB=null;
+// 실험(기본 꺼짐, ?lab=1): 위 두 음(솔·레)을 코드가 바뀌어도 그대로 울리고, 다음 코드 베이스를 반 박 먼저 친다
+const SYM_LAB=(window.__SYMLAB!=null)?window.__SYMLAB:/[?&]lab=1/.test(location.search);
+function symVoice(name){ const ch=SYM_CH[name]||SYM_CH.C; if(!SYM_LAB) return ch; const pcs=ch.map(m=>m%12), A=[67,74];
+  if(A.some(a=>pcs.some(p=>{ const d=((a-p)%12+12)%12; return d===1||d===11; }))) return ch; return [ch[0],ch[1],ch[2],A[0],A[1]]; }
 async function symBuf(c){ if(SYB) return SYB; const r=await fetch('music/gm.json'); const j=await r.json(); const out=[];
   await Promise.all(Object.keys(j).map(m=>new Promise(res=>{ const bin=atob(j[m]), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); c.decodeAudioData(u.buffer,b=>{ out.push({m:+m,b}); res(); },()=>res()); })));
   out.sort((a,b)=>a.m-b.m); SYB=out; return out; }
@@ -2150,13 +2154,14 @@ function symNote(t,m,v,len,pan){ const c=SYM.c, bs=SYB; let best=bs[0]; for(cons
   const p=c.createStereoPanner?c.createStereoPanner():c.createGain(); if(p.pan) p.pan.value=pan; s.connect(lp).connect(g).connect(p).connect(SYM.bus); s.start(t); s.stop(t+len+6); }
 function symTick(){ if(!SYM) return; const c=SYM.c, ahead=c.currentTime+2.2, R=Math.random;
   const mins=(Date.now()-SYM.started)/60000, dens=SL?Math.max(.3,1-(window.SLP||0)*.75):.82+.18*Math.sin(mins/7);   // 꺼짐 시간을 정했으면 갈수록 성글어지고, 끄지 않으면 은은하게 오르내리며 계속
-  while(SYM.next<ahead){ const t=SYM.next, k=SYM.step, beatIn=k%8, prog=SYM_PROG[SYM.prog], chName=prog[Math.floor(k/8)%prog.length], ch=SYM_CH[chName]||SYM_CH.C;
+  while(SYM.next<ahead){ const t=SYM.next, k=SYM.step, beatIn=k%8, prog=SYM_PROG[SYM.prog], chName=prog[Math.floor(k/8)%prog.length], ch=symVoice(chName);
     const el=(Date.now()-SYM.started)/1000, fi=Math.max(0,Math.min(1,(el-6)/50));   // 처음 1분은 비만 깔리고, 기타·초침·기포가 하나씩 천천히 들어온다
-    if(beatIn===0&&el>6&&R()<.4+.6*fi){ symNote(t,ch[0]-(ch[0]>47?12:0)+12,.42,5,-.1); if(R()<.7*dens) symNote(t+.03,ch[2],.22,4,.15);           // 코드가 바뀌면 낮은 음과 가운데 음
+    if(beatIn===0&&el>6&&R()<.4+.6*fi){ if(!SYM.pushed) symNote(t,ch[0]-(ch[0]>47?12:0)+12,.42,5,-.1); SYM.pushed=false; if(R()<.7*dens) symNote(t+.03,ch[2],.22,4,.15);           // 코드가 바뀌면 낮은 음과 가운데 음
       symWind(t); if(Math.floor(k/8)%prog.length===prog.length-1&&R()<.5) SYM.prog=Math.floor(R()*SYM_PROG.length); }
     else if(el>14){ if(R()<.34*dens*fi) symNote(t+(R()-.5)*.04,ch[1+Math.floor(R()*4)],.14+R()*.12,3,-.35+R()*.7);                        // 화음 속 음 하나씩
       if((beatIn===3||beatIn===6)&&R()<.22*dens) symNote(t+(R()<.5?SYM.beat/2:0),SYM_SCALE[Math.floor(R()*SYM_SCALE.length)],.12+R()*.1,4,.25); } // 아주 가끔 높은 선율
     if(el>20) symTickTock(t,k,Math.min(1,(el-20)/40)); if(el>45&&R()<(window.__wopen?.18:.32)) symBubble(t+SYM.beat*(R()<.5?.5:.75));
+    if(SYM_LAB&&beatIn===7&&el>20){ const pr=SYM_PROG[SYM.prog], ni=Math.floor((k+1)/8)%pr.length, nn=pr[ni], nc=symVoice(nn); if(nn!==chName&&R()<.4){ symNote(t+SYM.beat*.5,nc[0]-(nc[0]>47?12:0)+12,.36,5,-.1); SYM.pushed=true; } }
     if(beatIn===0) symWeather(t);
     SYM.step++; SYM.next+=SYM.beat; } }
 // 비: 몇 분에 걸쳐 굵어졌다 가늘어졌다. 창밖 빗줄기도 같이
