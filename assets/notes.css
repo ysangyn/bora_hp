@@ -119,3 +119,8 @@ button{font:inherit;color:inherit}
   .item h2{font-size:20px}
   .item img{width:112px;height:112px}
 }
+
+/* 2026-11-14 점검: 좁은 화면에서 머리 메뉴가 세로로 쪼개지던 것, 분류 줄이 잘려 보이던 것 */
+.bar nav a{white-space:nowrap}
+@media (max-width:440px){.bar{gap:6px}.bar .logo{font-size:15px;letter-spacing:.3em}.bar nav{gap:0}.bar nav a{font-size:13px;letter-spacing:.06em;padding:12px 7px}.bar .theme{min-width:40px;min-height:40px}
+ .cats{-webkit-mask-image:linear-gradient(90deg,#000 82%,transparent);mask-image:linear-gradient(90deg,#000 82%,transparent);padding-right:48px}}
