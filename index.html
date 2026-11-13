@@ -822,6 +822,8 @@ body.hasnote .hs[data-p="mailbox"]{display:block!important}
 .bv-cork .bv-pol:nth-child(4n+2){--pinimg:url(img/ui/pin_mustard.webp)}.bv-cork .bv-pol:nth-child(4n+3){--pinimg:url(img/ui/pin_green.webp)}.bv-cork .bv-pol:nth-child(4n){--pinimg:url(img/ui/pin_cream.webp)}
 
 #mxNz{margin:-2px 0 10px}#mxNz .chip{font-size:12.5px;padding:7px 12px}
+
+.postbox{height:420px;border-radius:8px;overflow:hidden;background:#fff;color:#333;font-size:13px;padding:0}
 </style>
 </head>
 <body>
@@ -1295,9 +1297,10 @@ async function resolveViews(p){ if(!S.key) return null; const N=Math.min(svCount
 async function findPlace(q,out){
   out.textContent='찾는 중…';
   try{ const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=1&extratags=1&accept-language=ko&q=${encodeURIComponent(q)}`); const j=await r.json();
+    if(!j.length){ const m=q.match(/^(.*?[시군구])\s/); if(m){ const r2=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=1&extratags=1&accept-language=ko&q=${encodeURIComponent(m[1])}`); const j2=await r2.json(); if(j2.length) j.push(j2[0]); } }
     if(!j.length){ out.textContent='그런 곳을 못 찾았어요. 도시 이름이나 주소로 다시 써 주세요.'; return false; }
-    S.place={name:q,lat:+j[0].lat,lon:+j[0].lon,cc:(j[0].address&&j[0].address.country_code)||'',sv:0,wd:(j[0].extratags&&j[0].extratags.wikidata)||'',kind:j[0].addresstype||j[0].type||'',bb:(j[0].boundingbox||[]).map(Number)}; LS.set('place6',S.place); city=null; S.visit=true; LS.set('visit',true);
-    out.innerHTML = S.key ? `지금 창밖: ${S.place.name} (거리)` : `창밖을 바꿨어요. 진짜 거리는 설정에서 구글 지도 키를 넣으면 이 창에 떠요. 지금은 <a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${S.place.lat},${S.place.lon}" target="_blank" rel="noopener">지도에서 그 거리 열기</a>로 볼 수 있어요.`;
+    S.place={name:q,lat:+j[0].lat,lon:+j[0].lon,cc:(j[0].address&&j[0].address.country_code)||'',sv:0,wd:(j[0].extratags&&j[0].extratags.wikidata)||'',kind:j[0].addresstype||j[0].type||'',bb:(j[0].boundingbox||[]).map(Number),addr:j[0].address||{}}; LS.set('place6',S.place); city=null; S.visit=true; LS.set('visit',true);
+    out.textContent=`${q}을(를) 찾았어요. 창에 걸 사진을 찾는 중…`;
     await loadWeather(); if(S.radio) radioTune(); return true;
   }catch(e){ out.textContent='장소를 찾지 못했어요. 인터넷 연결을 확인해 주세요.'; return false; }
 }
@@ -1554,7 +1557,8 @@ function openPlace(){
    <label class="sl">도시 고르기</label>
    <div class="chips">${picks.map(n=>`<button class="chip" data-n="${n}" aria-pressed="${!S.visit&&S.place.name===n}">${n}</button>`).join('')}</div>
    <label class="sl">동네·주소 적기</label>
-   <div class="row"><input id="pIn" placeholder="예: 대림동, 살던 집 주소" autocomplete="off" aria-label="동네나 주소"><button class="ok" id="pGo">보기</button></div>
+   <div class="row"><input id="pIn" placeholder="예: 대림동, 일중로 30" autocomplete="off" aria-label="동네나 주소"><button class="ok" id="pGo">보기</button></div>
+   <div class="row"><button class="chip" id="pPost">우리나라 주소 찾기</button></div><div id="pPostBox" class="postbox" hidden></div>
    <small id="pOut">지금 창밖: ${S.place.name}${S.visit?' (거리)':''}</small>
    <small>적은 주소는 이 휴대폰(브라우저)에만 남아요.</small>`);
   let pend=null, padj=null, svBusy=false;
@@ -1584,11 +1588,17 @@ function openPlace(){
     const snap={p:S.place,v:S.visit,w:S.w}; window.__draft=true;
     window.__undoDraft=()=>{ window.__undoDraft=null; if(!window.__draft) return; window.__draft=false; S.place=snap.p; S.visit=snap.v; S.w=snap.w; LS.set('place6',S.place); LS.set('visit',S.visit); ids.forEach((i,k)=>{ if($(i)) $(i).textContent=tx[k]; }); applyWindow(); if(S.radio) radioTune(); }; };
   const go=async q=>{ if(q) draftOn(); svBusy=true; svBar(); try{ await go0(q); } finally { svBusy=false; pend=null; svBar(); } };
-  const go0=async q=>{ if(q&&await findPlace(q,$('pOut'))){ padj={h:0,p:0,f:90}; let pins=await pinsFor(q); const city=CITYISH.test(S.place.kind||'')||S.place.kind===''; if(!pins.length&&!city) pins=await wikiPins(S.place.wd,S.place.name); if(!city){ S.place.spots=[{n:S.place.name,lat:S.place.lat,lon:S.place.lon}]; S.place.sv=0; LS.set('place6',S.place); applyWindow(); } if(pins.length){ S.place.pins=pins; S.place.sv=0; LS.set('place6',S.place); applyWindow(); } pend=null; svBar(); if(CITYISH.test(S.place.kind||'')||S.place.kind===''){ $('pOut').textContent='그곳의 이름난 곳들을 찾는 중…'; const cur=await curatedSpots(q,S.place), more=await findSpots(S.place), seen=new Set(cur.map(x=>x.n)), sp=cur.concat(more.filter(x=>!seen.has(x.n))).slice(0,16); if(sp.length){ S.place.spots=sp; S.place.sv=0; pend=0; LS.set('place6',S.place); applyWindow(); } $('pOut').textContent=`지금 창밖: ${S.place.name} (거리)`+(sp.length?` · 이름난 곳 ${sp.length}곳`:''); svBar(); }
-    { const pl=S.place, o=$('pOut'), t0=o.textContent; o.textContent=t0+' · 거리 사진 찾는 중…'; const mp=await mlyPins(pl); if(S.place===pl&&mp.length){ const had=new Set((pl.pins||[]).map(x=>x.src)); pl.pins=(pl.pins||[]).concat(mp.filter(x=>!had.has(x.src))); pl.sv=0; pend=0; LS.set('place6',pl); applyWindow(); svBar(); } o.textContent=t0+(mp.length?` · 거리 사진 ${mp.length}장`:''); }
+  const go0=async q=>{ if(q&&await findPlace(q,$('pOut'))){ padj={h:0,p:0,f:90}; let pins=await pinsFor(q); if(!pins.length){ const ad=S.place.addr||{}; for(const k of ['city_district','borough','suburb','city','county','town','municipality','province','state']){ const v=ad[k]; if(!v) continue; const r2=await pinsFor(v); if(r2.length){ pins=r2.map(x=>({...x,near:v})); break; } } } const city=CITYISH.test(S.place.kind||'')||S.place.kind===''; if(!pins.length&&!city) pins=await wikiPins(S.place.wd,S.place.name); if(!city){ S.place.spots=[{n:S.place.name,lat:S.place.lat,lon:S.place.lon}]; S.place.sv=0; LS.set('place6',S.place); applyWindow(); } if(pins.length){ S.place.pins=pins; S.place.sv=0; LS.set('place6',S.place); applyWindow(); } pend=null; svBar(); if(CITYISH.test(S.place.kind||'')||S.place.kind===''){ $('pOut').textContent='그곳의 이름난 곳들을 찾는 중…'; const cur=await curatedSpots(q,S.place), more=await findSpots(S.place), seen=new Set(cur.map(x=>x.n)), sp=cur.concat(more.filter(x=>!seen.has(x.n))).slice(0,16); if(sp.length){ S.place.spots=sp; S.place.sv=0; pend=0; LS.set('place6',S.place); applyWindow(); } $('pOut').textContent=`지금 창밖: ${S.place.name} (거리)`+(sp.length?` · 이름난 곳 ${sp.length}곳`:''); svBar(); }
+    { const pl=S.place, o=$('pOut'), t0=o.textContent; o.textContent=t0+' · 거리 사진 찾는 중…'; const mp=await mlyPins(pl); if(S.place===pl&&mp.length){ const had=new Set((pl.pins||[]).map(x=>x.src)); pl.pins=(pl.pins||[]).concat(mp.filter(x=>!had.has(x.src))); pl.sv=0; pend=0; LS.set('place6',pl); applyWindow(); svBar(); } const P=pl.pins||[], nr=P.length&&P.every(x=>x.near)?P[0].near:'';
+      o.textContent = mp.length ? `창밖을 ${pl.name}(으)로 바꿨어요 · 거리 사진 ${mp.length}장` : nr ? `${pl.name}의 거리 사진은 찾지 못해서, ${nr}의 풍경을 창에 걸었어요.` : P.length||(pl.spots&&pl.spots.length>1) ? `창밖을 ${pl.name}(으)로 바꿨어요.` : `${pl.name}의 사진을 찾지 못해서 창밖 풍경은 그대로예요. 시간과 날씨만 그곳을 따라가요.`; }
     if(false&&S.key&&S.place.spots){ const pl=S.place, o=$('pOut'), t0=o.textContent; o.textContent=t0+' · 사진이 잘 보이는 자리 고르는 중…'; const vs=await resolveViews(pl); if(S.place===pl){ if(vs){ pl.views=vs; pl.sv=0; pend=0; padj={h:0,p:0,f:90}; LS.set('place6',pl); applyWindow(); } o.textContent=t0+(vs?` · 사진 ${vs.length}장`:` · 자리 확인 안 됨 (${window.__svErr||'?'})`); svBar(); } } } };
   svBar();
   $('pGo').onclick=()=>go($('pIn').value.trim());
+  // 우리나라 주소: 카카오 우편번호 서비스(무료, 키 없음)로 도로명만 적어도 고르게 하고, 고른 주소의 시·군·구까지 붙여 찾는다
+  $('pPost').onclick=e=>{ e.stopPropagation(); const box=$('pPostBox'); if(!box.hidden){ box.hidden=true; box.innerHTML=''; return; } box.hidden=false; box.textContent='주소 찾기를 여는 중…';
+    const open=()=>{ box.innerHTML=''; try{ new daum.Postcode({ width:'100%', height:'100%', q:$('pIn').value.trim(), oncomplete:d=>{ const road=d.roadAddress||d.jibunAddress||d.address, short=(d.sigungu?d.sigungu+' ':'')+(d.roadname||d.bname||'')+(d.roadAddress&&d.buildingName?'':'');
+        box.hidden=true; box.innerHTML=''; $('pIn').value=road; go(road); } }).embed(box,{autoClose:true}); }catch(_){ box.textContent='주소 찾기를 열지 못했어요. 위 칸에 주소를 그대로 적어 주세요.'; } };
+    if(window.daum&&daum.Postcode) open(); else { const sc=document.createElement('script'); sc.src='https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'; sc.onload=open; sc.onerror=()=>{ box.textContent='주소 찾기를 열지 못했어요. 위 칸에 주소를 그대로 적어 주세요.'; }; document.head.appendChild(sc); } };
   $('pIn').addEventListener('keydown',e=>{ if(e.key==='Enter') go(e.target.value.trim()); });
   const cityPrev=(p,c)=>{ const v=VIEWS.find(x=>x.n===p.name), box=$('cpBox'); panel.querySelectorAll('.chip[data-n]').forEach(x=>x.setAttribute('aria-pressed',x===c));
     if(!v||!box){ setPlace({...p},$('pOut')); svBar(); return; }
