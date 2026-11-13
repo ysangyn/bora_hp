@@ -423,22 +423,26 @@ function compose(plan,o){ const text=plan.map(b=>b.lines.map(l=>l.text).join(' '
   return song; }
 
 /* ════════ 5. 기타 편곡 ════════ */
-function guitar(song,R){ const ev=[], bars=song.bars, mood=song.mood, spv=R()<.5, restP=song.moodId==='sad'?.2:song.moodId==='calm'?.08:0;
+function guitar(song,R){ const LAB=window.__LAB||(/[?&]lab=1/.test(location.search)?{anchor:true,push:true,hammer:true}:{}), LR=rng((song.seed||1)+777); const ev=[], bars=song.bars, mood=song.mood, spv=R()<.5, restP=song.moodId==='sad'?.2:song.moodId==='calm'?.08:0;
   const mkArp=rp=>{ const seq=[]; let pv=''; for(let s=1;s<8;s++){ if(s===4&&R()<.7){ seq.push('alt'); pv='alt'; continue; } let c; do{ c='gbe'[Math.floor(R()*3)]; }while(c===pv); if(R()<rp){ seq.push(''); continue; } seq.push(c); pv=c; } return seq; };
   const mkStrum=(pd,pu,v)=>{ let h; do{ h=[[0,1,.9]]; for(let s=1;s<8;s++){ if(s%2===0){ if(R()<pd) h.push([s,1,s===4?.75:.64]); } else if(R()<pu) h.push([s,0,.5]); } }while(h.length<3); return h; };
   const GEN=song.songNo?{arpV:mkArp(restP),arpC:mkArp(0),st:mkStrum(.75,.6),stB:mkStrum(.5,.3)}:null, SCP={rain:['e','b','g','alt','e','b','g'],snow:['','e','','b','','e',''],night:['g','','b','alt','','g',''],sea:['g','b','e','alt','e','b','g'],walk:['b','alt','g','bass','e','alt','b'],wind:['g','b','e','b','alt','b','e'],sleep:['','g','b','alt','','b','']};
   if(GEN&&song.scene&&SCP[song.scene.id]&&song.genre==='folk') GEN.arpV=SCP[song.scene.id]; const dynOf={intro:.72,verse:.8,pre:.9,chorus:1,bridge:.78,inter:.85,outro:.7,post:.95};
-  bars.forEach((b,bi)=>{ const s0=bi*8, ch=b.ch, ns=ch.notes, bass=ns[0], alt=ns[1], dyn=dynOf[b.type]*(b.dyn||1)*(song.genre==='aa'?.8+.28*bi/bars.length:1), next=bars[bi+1], scalePcs=[0,2,4,5,7,9,11].map(x=>(x+b.k)%12);
+  const voice=(b)=>{ const ch=b.ch; if(!LAB.anchor||b.ch2||!SHAPES[ch.name]) return ch.notes; const sh=[...SHAPES[ch.name]]; if(sh[4]==='x'||sh[5]==='x'||+sh[4]>3||+sh[5]>3||sh.slice(0,4).some(f=>f!=='x'&&+f>4)) return ch.notes;
+    const k=b.k, A={4:62+k,5:67+k}, pcs=ch.tones.concat(ch.color), bad=[4,5].some(st=>pcs.some(p=>{ const d=((A[st]-p)%12+12)%12; return d===1||d===11; })); if(bad) return ch.notes;
+    return ch.notes.map(n=>n.s>=4?{s:n.s,m:A[n.s]}:n); };
+  bars.forEach((b,bi)=>{ const s0=bi*8, ch=b.ch, ns=voice(b), bass=ns[0], alt=ns[1], dyn=dynOf[b.type]*(b.dyn||1)*(song.genre==='aa'?.8+.28*bi/bars.length:1), next=bars[bi+1], scalePcs=[0,2,4,5,7,9,11].map(x=>(x+b.k)%12);
     const tre=ns.filter(n=>n.s>=3), g=tre[0]||ns[ns.length-3]||bass, bn=tre[1]||ns[ns.length-2], e=tre[2]||ns[ns.length-1];
-    const V2=b.ch2?b.ch2.notes:null, hit=(n,slot,vel,off)=>{ if(!n) return; let m=n.m; if(V2&&slot>=4){ const v=V2.find(x=>x.s===n.s); if(!v) return; m=v.m; } ev.push({slot:s0+slot,s:n.s,m,vel:vel*dyn,off:off||0}); };
+    const V2=b.ch2?b.ch2.notes:null, hit=(n,slot,vel,off)=>{ if(!n) return; if(b.pushBass&&slot===0&&n===ns[0]) return; let m=n.m; if(V2&&slot>=4){ const v=V2.find(x=>x.s===n.s); if(!v) return; m=v.m; } ev.push({slot:s0+slot,s:n.s,m,vel:vel*dyn,off:off||0}); };
     const strum=(slot,down,vel,top)=>{ const arr=down?ns:ns.slice(-top).reverse(); arr.forEach((n,i)=>hit(n,slot,vel*(down?(i===0?1:.82):.7),i*(down?.011:.008))); };
     // 코드가 바뀌면 손가락을 떼니까, 음이 달라지는 줄은 울림을 멈춘다
-    if(bi>0&&bars[bi-1].name!==b.name){ const pv=bars[bi-1].ch.notes; for(let s=0;s<6;s++){ const a=pv.find(n=>n.s===s), c=ns.find(n=>n.s===s); if(a&&(!c||c.m!==a.m)) ev.push({slot:s0-.18,s,mute:true}); } }
+    if(bi>0&&bars[bi-1].name!==b.name&&!b.pushed){ const pv=voice(bars[bi-1]); for(let s=0;s<6;s++){ const a=pv.find(n=>n.s===s), c=ns.find(n=>n.s===s); if(a&&(!c||c.m!==a.m)) ev.push({slot:s0-.18,s,mute:true}); } }
     if(b.fin){ ns.forEach((n,i)=>hit(n,0,.85,i*.045)); return; }
     const big=b.type==='chorus'||b.type==='post', G=song.gsel; let pat=big?mood.c:b.type==='intro'||b.type==='outro'?(mood.v==='travis'?'arp':mood.v):b.type==='bridge'?'slow':b.type==='pre'?(mood.v==='slow'?'arp':mood.v):b.type==='inter'?mood.c:mood.v;
     if(G==='arp') pat=big?'arpF':/strum/.test(pat)?'arp':pat; else if(G==='strum') pat=big?'strum':b.type==='pre'?'strumS':'strumB'; else if(G==='mix'&&big) pat='strum';
     if(b.pat&&b.pat!=='auto') pat=b.pat; const last=!next||next.sec!==b.sec, v=bi%2;
-    if(song.sparse&&(!b.pat||b.pat==='auto')){ ns.forEach((n,i)=>hit(n,0,i?.34+R()*.06:.5,i*.042)); const full=bi%2===0;
+    if(song.sparse&&(!b.pat||b.pat==='auto')){ if(b.pushed) hit(ns[0],0,.42); else ns.forEach((n,i)=>hit(n,0,i?.34+R()*.06:.5,i*.042)); const full=bi%2===0;
+      if(LAB.push&&next&&!next.fin&&next.name!==b.name&&bi%2===1&&LR()<.45){ const nn=voice(next); for(let st=0;st<6;st++){ const a2=ns.find(n=>n.s===st), c2=nn.find(n=>n.s===st); if(a2&&(!c2||c2.m!==a2.m)) ev.push({slot:s0+6.86,s:st,mute:true}); } nn.forEach((n,i)=>ev.push({slot:s0+7,s:n.s,m:n.m,vel:(i?.3:.42)*dyn,off:i*.038})); next.pushed=true; return; }
       if(V2){ hit(g,4,.3); hit(bn,4,.3,.012); } else if(R()<.55) hit(e,3,.28);
       if(R()<(full?.6:.3)) hit(bn,5,.26); if(R()<(full?.4:.2)) hit(e,6,.25); if(b.type==='chorus'&&R()<.6) hit(alt,4,.36); return; }
     const auto=GEN&&(!b.pat||b.pat==='auto');
@@ -448,13 +452,21 @@ function guitar(song,R){ const ev=[], bars=song.bars, mood=song.mood, spv=R()<.5
     else if(pat==='travis'){ hit(bass,0,.78); hit(bn,1,.4); hit(alt,2,.56); hit(g,3,.4); hit(bass,4,.66); hit(e,5,.44); hit(alt,6,.54); hit(bn,7,.38); }
     else if(pat==='arpF'){ hit(bass,0,.9); hit(g,1,.5); hit(bn,2,.56); hit(e,3,.6); hit(alt,4,.66); hit(e,4,.5,.005); hit(bn,5,.5); hit(e,6,.58); hit(bn,7,.46); }
     else { const sv=pat==='strumS'?.46:pat==='strumB'?.46:.6, SP=auto?(pat==='strumB'?GEN.stB:GEN.st):pat==='strumB'?[[0,1,.85],[3,0,.4],[4,1,.6],[6,1,.55],[7,0,.4]]:spv?[[0,1,.9],[2,1,.6],[4,1,.75],[5,0,.5],[6,1,.6],[7,0,.5]]:[[0,1,.9],[2,1,.74],[3,0,.5],[5,0,.56],[6,1,.7],[7,0,.48]];
-      SP.forEach(([sl,dn,vl])=>{ if(last&&next&&sl===7&&R()<.5) return; strum(sl,!!dn,vl*sv*(.94+R()*.12),dn?6:3+Math.floor(R()*2)); }); }
+      const push=LAB.push&&next&&!next.fin&&next.name!==b.name&&LR()<(big?.55:.35);
+      SP.forEach(([sl,dn,vl])=>{ if(b.pushed&&sl===0) return; if(push&&sl>=7) return; if(!push&&last&&next&&sl===7&&R()<.5) return; strum(sl,!!dn,vl*sv*(.94+R()*.12),dn?6:3+Math.floor(R()*2)); });
+      if(push){ const pv=ns, nn=voice(next); for(let st=0;st<6;st++){ const a=pv.find(n=>n.s===st), c2=nn.find(n=>n.s===st); if(a&&(!c2||c2.m!==a.m)) ev.push({slot:s0+6.82,s:st,mute:true}); }
+        nn.forEach((n,i)=>ev.push({slot:s0+7,s:n.s,m:n.m,vel:.62*sv*dyn*(i===0?1:.85),off:i*.011})); next.pushed=true; } }
+    if(LAB.push&&!/strum/.test(pat)&&next&&!next.fin&&next.name!==b.name&&!last&&LR()<.3){ const nb=voice(next)[0]; for(let k2=ev.length-1;k2>=0&&ev[k2].slot>=s0;k2--) if(ev[k2].slot===s0+7&&ev[k2].s<=2) ev.splice(k2,1); ev.push({slot:s0+6.85,s:nb.s,mute:true}); ev.push({slot:s0+7,s:nb.s,m:nb.m,vel:.62*dyn,off:0}); next.pushBass=true; }
     // 꾸밈: 두 마디에 한 번, 높은 줄에서 옆 음을 짚었다 돌아온다
     if((pat==='arp'||pat==='slow')&&v&&R()<.6&&e){ const up=[1,2,3].map(d=>e.m+d).find(m=>scalePcs.includes(m%12)); if(up){ ev.push({slot:s0+6.5,s:e.s,m:up,vel:.3*dyn,off:0}); ev.push({slot:s0+7.25,s:e.s,m:e.m,vel:.22*dyn,off:0,soft:true}); } }
     // 소절의 마지막 마디: 베이스가 다음 코드로 걸어간다
     if(last&&next&&!/strum/.test(pat)){  const tg=next.ch.notes[0].m, from=bass.m; if(tg!==from){ const dir=tg>from?1:-1, walk=[]; for(let m=tg-dir;m!==from&&walk.length<2;m-=dir) if(scalePcs.includes(((m%12)+12)%12)) walk.unshift(m);
         walk.forEach((m,i)=>{ const slot=8-walk.length+i, s=m>=50?2:m>=45?1:0; for(let k=ev.length-1;k>=0&&ev[k].slot>=s0;k--) if(ev[k].slot===s0+slot&&ev[k].s<=2) ev.splice(k,1); ev.push({slot:s0+slot,s,m,vel:.6*dyn,off:0}); }); } }
   });
+  if(LAB.hammer){ const byBar={}; ev.forEach(e=>{ if(e.mute||e.soft) return; const bi=Math.floor(e.slot/8); (byBar[bi]=byBar[bi]||[]).push(e); });
+    Object.keys(byBar).forEach(bi=>{ const b=bars[bi]; if(!b||b.fin||LR()>.28) return; const k=b.k, cands=byBar[bi].filter(e=>e.s>=1&&e.s<=3&&(e.slot%8)>=1&&(e.slot%8)<=5&&Number.isInteger(e.slot)&&e.m-(TUNE[e.s]+k)===2);
+      if(!cands.length) return; const e=cands[0], open=TUNE[e.s]+k, scale=[0,2,4,5,7,9,11].map(x=>(x+k)%12); if(!scale.includes(open%12)) return;
+      const m=e.m; e.m=open; e.vel*=.9; ev.push({slot:e.slot+.33,s:e.s,m,vel:e.vel*.62,off:e.off||0,soft:true}); }); }
   ev.sort((a,b)=>a.slot-b.slot||(a.mute?-1:1)); return ev; }
 
 /* ════════ 5-2. 밴드 편곡 (드럼·베이스·일렉 기타) ════════ */
