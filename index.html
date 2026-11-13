@@ -993,7 +993,7 @@ function rainSound(on,soft){ const c=actx(); if(!c) return;
   const L=AU.rainL, M=soft?[0,0,.06,0,1700]:[[.045,0,.1,5,1100],[.4,.004,.32,9,1500],[1,.016,.55,15,1700]][RL], T=c.currentTime;
   L.wash.gain.setTargetAtTime(M[0],T,.8); L.hiss.gain.setTargetAtTime(M[1],T,.8); L.low.gain.setTargetAtTime(M[2],T,.8); L.washF.frequency.setTargetAtTime(M[4],T,.8); L.rate=M[3];
   L.wind.gain.setTargetAtTime(soft?.42:0,T,1.2); L.windLfo.gain.setTargetAtTime(soft?.22:0,T,1.2);
-  AU.rain.gain.cancelScheduledValues(c.currentTime); AU.rainBase=(AU.recOK?0:(soft?.085:[.38,.25,.27][RL]))*((S.playing||S.radio)?.45:1); /* 노래나 라디오가 나오면 빗소리는 뒤로 물러난다 */ AU.rain.gain.setTargetAtTime(on?AU.rainBase:0,c.currentTime,on?.7:.4); }
+  AU.rain.gain.cancelScheduledValues(c.currentTime); AU.rainBase=(SOFT?(soft?.085:[.38,.25,.27][RL]):0)*((S.playing||S.radio)?.45:1); /* 노래나 라디오가 나오면 빗소리는 뒤로 물러난다 */ AU.rain.gain.setTargetAtTime(on?AU.rainBase:0,c.currentTime,on?.7:.4); }
 function vinyl(on){ const c=actx(); if(!c) return;
   if(!AU.vinyl){ const n=c.sampleRate*6,b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0); for(let i=0;i<n;i++){ d[i]=(Math.random()*2-1)*.012; if(Math.random()<.00035) d[i]+=(Math.random()*2-1)*.7; }
     const s=c.createBufferSource(); s.buffer=b; s.loop=true; const f=c.createBiquadFilter(); f.type='bandpass'; f.frequency.value=2600; f.Q.value=.3; const g=c.createGain(); g.gain.value=0; s.connect(f).connect(g).connect(AU.out); s.start(); AU.vinyl=g; }
@@ -1010,7 +1010,7 @@ function blip(type){ if(!AU.on) return; const c=actx(); if(!c) return; const t=c
 const SF={lrain:['sound/rain.mp3',1.22],hrain:['sound/rain.mp3',1.2],glass:['sound/rain-window.mp3',2.72],street:['sound/city.mp3',.73],traffic:['sound/city.mp3',.8],birds:['sound/birds.mp3',1.3],crickets:['sound/summer-night.mp3',.355],wind:['sound/wind.mp3',.73],waves:['sound/waves.mp3',.86]};   // 출처: sound/SOURCES.md (Blanket 앱이 파일별로 밝힌 CC0·CC BY·퍼블릭 도메인)
 const SB={}, SPR={}, AMB={beds:{},open:LS.get('wopen',false),iv:0,out:null,lp:null,mea:{}};
 function sload(k){ if(!SF[k]) return Promise.resolve(null); if(SPR[k]) return SPR[k]; const c=actx(); SPR[k]=fetch(SF[k][0]).then(r=>{ if(!r.ok) throw 0; return r.arrayBuffer(); }).then(a=>new Promise((res,rej)=>c.decodeAudioData(a,res,rej))).then(b=>(SB[k]=b)).catch(()=>null); return SPR[k]; }
-function ambStart(){ const c=actx(); if(!c) return; if(!AMB.out){ AMB.out=c.createGain(); AMB.out.gain.value=.8; AMB.lp=c.createBiquadFilter(); AMB.lp.type='lowpass'; AMB.lp.frequency.value=AMB.open?16000:650; AMB.lim=c.createDynamicsCompressor(); AMB.lim.threshold.value=-10; AMB.lim.knee.value=6; AMB.lim.ratio.value=12; AMB.lim.attack.value=.005; AMB.lim.release.value=.25; AMB.out.connect(AMB.lp).connect(AMB.lim).connect(AU.out);
+function ambStart(){ const c=actx(); if(!c) return; if(!AMB.out){ AMB.out=c.createGain(); AMB.out.gain.value=.8; AMB.lp=c.createBiquadFilter(); AMB.lp.type='lowpass'; AMB.lp.frequency.value=AMB.open?16000:5000; AMB.lim=c.createDynamicsCompressor(); AMB.lim.threshold.value=-10; AMB.lim.knee.value=6; AMB.lim.ratio.value=12; AMB.lim.attack.value=.005; AMB.lim.release.value=.25; AMB.out.connect(AMB.lp).connect(AMB.lim).connect(AU.out);
     sload('lrain').then(b=>{ AU.recHas=!!b; if(AU.rain&&AU.recOK) AU.rain.gain.setTargetAtTime(0,c.currentTime,1); ambUpdate(); }); }
   if(!AMB.iv) AMB.iv=setInterval(ambUpdate,6000); ambUpdate(); }
 function bedOf(k){ if(AMB.beds[k]) return AMB.beds[k]; const c=AU.ctx, g=c.createGain(); g.gain.value=0; g.connect(k==='glass'||k==='boil'?AU.out:AMB.out); return (AMB.beds[k]={k,g,on:false,timer:0}); }
@@ -1036,7 +1036,10 @@ function mixLink(){ const n=mixNow(), q=MIXI.map(([k])=>k[0]+Math.round((n[k]||0
 (()=>{ try{ const q=new URLSearchParams(location.search).get('mix'); if(!q||!/^[a-z0-9-]{3,80}$/.test(q)) return; const m={}; q.split('-').forEach(x=>{ m[x[0]]=+x.slice(1); }); const v={}; [['r','rain'],['o','out'],['b','boil'],['n','noise'],['s','sym'],['t','tick']].forEach(([c,k])=>{ v[k]=Math.max(0,Math.min(1.5,(m[c]||0)/100)); });
   if(m.l>=0&&m.l<=2) v.l=m.l; if(m.e>=0&&m.e<=100) v.e=m.e/100;
   const a=LS.get('mixSaved',[]).filter(p=>p.n!=='나눠 받은 자리'); a.unshift({n:'나눠 받은 자리',v}); LS.set('mixSaved',a.slice(0,6)); history.replaceState(null,'',location.pathname+location.hash); setTimeout(()=>roomSay('나눠 받은 소리를 ‘소리 섞기’의 나만의 자리에 넣어 두었어요'),4000); }catch(e){} })();
-let SOFT=LS.get('sndSoft',true);   // 소리 결: 처음의 부드러운 합성 소리(기본) / 실제 녹음
+// 자연 녹음을 기본으로 복구한다. 이전 프로필은 1회 이전하되 이후 사용자의 선택은 보존한다.
+const SOUND_PROFILE_REV=2;
+let SOFT=LS.get('soundProfileRevision',0)<SOUND_PROFILE_REV?false:LS.get('sndSoft',false);
+if(LS.get('soundProfileRevision',0)<SOUND_PROFILE_REV){ LS.set('sndSoft',false); LS.set('soundProfileRevision',SOUND_PROFILE_REV); }
 function sndSoft(v){ SOFT=!!v; LS.set('sndSoft',SOFT); if(KT){ toggleKettle(); toggleKettle(); } setRain(); ambUpdate(); }
 window.__snd=()=>({soft:SOFT,rec:AU.recOK,rain:AU.rain?+AU.rain.gain.value.toFixed(3):null,base:AU.rainBase,snd:S.snd,beds:Object.fromEntries(Object.entries(AMB.beds).map(([k,v])=>[k,+v.g.gain.value.toFixed(3)])),kt:KT?+KT.g.gain.value.toFixed(3):null});
 let RL=LS.get('rainLv',0); const RLN=['부슬비','보통 비','장대비'], RLV=[.26,.5,.82], RLS=[.34,.62,1];   // 비 세기: 기본은 창가에 토닥이는 부슬비
@@ -1048,7 +1051,7 @@ function seaLevel(v){ const c=AU.ctx; if(!c||!AMB.out) return; bedLevel('waves',
 function ambUpdate(){ if(!AU.on||!AU.ctx||!AMB.out) return; const R=Math.random, M=k=>(AMB.mea[k]=Math.min(1.25,Math.max(.5,(AMB.mea[k]||1)+(R()-.5)*.3)));
   const snowy=WG.snowT>.5&&!window.__sym, rain=window.__sym?(window.__symLvl||.5):(S.snd&&!snowy)?RLV[RL]*(.9+.2*(M('rr')-.5)):(S.w&&!S.w.guess&&S.w.kind==='rain'&&!snowy)?.2:0, rs=window.__sym?1:RLS[RL];
   const h=Math.max(0,Math.min(1,(rain-.45)/.5)), op=AMB.open, fade=(1-(window.SLP||0)*.6)*(window.__sym?.7:1)*((S.playing||S.radio)?.4:1), pk=placeKind(), night=!(S.w&&S.w.isDay), calm=Math.max(.15,1-rain*.8);
-  AMB.lp.frequency.setTargetAtTime(op?16000:650,AU.ctx.currentTime,.8);
+  AMB.lp.frequency.setTargetAtTime(op?16000:5000,AU.ctx.currentTime,.8);
   const rc=SOFT?0:1, so=SOFT?(op?.6:0):1;
   bedLevel('lrain',rain?rc*(.4*(1-h)+.12)*rs*M('lr')*fade*MX.rain:0,4); bedLevel('hrain',rain?rc*.3*h*M('hr')*fade*MX.rain:0,4);
   bedLevel('glass',rain&&!op?rc*(.14+.3*rain)*Math.min(1,rs+.3)*M('gl')*fade*MX.rain:0,3);                                   // 닫힌 창: 유리를 두드리는 비
@@ -2157,7 +2160,7 @@ async function symStart(){ const c=actx(); if(!c||SYM) return; if(!AU.on) setAud
   const beat=1, dl=c.createDelay(3), fb=c.createGain(), dlp=c.createBiquadFilter(), ds=c.createGain(); dl.delayTime.value=beat*1.5; fb.gain.value=.32; dlp.type='lowpass'; dlp.frequency.value=2200; ds.gain.value=.22; ds.connect(dl); dl.connect(dlp).connect(fb).connect(dl); dlp.connect(rev); dlp.connect(out);
   const bus=c.createGain(); bus.gain.value=1; bus.connect(dry); bus.connect(rev); bus.connect(ds);
   // 바닥에 아주 옅게 깔리는 비 (끝없이 이어지는 소음)
-  const rn=c.createBufferSource(); rn.buffer=mkNoise(c,'pink',12); rn.loop=true; const rbp=c.createBiquadFilter(); rbp.type='bandpass'; rbp.frequency.value=1500; rbp.Q.value=.5; const rg=c.createGain(); rg.gain.value=.05; rn.connect(rbp).connect(rg).connect(out); rn.start();
+  const rn=c.createBufferSource(); rn.buffer=mkNoise(c,'pink',12); rn.loop=true; const rbp=c.createBiquadFilter(); rbp.type='bandpass'; rbp.frequency.value=1500; rbp.Q.value=.5; const rg=c.createGain(); rg.gain.value=SOFT?.05:0; rn.connect(rbp).connect(rg).connect(out); rn.start();
   SYM={c,out,bus,rev,rg,rn,rbp,lvl:.22,lvlT:.4,thunderAt:Date.now()+300000,st:null,stNext:Date.now()+240000,t0:Math.ceil(c.currentTime)+.0,next:Math.ceil(c.currentTime)+1,step:0,beat,prog:Math.floor(Math.random()*SYM_PROG.length),iv:0,started:Date.now()};
   SYM.iv=setInterval(symTick,200); symTick(); window.__sym=true; stage.classList.add('boil'); upSleepSnd(); }
 function symStop(){ if(!SYM) return; const s=SYM; SYM=null; clearInterval(s.iv); window.__sym=false; if(!KT) stage.classList.remove('boil'); stage.classList.remove('static'); if(s.st){ try{ s.st.g.gain.setTargetAtTime(0,s.c.currentTime,1); }catch(_){} } setRain(); s.out.gain.setTargetAtTime(0,s.c.currentTime,1.8); setTimeout(()=>{ try{ s.rn.stop(); s.out.disconnect(); }catch(_){} },9000); upSleepSnd(); }
@@ -2179,7 +2182,7 @@ function symTick(){ if(!SYM) return; const c=SYM.c, ahead=c.currentTime+2.2, R=M
 // 비: 몇 분에 걸쳐 굵어졌다 가늘어졌다. 창밖 빗줄기도 같이
 function symWeather(t){ const R=Math.random, c=SYM.c; if(R()<.25) SYM.lvlT=Math.min(1,Math.max(.15,SYM.lvlT+(R()-.5)*.5)); if(R()<.03) SYM.lvlT=.95;   // 가끔 한차례 쏟아짐
   SYM.lvl+=(SYM.lvlT-SYM.lvl)*.35; const L=SYM.lvl;
-  SYM.rg.gain.setTargetAtTime((AU.recOK?0:1)*(.025+.09*L),t,4); window.__symLvl=L; ambUpdate(); SYM.rbp.frequency.setTargetAtTime(1100+900*L,t,4); WG.rainT=.3+.75*L; WG.snowT=0;
+  SYM.rg.gain.setTargetAtTime(SOFT?(.025+.09*L):0,t,4); window.__symLvl=L; ambUpdate(); SYM.rbp.frequency.setTargetAtTime(1100+900*L,t,4); WG.rainT=.3+.75*L; WG.snowT=0;
   const fade=1-(window.SLP||0);
   if(L>.6&&Date.now()>SYM.thunderAt&&R()<.3&&fade>.5){ SYM.thunderAt=Date.now()+180000+R()*300000; symThunder(t); }   // 아주 가끔, 비가 굵을 때만
   if(!SYM.st&&Date.now()>SYM.stNext&&R()<.4) symStatic(t); }
