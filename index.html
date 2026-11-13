@@ -966,7 +966,7 @@ function toggleLamp(){ blip('switch'); S.lamp=!S.lamp; setTimeout(humSet,0); sta
 /* ---------- 소리: 전부 코드로 합성 (파일 없음) ---------- */
 const AU={ctx:null,out:null,on:false,rain:null,vinyl:null};
 function actx(){
-  if(!AU.ctx){ try{ AU.ctx=(()=>{ const A=window.AudioContext||window.webkitAudioContext; try{ return new A({latencyHint:'playback'}); }catch(_){ return new A(); } })(); AU.out=AU.ctx.createGain(); AU.out.gain.value=AU.on?1:0; try{ const cp=AU.ctx.createDynamicsCompressor(); cp.threshold.value=-26; cp.knee.value=14; cp.ratio.value=4; cp.attack.value=.012; cp.release.value=.5; AU.tone=AU.ctx.createBiquadFilter(); AU.tone.type='lowpass'; AU.tone.Q.value=.3; AU.tone.frequency.value=toneHz(LS.get('tone',.7)); AU.out.connect(AU.tone).connect(cp).connect(AU.ctx.destination); }catch(_){ AU.out.connect(AU.ctx.destination); }
+  if(!AU.ctx){ try{ AU.ctx=(()=>{ const A=window.AudioContext||window.webkitAudioContext; try{ return new A({latencyHint:'playback'}); }catch(_){ return new A(); } })(); AU.out=AU.ctx.createGain(); AU.out.gain.value=AU.on?1:0; try{ const cp=AU.ctx.createDynamicsCompressor(); cp.threshold.value=-3; cp.knee.value=0; cp.ratio.value=20; cp.attack.value=.003; cp.release.value=.25; const cpT=AU.ctx.createGain(); cpT.gain.value=.82; AU.tone=AU.ctx.createBiquadFilter(); AU.tone.type='lowpass'; AU.tone.Q.value=.3; AU.tone.frequency.value=toneHz(LS.get('tone',.7)); AU.out.connect(AU.tone).connect(cp).connect(cpT).connect(AU.ctx.destination); }catch(_){ AU.out.connect(AU.ctx.destination); }
     try{ Object.defineProperty(AU,'recOK',{get:()=>!!AU.recHas&&!SOFT,configurable:true}); }catch(_){} }catch(e){ return null; } }
   if(AU.ctx.state==='suspended') AU.ctx.resume(); return AU.ctx;
 }
@@ -993,7 +993,7 @@ function rainSound(on,soft){ const c=actx(); if(!c) return;
   const L=AU.rainL, M=soft?[0,0,.06,0,1700]:[[.045,0,.1,5,1100],[.4,.004,.32,9,1500],[1,.016,.55,15,1700]][RL], T=c.currentTime;
   L.wash.gain.setTargetAtTime(M[0],T,.8); L.hiss.gain.setTargetAtTime(M[1],T,.8); L.low.gain.setTargetAtTime(M[2],T,.8); L.washF.frequency.setTargetAtTime(M[4],T,.8); L.rate=M[3];
   L.wind.gain.setTargetAtTime(soft?.42:0,T,1.2); L.windLfo.gain.setTargetAtTime(soft?.22:0,T,1.2);
-  AU.rain.gain.cancelScheduledValues(c.currentTime); AU.rainBase=(AU.recOK?0:(soft?.085:[.2,.23,.36][RL]))*((S.playing||S.radio)?.3:1); /* 노래나 라디오가 나오면 빗소리는 뒤로 물러난다 */ AU.rain.gain.setTargetAtTime(on?AU.rainBase:0,c.currentTime,on?.7:.4); }
+  AU.rain.gain.cancelScheduledValues(c.currentTime); AU.rainBase=(AU.recOK?0:(soft?.085:[.38,.25,.27][RL]))*((S.playing||S.radio)?.45:1); /* 노래나 라디오가 나오면 빗소리는 뒤로 물러난다 */ AU.rain.gain.setTargetAtTime(on?AU.rainBase:0,c.currentTime,on?.7:.4); }
 function vinyl(on){ const c=actx(); if(!c) return;
   if(!AU.vinyl){ const n=c.sampleRate*6,b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0); for(let i=0;i<n;i++){ d[i]=(Math.random()*2-1)*.012; if(Math.random()<.00035) d[i]+=(Math.random()*2-1)*.7; }
     const s=c.createBufferSource(); s.buffer=b; s.loop=true; const f=c.createBiquadFilter(); f.type='bandpass'; f.frequency.value=2600; f.Q.value=.3; const g=c.createGain(); g.gain.value=0; s.connect(f).connect(g).connect(AU.out); s.start(); AU.vinyl=g; }
