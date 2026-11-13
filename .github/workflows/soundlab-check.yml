@@ -1,0 +1,36 @@
+# 보라다방 soundlab 자동 검사 (sound-lab 브랜치 전용)
+# GPT 제안(config/ci_workflow_EXAMPLE.yml)을 바탕으로 Claude 검증 스크립트를 더함.
+# 하는 일: 엔진 테스트 + 반례 + 변이 시험을 돌리고 결과 JSON·로그를 산출물로 남김.
+# 하지 않는 일: 커밋·푸시, Firebase 배포, AI API 호출, 운영 사이트 접근.
+name: soundlab 검사
+on:
+  push:
+    branches: [sound-lab]
+    paths: ["soundlab/engine/**", "soundlab/verify/**", ".github/workflows/soundlab-check.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  engine-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: GPT 엔진 테스트
+        run: |
+          node soundlab/engine/tests/test_all_175.mjs | tee soundlab-engine-tests.log
+          node soundlab/engine/tests/test_matrix.mjs | tee -a soundlab-engine-tests.log
+      - name: Claude 반례 (기록용, 실패해도 계속)
+        run: node soundlab/verify/engine_counterexamples.mjs | tee soundlab-counterexamples.log
+      - name: Claude 변이 시험 (기록용)
+        run: node soundlab/verify/mutation_test.mjs | tee soundlab-mutation.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: soundlab-check-${{ github.sha }}
+          path: |
+            soundlab-*.log
+            soundlab/engine/reports/*.json
+          retention-days: 30

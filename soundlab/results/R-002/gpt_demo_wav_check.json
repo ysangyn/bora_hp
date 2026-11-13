@@ -1,0 +1,172 @@
+[
+ {
+  "file": "binaural_sequential.wav",
+  "sr": 32000,
+  "ch": 2,
+  "dur_s": 24.0,
+  "lufs_i": -29.7,
+  "lra": 5.2,
+  "true_peak_dbtp": -21.6,
+  "windows_2s": [
+   {
+    "t": 0.0,
+    "L_hz": 216.0,
+    "R_hz": 224.0,
+    "diff_hz": 8.0,
+    "peak_prom_db": 45.9,
+    "sum_env_mod_hz": 55.0,
+    "sum_env_mod_prom_db": 35.8
+   },
+   {
+    "t": 2.0,
+    "L_hz": 216.0,
+    "R_hz": 224.0,
+    "diff_hz": 8.0,
+    "peak_prom_db": 46.0,
+    "sum_env_mod_hz": 55.0,
+    "sum_env_mod_prom_db": 35.9
+   },
+   {
+    "t": 4.0,
+    "L_hz": 110.0,
+    "R_hz": 224.0,
+    "diff_hz": 114.0,
+    "peak_prom_db": 46.0,
+    "sum_env_mod_hz": 55.0,
+    "sum_env_mod_prom_db": 35.0
+   },
+   {
+    "t": 6.0,
+    "L_hz": 110.0,
+    "R_hz": 110.0,
+    "diff_hz": -0.0,
+    "peak_prom_db": 46.2,
+    "sum_env_mod_hz": 55.0,
+    "sum_env_mod_prom_db": 34.9
+   },
+   {
+    "t": 8.0,
+    "L_hz": 110.0,
+    "R_hz": 110.0,
+    "diff_hz": -0.0,
+    "peak_prom_db": 46.4,
+    "sum_env_mod_hz": 55.0,
+    "sum_env_mod_prom_db": 35.2
+   },
+   {
+    "t": 10.0,
+    "L_hz": 110.0,
+    "R_hz": 110.0,
+    "diff_hz": 0.0,
+    "peak_prom_db": 46.2,
+    "sum_env_mod_hz": 55.0,
+    "sum_env_mod_prom_db": 36.0
+   },
+   {
+    "t": 12.0,
+    "L_hz": 320.0,
+    "R_hz": 360.0,
+    "diff_hz": 40.0,
+    "peak_prom_db": 44.0,
+    "sum_env_mod_hz": 40.0,
+    "sum_env_mod_prom_db": 35.5
+   },
+   {
+    "t": 14.0,
+    "L_hz": 320.0,
+    "R_hz": 360.0,
+    "diff_hz": 40.0,
+    "peak_prom_db": 44.2,
+    "sum_env_mod_hz": 40.0,
+    "sum_env_mod_prom_db": 35.5
+   },
+   {
+    "t": 16.0,
+    "L_hz": 320.0,
+    "R_hz": 360.0,
+    "diff_hz": 40.0,
+    "peak_prom_db": 43.8,
+    "sum_env_mod_hz": 40.0,
+    "sum_env_mod_prom_db": 35.8
+   },
+   {
+    "t": 18.0,
+    "L_hz": 320.0,
+    "R_hz": 360.0,
+    "diff_hz": 39.99,
+    "peak_prom_db": 43.8,
+    "sum_env_mod_hz": 40.0,
+    "sum_env_mod_prom_db": 36.1
+   },
+   {
+    "t": 20.0,
+    "L_hz": 320.0,
+    "R_hz": 360.0,
+    "diff_hz": 40.0,
+    "peak_prom_db": 44.1,
+    "sum_env_mod_hz": 40.0,
+    "sum_env_mod_prom_db": 37.6
+   }
+  ],
+  "jumps_gt12db_10ms": [],
+  "lr_corr": 0.373
+ },
+ {
+  "file": "rest_simultaneous.wav",
+  "sr": 32000,
+  "ch": 2,
+  "dur_s": 12.0,
+  "lufs_i": -39.9,
+  "lra": 5.3,
+  "true_peak_dbtp": -28.8,
+  "windows_2s": [
+   {
+    "t": 0.0,
+    "L_hz": 110.0,
+    "R_hz": 110.0,
+    "diff_hz": 0.01,
+    "peak_prom_db": 30.9,
+    "sum_env_mod_hz": 12.0,
+    "sum_env_mod_prom_db": 21.1
+   },
+   {
+    "t": 2.0,
+    "L_hz": 110.0,
+    "R_hz": 110.0,
+    "diff_hz": -0.0,
+    "peak_prom_db": 39.1,
+    "sum_env_mod_hz": 12.0,
+    "sum_env_mod_prom_db": 29.0
+   },
+   {
+    "t": 4.0,
+    "L_hz": 110.0,
+    "R_hz": 110.0,
+    "diff_hz": -0.0,
+    "peak_prom_db": 31.8,
+    "sum_env_mod_hz": 55.0,
+    "sum_env_mod_prom_db": 22.9
+   },
+   {
+    "t": 6.0,
+    "L_hz": 110.0,
+    "R_hz": 110.0,
+    "diff_hz": 0.01,
+    "peak_prom_db": 37.2,
+    "sum_env_mod_hz": 12.0,
+    "sum_env_mod_prom_db": 27.1
+   },
+   {
+    "t": 8.0,
+    "L_hz": 110.0,
+    "R_hz": 110.0,
+    "diff_hz": -0.01,
+    "peak_prom_db": 34.4,
+    "sum_env_mod_hz": 12.0,
+    "sum_env_mod_prom_db": 23.9
+   }
+  ],
+  "jumps_gt12db_10ms": [],
+  "lr_corr": 0.74
+ }
+]

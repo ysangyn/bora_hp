@@ -1,0 +1,2497 @@
+[
+  {
+    "selected": [
+      "body_relax"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "eye_refresh"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "mind_focus"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "calm_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "mood_up"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "active_energy"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "sleep_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "vita_boost"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "head_reset"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "eye_refresh"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "mind_focus"
+    ],
+    "strategy": "sequential",
+    "reason": "multiple_binaural",
+    "stages": 2,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "calm_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "mood_up"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "active_energy"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "vita_boost"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 2,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "head_reset"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "eye_refresh"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "mind_focus"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "calm_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "mood_up"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 2,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 2,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "head_reset"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "eye_refresh"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "mind_focus"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "calm_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "mood_up"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 2,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 2,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset",
+      "eye_refresh"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset",
+      "mind_focus"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset",
+      "calm_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset",
+      "mood_up"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset",
+      "active_energy"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "eye_refresh",
+      "mind_focus"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "eye_refresh",
+      "calm_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "eye_refresh",
+      "mood_up"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "eye_refresh",
+      "active_energy"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "eye_refresh",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "mind_focus",
+      "calm_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "mind_focus",
+      "mood_up"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "mind_focus",
+      "active_energy"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "mind_focus",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "calm_balance",
+      "mood_up"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "calm_balance",
+      "active_energy"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "calm_balance",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "mood_up",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 2,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "mood_up",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "active_energy",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "sleep_balance",
+      "vita_boost"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "sleep_balance",
+      "head_reset"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "sleep_balance",
+      "eye_refresh"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "sleep_balance",
+      "mind_focus"
+    ],
+    "strategy": "sequential",
+    "reason": "multiple_binaural",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "sleep_balance",
+      "calm_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "sleep_balance",
+      "mood_up"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "sleep_balance",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "sleep_balance",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "vita_boost",
+      "head_reset"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "vita_boost",
+      "eye_refresh"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "vita_boost",
+      "mind_focus"
+    ],
+    "strategy": "sequential",
+    "reason": "multiple_binaural",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "vita_boost",
+      "calm_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "vita_boost",
+      "mood_up"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "vita_boost",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "vita_boost",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "head_reset",
+      "eye_refresh"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "head_reset",
+      "mind_focus"
+    ],
+    "strategy": "sequential",
+    "reason": "multiple_binaural",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "head_reset",
+      "calm_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "head_reset",
+      "mood_up"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "head_reset",
+      "active_energy"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "head_reset",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "eye_refresh",
+      "mind_focus"
+    ],
+    "strategy": "sequential",
+    "reason": "multiple_binaural",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "eye_refresh",
+      "calm_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "eye_refresh",
+      "mood_up"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "eye_refresh",
+      "active_energy"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "eye_refresh",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "mind_focus",
+      "calm_balance"
+    ],
+    "strategy": "sequential",
+    "reason": "multiple_binaural",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "mind_focus",
+      "mood_up"
+    ],
+    "strategy": "sequential",
+    "reason": "multiple_binaural",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "mind_focus",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "multiple_binaural",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "mind_focus",
+      "nature_recovery"
+    ],
+    "strategy": "sequential",
+    "reason": "multiple_binaural",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "calm_balance",
+      "mood_up"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "calm_balance",
+      "active_energy"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "calm_balance",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "mood_up",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "mood_up",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "body_relax",
+      "active_energy",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "vita_boost",
+      "head_reset"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "vita_boost",
+      "eye_refresh"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "vita_boost",
+      "mind_focus"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "vita_boost",
+      "calm_balance"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "vita_boost",
+      "mood_up"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "vita_boost",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "vita_boost",
+      "nature_recovery"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "head_reset",
+      "eye_refresh"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "head_reset",
+      "mind_focus"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "head_reset",
+      "calm_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "head_reset",
+      "mood_up"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "head_reset",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "head_reset",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "eye_refresh",
+      "mind_focus"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "eye_refresh",
+      "calm_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "eye_refresh",
+      "mood_up"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "eye_refresh",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "eye_refresh",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "mind_focus",
+      "calm_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "mind_focus",
+      "mood_up"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "mind_focus",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "mind_focus",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "calm_balance",
+      "mood_up"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "calm_balance",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "calm_balance",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "mood_up",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "mood_up",
+      "nature_recovery"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "sleep_balance",
+      "active_energy",
+      "nature_recovery"
+    ],
+    "strategy": "sequential",
+    "reason": "sleep_energy",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "head_reset",
+      "eye_refresh"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "head_reset",
+      "mind_focus"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "head_reset",
+      "calm_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "head_reset",
+      "mood_up"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "head_reset",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "head_reset",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "eye_refresh",
+      "mind_focus"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "eye_refresh",
+      "calm_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "eye_refresh",
+      "mood_up"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "eye_refresh",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "eye_refresh",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "mind_focus",
+      "calm_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "mind_focus",
+      "mood_up"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "mind_focus",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "mind_focus",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "calm_balance",
+      "mood_up"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "calm_balance",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "calm_balance",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "mood_up",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "mood_up",
+      "nature_recovery"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "vita_boost",
+      "active_energy",
+      "nature_recovery"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset",
+      "eye_refresh",
+      "mind_focus"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset",
+      "eye_refresh",
+      "calm_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset",
+      "eye_refresh",
+      "mood_up"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset",
+      "eye_refresh",
+      "active_energy"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset",
+      "eye_refresh",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset",
+      "mind_focus",
+      "calm_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset",
+      "mind_focus",
+      "mood_up"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset",
+      "mind_focus",
+      "active_energy"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset",
+      "mind_focus",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset",
+      "calm_balance",
+      "mood_up"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset",
+      "calm_balance",
+      "active_energy"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset",
+      "calm_balance",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset",
+      "mood_up",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset",
+      "mood_up",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "head_reset",
+      "active_energy",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "eye_refresh",
+      "mind_focus",
+      "calm_balance"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "eye_refresh",
+      "mind_focus",
+      "mood_up"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "eye_refresh",
+      "mind_focus",
+      "active_energy"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "eye_refresh",
+      "mind_focus",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "eye_refresh",
+      "calm_balance",
+      "mood_up"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "eye_refresh",
+      "calm_balance",
+      "active_energy"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "eye_refresh",
+      "calm_balance",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "eye_refresh",
+      "mood_up",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "eye_refresh",
+      "mood_up",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "eye_refresh",
+      "active_energy",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "mind_focus",
+      "calm_balance",
+      "mood_up"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "mind_focus",
+      "calm_balance",
+      "active_energy"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "mind_focus",
+      "calm_balance",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "mind_focus",
+      "mood_up",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "mind_focus",
+      "mood_up",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "mind_focus",
+      "active_energy",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "calm_balance",
+      "mood_up",
+      "active_energy"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "calm_balance",
+      "mood_up",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "calm_balance",
+      "active_energy",
+      "nature_recovery"
+    ],
+    "strategy": "simultaneous",
+    "reason": null,
+    "stages": 1,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  },
+  {
+    "selected": [
+      "mood_up",
+      "active_energy",
+      "nature_recovery"
+    ],
+    "strategy": "sequential",
+    "reason": "conflicting_tempo",
+    "stages": 3,
+    "warnings": [
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE",
+      "UNMEASURED_SOURCE"
+    ]
+  }
+]

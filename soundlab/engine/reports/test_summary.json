@@ -1,0 +1,13 @@
+{
+  "total": 175,
+  "simultaneous": 120,
+  "sequential": 55,
+  "checks": [
+    "determinism",
+    "one_binaural_per_stage",
+    "headroom_finite",
+    "phone_disables_binaural",
+    "incompatible_tempo_sequenced"
+  ],
+  "scope": "metadata plan only; no audio waveform generated or inspected"
+}

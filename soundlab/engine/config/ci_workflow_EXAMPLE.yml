@@ -1,0 +1,30 @@
+# PROPOSED ONLY: copy to .github/workflows/bora-soundlab-check.yml after approval
+# This runs unit tests. It does not generate content, run AI APIs, push commits or deploy Firebase.
+name: BORA Sound Lab checks
+on:
+  push:
+    branches: [sound-lab]
+    paths: ["soundlab/engine/**", ".github/workflows/bora-soundlab-check.yml"]
+  pull_request:
+    paths: ["soundlab/engine/**"]
+  schedule:
+    - cron: '0 0 * * 1-5' # 09:00 Asia/Seoul, Monday-Friday
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  metadata-plan-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node soundlab/engine/tests/test_all_175.mjs
+      - run: node soundlab/engine/tests/test_matrix.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bora-plan-test-results
+          path: soundlab/engine/reports/*.json
+          retention-days: 14

@@ -1,0 +1,20 @@
+COUNTEREXAMPLE  CE-1 sleep: event(차임)는 빠지거나 경고되어야 함 
+    {"strategy":"sequential","reason":"sleep_distraction","enabled_by_stage":[["sleep_balance"],["eye_refresh"]],"warnings":["UNMEASURED_SOURCE","UNMEASURED_SOURCE"]}
+COUNTEREXAMPLE  CE-2 sleep: energy 목표 제품은 경고/차단 
+    {"strategy":"simultaneous","warnings":["UNMEASURED_SOURCE"]}
+COUNTEREXAMPLE  CE-3 sleep: 마지막 단계는 잠에 맞는 제품 
+    {"reason":"sleep_energy","order":[["sleep_balance"],["active_energy"]]}
+COUNTEREXAMPLE  CE-4 재생할 것이 없으면 오류 또는 명시적 상태 
+    {"strategy":"sequential","reason":"multiple_binaural","enabled_by_stage":[[],[]],"warnings":["BINAURAL_REQUIRES_HEADPHONES","UNMEASURED_SOURCE","BINAURAL_REQUIRES_HEADPHONES","UNMEASURED_SOURCE","SOME_SOURCES_DISABLED"]}
+COUNTEREXAMPLE  CE-5 빈 단계는 계획에서 빠져야 함 
+    {"stages":[["body_relax(off)"],["calm_balance"],["mind_focus(off)"]]}
+COUNTEREXAMPLE  CE-6 데모 렌더 게인 = 엔진 게인 
+    {"engine_gain_db":[-6,-6,-6],"render_check_gain_db":-12}
+COUNTEREXAMPLE  CE-7 단계마다 길이/전환 정보 
+    {"stage_keys":["items"]}
+COUNTEREXAMPLE  CE-8 모든 순차 사유 기록 
+    {"reason":"sleep_energy"}
+COUNTEREXAMPLE  CE-9 stimulus 목적 고유 규칙 
+    {"same_as_free":true}
+
+반례 9 / 9

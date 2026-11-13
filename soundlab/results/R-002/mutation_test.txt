@@ -1,0 +1,11 @@
+M1 수면+event 규칙 제거 | SURVIVED (테스트가 못 잡음) | 
+M2 수면↔에너지 규칙 제거 | SURVIVED (테스트가 못 잡음) | 
+M3 말소리(집중) 규칙 제거 | SURVIVED (테스트가 못 잡음) | 
+M4 템포 충돌 규칙 제거 | KILLED (테스트가 잡음) | tests/test_all_175.mjs: AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+M5 바이노럴 여럿 → 순차 규칙 제거 | KILLED (테스트가 잡음) | tests/test_all_175.mjs: AssertionError [ERR_ASSERTION]: never two binaural signals simultaneously
+M6 헤드폰 아니면 바이노럴 끄기 제거 | KILLED (테스트가 잡음) | tests/test_all_175.mjs: AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+M7 동시 재생 헤드룸 제거 | SURVIVED (테스트가 못 잡음) | 
+M8 event -9dB 보정 제거 | SURVIVED (테스트가 못 잡음) | 
+M9 헤드룸을 +6dB로(증폭) | SURVIVED (테스트가 못 잡음) | 
+
+잡힌 변이 3 / 9

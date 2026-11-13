@@ -1,0 +1,26 @@
+# 받은 GPT 패키지: BORA_sound_engine_dev_2026-11-13.zip
+
+- 받은 날: 2026-11-13 (사용자 전달)
+- ZIP SHA256: `34e48e3d49b7d98e373a7d9ccd6cd82c107cc197b724fe4b2af54a4fa842ae1c`
+- 반영 위치: `soundlab/engine/` (demo WAV 두 개는 용량 때문에 저장소에 넣지 않고 해시만 남김)
+- 반영 뒤 GPT 테스트 재실행: PASS 175 / PASS 3500, reports 파일 내용 동일
+
+## 파일별 SHA256 (받은 그대로)
+
+```
+ccb44ab894382fba8565315efc85aa6f8b86555e24e551ef33a7372e0402a53b  README.md
+91b8e0247a9718a6cfd2705bd3523753253733ceae4d206497a5cda3cf4ac633  config/catalog10.json
+960b9040eeff815fc086da7717fe96e5788f7c62c18d44c4eaa5ab48be2c6dd7  config/ci_workflow_EXAMPLE.yml
+d9c1b69054518ee562a0e57342cc3f593ac6674265219d2e1807b79d4c0b0d5f  demo/binaural_sequential.wav
+bd6ba76d980a5e73856747e13abd90f4f47e567592674663484239d2b686fdfd  demo/rest_simultaneous.wav
+ea7b81b914ce01db9265be81b82d76f0a4f60eb450d8d55373f6312f8842663a  docs/G-1_R001_RESPONSE.md
+8a4ffc4edd838b01b6deb84307bccab287dc7e5c6c166dfef25df50e2e1c89ab  docs/G-2_TEN_PRODUCTS_SPEC.md
+1c5eed5bc9795daa8f910ac5d52ab53fc0ed702a6886848fcfc4db03a43fa138  reports/3500_plan_matrix.json
+c6920dcd79652bf6aad38c06b5fc2f28f2898777d69a3e511e1ced4520395457  reports/all_175_plans.json
+427fe464370c9d8937f217ab77a87b1592a9c5beada87092f699c46f69e69d32  reports/render_test.json
+6e2384c2484ae8babce09a06afdc8d21407e906aa39200c17c15af68b15f0ac9  reports/test_summary.json
+f113c9f7cfa215548ad5ca1d4718078b69a9436021d108cff6d929f447d36cc9  src/mix_plan.mjs
+1880628aa9bd9205e796642bbb9594a6e2c5cc0dc3ca753a0f01b3ebc9b4aac7  tests/render_check.py
+741582d3fadcfe0d910f46d5744f5e998ce6a247cfb4796761c7eadebcaba53c  tests/test_all_175.mjs
+c9fde88ea4a7411e697c94c6f9baa3bc25f9d5350eaec1188094113809283c3a  tests/test_matrix.mjs
+```

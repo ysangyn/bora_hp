@@ -1,0 +1,510 @@
+{
+ "url": "http://localhost:8791/R/index.html",
+ "ua": "153.0.8010.12",
+ "scenarios": [
+  {
+   "id": "rain_l0",
+   "name": "부슬비",
+   "rep": 1,
+   "sr": 44100,
+   "seconds": 20,
+   "bytes": 7077888,
+   "state": {
+    "soft": true,
+    "rec": false,
+    "rain": 0.16,
+    "base": 0.15,
+    "snd": true,
+    "beds": {
+     "lrain": 0,
+     "hrain": 0,
+     "glass": 0,
+     "street": 0,
+     "traffic": 0,
+     "birds": 0,
+     "crickets": 0,
+     "wind": 0.002,
+     "waves": 0
+    },
+    "kt": null
+   },
+   "errors": []
+  },
+  {
+   "id": "rain_l0",
+   "name": "부슬비",
+   "rep": 2,
+   "sr": 44100,
+   "seconds": 20,
+   "bytes": 7077888,
+   "state": {
+    "soft": true,
+    "rec": false,
+    "rain": 0.142,
+    "base": 0.15,
+    "snd": true,
+    "beds": {
+     "lrain": 0,
+     "hrain": 0,
+     "glass": 0,
+     "street": 0,
+     "traffic": 0,
+     "birds": 0,
+     "crickets": 0,
+     "wind": 0.002,
+     "waves": 0
+    },
+    "kt": null
+   },
+   "errors": []
+  },
+  {
+   "id": "rain_l1",
+   "name": "보통 비",
+   "rep": 1,
+   "sr": 44100,
+   "seconds": 20,
+   "bytes": 7045120,
+   "state": {
+    "soft": true,
+    "rec": false,
+    "rain": 0.258,
+    "base": 0.24,
+    "snd": true,
+    "beds": {
+     "lrain": 0,
+     "hrain": 0,
+     "glass": 0,
+     "street": 0,
+     "traffic": 0,
+     "birds": 0,
+     "crickets": 0,
+     "wind": 0.002,
+     "waves": 0
+    },
+    "kt": null
+   },
+   "errors": []
+  },
+  {
+   "id": "rain_l1",
+   "name": "보통 비",
+   "rep": 2,
+   "sr": 44100,
+   "seconds": 20,
+   "bytes": 7077888,
+   "state": {
+    "soft": true,
+    "rec": false,
+    "rain": 0.212,
+    "base": 0.24,
+    "snd": true,
+    "beds": {
+     "lrain": 0,
+     "hrain": 0,
+     "glass": 0,
+     "street": 0,
+     "traffic": 0,
+     "birds": 0,
+     "crickets": 0,
+     "wind": 0.002,
+     "waves": 0
+    },
+    "kt": null
+   },
+   "errors": []
+  },
+  {
+   "id": "rain_l2",
+   "name": "장대비",
+   "rep": 1,
+   "sr": 44100,
+   "seconds": 20,
+   "bytes": 7077888,
+   "state": {
+    "soft": true,
+    "rec": false,
+    "rain": 0.338,
+    "base": 0.36,
+    "snd": true,
+    "beds": {
+     "lrain": 0,
+     "hrain": 0,
+     "glass": 0,
+     "street": 0,
+     "traffic": 0,
+     "birds": 0,
+     "crickets": 0,
+     "wind": 0.001,
+     "waves": 0
+    },
+    "kt": null
+   },
+   "errors": []
+  },
+  {
+   "id": "rain_l2",
+   "name": "장대비",
+   "rep": 2,
+   "sr": 44100,
+   "seconds": 20,
+   "bytes": 7077888,
+   "state": {
+    "soft": true,
+    "rec": false,
+    "rain": 0.387,
+    "base": 0.36,
+    "snd": true,
+    "beds": {
+     "lrain": 0,
+     "hrain": 0,
+     "glass": 0,
+     "street": 0,
+     "traffic": 0,
+     "birds": 0,
+     "crickets": 0,
+     "wind": 0.002,
+     "waves": 0
+    },
+    "kt": null
+   },
+   "errors": []
+  },
+  {
+   "id": "kettle",
+   "name": "주전자",
+   "rep": 1,
+   "sr": 44100,
+   "seconds": 20,
+   "bytes": 7045120,
+   "state": {
+    "soft": true,
+    "rec": false,
+    "rain": 0.158,
+    "base": 0.15,
+    "snd": true,
+    "beds": {
+     "lrain": 0,
+     "hrain": 0,
+     "glass": 0,
+     "street": 0,
+     "traffic": 0,
+     "birds": 0,
+     "crickets": 0,
+     "wind": 0.002,
+     "waves": 0
+    },
+    "kt": 0.339
+   },
+   "errors": []
+  },
+  {
+   "id": "kettle",
+   "name": "주전자",
+   "rep": 2,
+   "sr": 44100,
+   "seconds": 20,
+   "bytes": 7077888,
+   "state": {
+    "soft": true,
+    "rec": false,
+    "rain": 0.143,
+    "base": 0.15,
+    "snd": true,
+    "beds": {
+     "lrain": 0,
+     "hrain": 0,
+     "glass": 0,
+     "street": 0,
+     "traffic": 0,
+     "birds": 0,
+     "crickets": 0,
+     "wind": 0.002,
+     "waves": 0
+    },
+    "kt": 0.264
+   },
+   "errors": []
+  },
+  {
+   "id": "brown",
+   "name": "브라운 노이즈",
+   "rep": 1,
+   "sr": 44100,
+   "seconds": 20,
+   "bytes": 7110656,
+   "state": {
+    "soft": true,
+    "rec": false,
+    "rain": 0,
+    "base": 0.15,
+    "snd": false,
+    "beds": {
+     "lrain": 0,
+     "hrain": 0,
+     "glass": 0,
+     "street": 0,
+     "traffic": 0,
+     "birds": 0,
+     "crickets": 0,
+     "wind": 0.002,
+     "waves": 0
+    },
+    "kt": null
+   },
+   "errors": []
+  },
+  {
+   "id": "brown",
+   "name": "브라운 노이즈",
+   "rep": 2,
+   "sr": 44100,
+   "seconds": 20,
+   "bytes": 7143424,
+   "state": {
+    "soft": true,
+    "rec": false,
+    "rain": 0,
+    "base": 0.15,
+    "snd": false,
+    "beds": {
+     "lrain": 0,
+     "hrain": 0,
+     "glass": 0,
+     "street": 0,
+     "traffic": 0,
+     "birds": 0,
+     "crickets": 0,
+     "wind": 0.002,
+     "waves": 0
+    },
+    "kt": null
+   },
+   "errors": []
+  },
+  {
+   "id": "pink",
+   "name": "핑크 노이즈",
+   "rep": 1,
+   "sr": 44100,
+   "seconds": 20,
+   "bytes": 7110656,
+   "state": {
+    "soft": true,
+    "rec": false,
+    "rain": 0,
+    "base": 0.15,
+    "snd": false,
+    "beds": {
+     "lrain": 0,
+     "hrain": 0,
+     "glass": 0,
+     "street": 0,
+     "traffic": 0,
+     "birds": 0,
+     "crickets": 0,
+     "wind": 0.002,
+     "waves": 0
+    },
+    "kt": null
+   },
+   "errors": []
+  },
+  {
+   "id": "pink",
+   "name": "핑크 노이즈",
+   "rep": 2,
+   "sr": 44100,
+   "seconds": 20,
+   "bytes": 7077888,
+   "state": {
+    "soft": true,
+    "rec": false,
+    "rain": 0,
+    "base": 0.15,
+    "snd": false,
+    "beds": {
+     "lrain": 0,
+     "hrain": 0,
+     "glass": 0,
+     "street": 0,
+     "traffic": 0,
+     "birds": 0,
+     "crickets": 0,
+     "wind": 0.002,
+     "waves": 0
+    },
+    "kt": null
+   },
+   "errors": []
+  },
+  {
+   "id": "wave",
+   "name": "숨 고르기 바람",
+   "rep": 1,
+   "sr": 44100,
+   "seconds": 20,
+   "bytes": 7110656,
+   "state": {
+    "soft": true,
+    "rec": false,
+    "rain": 0,
+    "base": 0.15,
+    "snd": false,
+    "beds": {
+     "lrain": 0,
+     "hrain": 0,
+     "glass": 0,
+     "street": 0,
+     "traffic": 0,
+     "birds": 0,
+     "crickets": 0,
+     "wind": 0.002,
+     "waves": 0
+    },
+    "kt": null
+   },
+   "errors": []
+  },
+  {
+   "id": "wave",
+   "name": "숨 고르기 바람",
+   "rep": 2,
+   "sr": 44100,
+   "seconds": 20,
+   "bytes": 7077888,
+   "state": {
+    "soft": true,
+    "rec": false,
+    "rain": 0,
+    "base": 0.15,
+    "snd": false,
+    "beds": {
+     "lrain": 0,
+     "hrain": 0,
+     "glass": 0,
+     "street": 0,
+     "traffic": 0,
+     "birds": 0,
+     "crickets": 0,
+     "wind": 0.002,
+     "waves": 0
+    },
+    "kt": null
+   },
+   "errors": []
+  },
+  {
+   "id": "tick",
+   "name": "시계",
+   "rep": 1,
+   "sr": 44100,
+   "seconds": 20,
+   "bytes": 7045120,
+   "state": {
+    "soft": true,
+    "rec": false,
+    "rain": 0.142,
+    "base": 0.15,
+    "snd": true,
+    "beds": {
+     "lrain": 0,
+     "hrain": 0,
+     "glass": 0,
+     "street": 0,
+     "traffic": 0,
+     "birds": 0,
+     "crickets": 0,
+     "wind": 0.002,
+     "waves": 0
+    },
+    "kt": null
+   },
+   "errors": []
+  },
+  {
+   "id": "tick",
+   "name": "시계",
+   "rep": 2,
+   "sr": 44100,
+   "seconds": 20,
+   "bytes": 7077888,
+   "state": {
+    "soft": true,
+    "rec": false,
+    "rain": 0.134,
+    "base": 0.15,
+    "snd": true,
+    "beds": {
+     "lrain": 0,
+     "hrain": 0,
+     "glass": 0,
+     "street": 0,
+     "traffic": 0,
+     "birds": 0,
+     "crickets": 0,
+     "wind": 0.002,
+     "waves": 0
+    },
+    "kt": null
+   },
+   "errors": []
+  },
+  {
+   "id": "mix_rain_kettle",
+   "name": "비 0.6 + 주전자 1",
+   "rep": 1,
+   "sr": 44100,
+   "seconds": 20,
+   "bytes": 7045120,
+   "state": {
+    "soft": true,
+    "rec": false,
+    "rain": 0.161,
+    "base": 0.15,
+    "snd": true,
+    "beds": {
+     "lrain": 0,
+     "hrain": 0,
+     "glass": 0,
+     "street": 0,
+     "traffic": 0,
+     "birds": 0,
+     "crickets": 0,
+     "wind": 0.002,
+     "waves": 0
+    },
+    "kt": 0.273
+   },
+   "errors": []
+  },
+  {
+   "id": "mix_rain_kettle",
+   "name": "비 0.6 + 주전자 1",
+   "rep": 2,
+   "sr": 44100,
+   "seconds": 20,
+   "bytes": 7077888,
+   "state": {
+    "soft": true,
+    "rec": false,
+    "rain": 0.139,
+    "base": 0.15,
+    "snd": true,
+    "beds": {
+     "lrain": 0,
+     "hrain": 0,
+     "glass": 0,
+     "street": 0,
+     "traffic": 0,
+     "birds": 0,
+     "crickets": 0,
+     "wind": 0.002,
+     "waves": 0
+    },
+    "kt": 0.266
+   },
+   "errors": []
+  }
+ ]
+}

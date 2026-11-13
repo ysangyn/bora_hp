@@ -1,0 +1,29 @@
+{
+  "rest_simultaneous": {
+    "inputs": [
+      "calm_balance",
+      "nature_recovery",
+      "head_reset"
+    ],
+    "strategy": "simultaneous",
+    "sample_peak_dbfs": -28.81,
+    "true_peak_4x_approx_dbtp": -28.81,
+    "rms_dbfs": -41.71,
+    "clipped_samples": 0,
+    "clip_count": 384000,
+    "test_basis": "decoded MP3 sections only; 4x resampling is not certified BS.1770 true-peak"
+  },
+  "binaural_sequential": {
+    "inputs": [
+      "body_relax",
+      "mind_focus"
+    ],
+    "strategy": "sequential",
+    "sample_peak_dbfs": -21.59,
+    "true_peak_4x_approx_dbtp": -21.59,
+    "rms_dbfs": -31.93,
+    "clipped_samples": 0,
+    "clip_count": 768000,
+    "test_basis": "decoded MP3 sections only; 4x resampling is not certified BS.1770 true-peak"
+  }
+}

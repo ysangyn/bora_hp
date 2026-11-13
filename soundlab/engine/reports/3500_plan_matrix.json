@@ -1,0 +1,106 @@
+{
+  "test_count": 3500,
+  "summary": {
+    "sleep/phone": {
+      "simultaneous": 82,
+      "sequential": 93,
+      "disabled_source_instances": 92
+    },
+    "sleep/headphones": {
+      "simultaneous": 82,
+      "sequential": 93,
+      "disabled_source_instances": 0
+    },
+    "sleep/desk": {
+      "simultaneous": 82,
+      "sequential": 93,
+      "disabled_source_instances": 92
+    },
+    "sleep/subwoofer": {
+      "simultaneous": 82,
+      "sequential": 93,
+      "disabled_source_instances": 92
+    },
+    "focus/phone": {
+      "simultaneous": 120,
+      "sequential": 55,
+      "disabled_source_instances": 92
+    },
+    "focus/headphones": {
+      "simultaneous": 120,
+      "sequential": 55,
+      "disabled_source_instances": 0
+    },
+    "focus/desk": {
+      "simultaneous": 120,
+      "sequential": 55,
+      "disabled_source_instances": 92
+    },
+    "focus/subwoofer": {
+      "simultaneous": 120,
+      "sequential": 55,
+      "disabled_source_instances": 92
+    },
+    "rest/phone": {
+      "simultaneous": 120,
+      "sequential": 55,
+      "disabled_source_instances": 92
+    },
+    "rest/headphones": {
+      "simultaneous": 120,
+      "sequential": 55,
+      "disabled_source_instances": 0
+    },
+    "rest/desk": {
+      "simultaneous": 120,
+      "sequential": 55,
+      "disabled_source_instances": 92
+    },
+    "rest/subwoofer": {
+      "simultaneous": 120,
+      "sequential": 55,
+      "disabled_source_instances": 92
+    },
+    "free/phone": {
+      "simultaneous": 120,
+      "sequential": 55,
+      "disabled_source_instances": 92
+    },
+    "free/headphones": {
+      "simultaneous": 120,
+      "sequential": 55,
+      "disabled_source_instances": 0
+    },
+    "free/desk": {
+      "simultaneous": 120,
+      "sequential": 55,
+      "disabled_source_instances": 92
+    },
+    "free/subwoofer": {
+      "simultaneous": 120,
+      "sequential": 55,
+      "disabled_source_instances": 92
+    },
+    "stimulus/phone": {
+      "simultaneous": 120,
+      "sequential": 55,
+      "disabled_source_instances": 92
+    },
+    "stimulus/headphones": {
+      "simultaneous": 120,
+      "sequential": 55,
+      "disabled_source_instances": 0
+    },
+    "stimulus/desk": {
+      "simultaneous": 120,
+      "sequential": 55,
+      "disabled_source_instances": 92
+    },
+    "stimulus/subwoofer": {
+      "simultaneous": 120,
+      "sequential": 55,
+      "disabled_source_instances": 92
+    }
+  },
+  "scope": "metadata path only; not acoustic signal or health benefit validation"
+}

@@ -1,0 +1,140 @@
+[
+  {
+    "id": "body_relax",
+    "name": "BODY RELAX",
+    "category": "stimulus",
+    "goals": [
+      "relax"
+    ],
+    "binaural": {
+      "carrier_l_hz": 216,
+      "carrier_r_hz": 224,
+      "beat_hz": 8
+    },
+    "measurement_status": "unmeasured",
+    "tempo_bpm": null,
+    "transient_risk": "unknown",
+    "low_bass_reliance": false
+  },
+  {
+    "id": "sleep_balance",
+    "name": "SLEEP BALANCE",
+    "category": "music",
+    "goals": [
+      "sleep"
+    ],
+    "binaural": null,
+    "measurement_status": "unmeasured",
+    "tempo_bpm": null,
+    "transient_risk": "unknown",
+    "low_bass_reliance": false
+  },
+  {
+    "id": "vita_boost",
+    "name": "VITA BOOST",
+    "category": "music",
+    "goals": [
+      "energy"
+    ],
+    "binaural": null,
+    "measurement_status": "unmeasured",
+    "tempo_bpm": 104,
+    "transient_risk": "unknown",
+    "low_bass_reliance": false
+  },
+  {
+    "id": "head_reset",
+    "name": "HEAD RESET",
+    "category": "bed",
+    "goals": [
+      "rest"
+    ],
+    "binaural": null,
+    "measurement_status": "unmeasured",
+    "tempo_bpm": null,
+    "transient_risk": "unknown",
+    "low_bass_reliance": false
+  },
+  {
+    "id": "eye_refresh",
+    "name": "EYE REFRESH",
+    "category": "event",
+    "goals": [
+      "focus"
+    ],
+    "binaural": null,
+    "measurement_status": "unmeasured",
+    "tempo_bpm": null,
+    "transient_risk": "unknown",
+    "low_bass_reliance": false
+  },
+  {
+    "id": "mind_focus",
+    "name": "MIND FOCUS",
+    "category": "stimulus",
+    "goals": [
+      "focus"
+    ],
+    "binaural": {
+      "carrier_l_hz": 320,
+      "carrier_r_hz": 360,
+      "beat_hz": 40
+    },
+    "measurement_status": "unmeasured",
+    "tempo_bpm": null,
+    "transient_risk": "unknown",
+    "low_bass_reliance": false
+  },
+  {
+    "id": "calm_balance",
+    "name": "CALM BALANCE",
+    "category": "bed",
+    "goals": [
+      "relax"
+    ],
+    "binaural": null,
+    "measurement_status": "unmeasured",
+    "tempo_bpm": null,
+    "transient_risk": "unknown",
+    "low_bass_reliance": false
+  },
+  {
+    "id": "mood_up",
+    "name": "MOOD UP",
+    "category": "music",
+    "goals": [
+      "energy"
+    ],
+    "binaural": null,
+    "measurement_status": "unmeasured",
+    "tempo_bpm": 94,
+    "transient_risk": "unknown",
+    "low_bass_reliance": false
+  },
+  {
+    "id": "active_energy",
+    "name": "ACTIVE ENERGY",
+    "category": "music",
+    "goals": [
+      "energy"
+    ],
+    "binaural": null,
+    "measurement_status": "unmeasured",
+    "tempo_bpm": 116,
+    "transient_risk": "unknown",
+    "low_bass_reliance": false
+  },
+  {
+    "id": "nature_recovery",
+    "name": "NATURE RECOVERY",
+    "category": "bed",
+    "goals": [
+      "rest"
+    ],
+    "binaural": null,
+    "measurement_status": "unmeasured",
+    "tempo_bpm": null,
+    "transient_risk": "unknown",
+    "low_bass_reliance": false
+  }
+]
