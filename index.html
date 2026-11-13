@@ -267,6 +267,7 @@ body:has(#npBox.on) .hintline,body:has(.nowplaying.on) .hintline,body:has(#npR:n
 .wnote.rip .wh.a{transform:translate(-34%,70%) rotate(-24deg);opacity:0}.wnote.rip .wh.b{transform:translate(34%,80%) rotate(21deg);opacity:0}
 .tlog{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.tlog button{width:16px;height:16px;border-radius:50%;box-shadow:0 0 0 1px rgba(255,255,255,.28)}.tlog span{margin-left:8px;font-size:12px;color:var(--muted)}
 #fcPill[hidden]{display:none}#fcPill{font-variant-numeric:tabular-nums;letter-spacing:.08em}#fcPill.brk{color:#bfe0b6}.fcbig{font:300 clamp(44px,13vw,72px)/1 var(--serif,serif);text-align:center;font-variant-numeric:tabular-nums;margin:14px 0 4px;color:var(--ink)}.fcst{text-align:center;display:block;margin-bottom:12px}.fcdots{display:flex;gap:8px;justify-content:center;margin:0 0 14px}.fcdots i{width:9px;height:9px;border-radius:50%;border:1px solid var(--accent);opacity:.7}.fcdots i.on{background:var(--accent);opacity:1}
+.panel .cred li{display:block;line-height:1.6;font-size:13.5px;padding:11px 0}.panel .cred li::before{content:none}.cred small{display:block;opacity:.7;margin-top:3px;font-size:12px}.lnk{background:none;border:0;padding:0;color:inherit;text-decoration:underline;font:inherit;cursor:pointer}
 .snd.mixb{padding:6px 14px;border:1px solid var(--hair);border-radius:999px;letter-spacing:.14em;color:var(--ink);background:rgba(13,10,19,.35);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .mxbar{display:flex;height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.06);gap:2px}.mxbar i{display:block;min-width:6px;transition:flex .5s var(--ease)}.mxbar i.none{flex:1;background:transparent}
 .mxr{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1.6fr) 34px;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--hair)}#mxRows{display:flex;flex-direction:column}#mxRows .mxr:last-child{border-bottom:1px solid var(--hair)}
@@ -993,9 +994,9 @@ function blip(type){ if(!AU.on) return; const c=actx(); if(!c) return; const t=c
   else if(type==='needle'){ tone(120,50,.12,.1); burst(.05,'highpass',3000,.035); }
 }
 /* ---------- 창밖 소리: 실제 녹음을 매번 다른 자리에서 꺼내 겹쳐 이어 붙인다(같은 구간이 맞물려 되풀이되지 않게) ---------- */
-const SF={lrain:['sound/light-rain.mp3',1.8],hrain:['sound/heavy-rain.mp3',.48],glass:['sound/rain-on-window.mp3',.33],street:['sound/busy-street.mp3',.7],traffic:['sound/traffic.mp3',1.4],village:['sound/night-village.mp3',1.8],birds:['sound/birds.mp3',.73],crickets:['sound/crickets.mp3',2.2],siren:['sound/ambulance-siren.mp3',.5],wind:['sound/wind.mp3',.8],boil:['sound/boiling-water.mp3',1.1]};
+const SF={lrain:['sound/rain.mp3',1.22],hrain:['sound/rain.mp3',1.2],glass:['sound/rain-window.mp3',2.72],street:['sound/city.mp3',.73],traffic:['sound/city.mp3',.8],birds:['sound/birds.mp3',1.3],crickets:['sound/summer-night.mp3',.355],wind:['sound/wind.mp3',.73],waves:['sound/waves.mp3',.86]};   // 출처: sound/SOURCES.md (Blanket 앱이 파일별로 밝힌 CC0·CC BY·퍼블릭 도메인)
 const SB={}, SPR={}, AMB={beds:{},open:LS.get('wopen',false),iv:0,out:null,lp:null,mea:{}};
-function sload(k){ if(SPR[k]) return SPR[k]; const c=actx(); SPR[k]=fetch(SF[k][0]).then(r=>{ if(!r.ok) throw 0; return r.arrayBuffer(); }).then(a=>new Promise((res,rej)=>c.decodeAudioData(a,res,rej))).then(b=>(SB[k]=b)).catch(()=>null); return SPR[k]; }
+function sload(k){ if(!SF[k]) return Promise.resolve(null); if(SPR[k]) return SPR[k]; const c=actx(); SPR[k]=fetch(SF[k][0]).then(r=>{ if(!r.ok) throw 0; return r.arrayBuffer(); }).then(a=>new Promise((res,rej)=>c.decodeAudioData(a,res,rej))).then(b=>(SB[k]=b)).catch(()=>null); return SPR[k]; }
 function ambStart(){ const c=actx(); if(!c) return; if(!AMB.out){ AMB.out=c.createGain(); AMB.out.gain.value=.8; AMB.lp=c.createBiquadFilter(); AMB.lp.type='lowpass'; AMB.lp.frequency.value=AMB.open?16000:650; AMB.lim=c.createDynamicsCompressor(); AMB.lim.threshold.value=-10; AMB.lim.knee.value=6; AMB.lim.ratio.value=12; AMB.lim.attack.value=.005; AMB.lim.release.value=.25; AMB.out.connect(AMB.lp).connect(AMB.lim).connect(AU.out);
     sload('lrain').then(b=>{ AU.recHas=!!b; if(AU.rain&&AU.recOK) AU.rain.gain.setTargetAtTime(0,c.currentTime,1); ambUpdate(); }); }
   if(!AMB.iv) AMB.iv=setInterval(ambUpdate,6000); ambUpdate(); }
@@ -1004,7 +1005,7 @@ function bedPlay(B,t){ const c=AU.ctx, b=SB[B.k]; if(!b||!B.on) return; t=Math.m
   const s=c.createBufferSource(), e=c.createGain(); s.buffer=b; s.playbackRate.value=.97+Math.random()*.06;
   e.gain.setValueAtTime(0,t); e.gain.linearRampToValueAtTime(1,t+xf); e.gain.setValueAtTime(1,t+seg-xf); e.gain.linearRampToValueAtTime(0,t+seg); s.connect(e).connect(B.g); s.start(t,off,seg+.2);
   const nt=t+seg-xf; B.timer=setTimeout(()=>bedPlay(B,nt),Math.max(0,(nt-c.currentTime-5)*1000)); }
-async function bedLevel(k,v,tau){ if(!AU.ctx) return; const B=bedOf(k), vol=Math.max(0,v)*SF[k][1];
+async function bedLevel(k,v,tau){ if(!AU.ctx||!SF[k]) return; const B=bedOf(k), vol=Math.max(0,v)*SF[k][1];
   if(vol>.0005&&!B.on){ B.on=true; await sload(k); if(!SB[k]){ B.on=false; return; } bedPlay(B,AU.ctx.currentTime+.05); }
   B.g.gain.setTargetAtTime(vol,AU.ctx.currentTime,tau||3); if(vol<=.0005&&B.on){ clearTimeout(B.timer); B.on=false; } }
 function placeKind(){ const n=(S.place&&S.place.name)||''; if(/레이캬비크|교토|제주|애월/.test(n)) return 'quiet'; if(/브루클린|파리|해운대|부산/.test(n)) return 'city'; return 'city'; }
@@ -1029,7 +1030,7 @@ let RL=LS.get('rainLv',0); const RLN=['부슬비','보통 비','장대비'], RLV
 function rainLv(n){ RL=n; LS.set('rainLv',n); setRain(); ambUpdate(); }
 function isSea(){ const n=(S.place&&S.place.name)||''; return /해운대|애월|해변|해수욕장|바닷가|beach|coast/i.test(n); }
 let SEA=null;
-function seaLevel(v){ const c=AU.ctx; if(!c||!AMB.out) return; if(v>.001&&!SEA){ const g=c.createGain(); g.gain.value=0; const src=c.createBufferSource(); src.buffer=mkNoise(c,'pink',12); src.loop=true; const hp=c.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=160; const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1100; lp.Q.value=.3; const amp=c.createGain(); amp.gain.value=.5; const lfo=c.createOscillator(), lg=c.createGain(), fl=c.createGain(); lfo.frequency.value=.085; lg.gain.value=.42; fl.gain.value=700; src.connect(hp).connect(lp).connect(amp).connect(g).connect(AMB.out); lfo.connect(lg).connect(amp.gain); lfo.connect(fl).connect(lp.frequency); src.start(); lfo.start(); SEA={g,nodes:[src,lfo]}; }
+function seaLevel(v){ const c=AU.ctx; if(!c||!AMB.out) return; bedLevel('waves',SOFT?0:v,4); if(!SOFT) v=0; if(v>.001&&!SEA){ const g=c.createGain(); g.gain.value=0; const src=c.createBufferSource(); src.buffer=mkNoise(c,'pink',12); src.loop=true; const hp=c.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=160; const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1100; lp.Q.value=.3; const amp=c.createGain(); amp.gain.value=.5; const lfo=c.createOscillator(), lg=c.createGain(), fl=c.createGain(); lfo.frequency.value=.085; lg.gain.value=.42; fl.gain.value=700; src.connect(hp).connect(lp).connect(amp).connect(g).connect(AMB.out); lfo.connect(lg).connect(amp.gain); lfo.connect(fl).connect(lp.frequency); src.start(); lfo.start(); SEA={g,nodes:[src,lfo]}; }
   if(SEA) SEA.g.gain.setTargetAtTime(Math.max(0,v),c.currentTime,4); if(v<=.001&&SEA){ const o=SEA; SEA=null; setTimeout(()=>o.nodes.forEach(x=>{ try{x.stop();}catch(_){} }),14000); } }   // 소리 섞기: 재료마다 손님이 정한 세기
 function ambUpdate(){ if(!AU.on||!AU.ctx||!AMB.out) return; const R=Math.random, M=k=>(AMB.mea[k]=Math.min(1.25,Math.max(.5,(AMB.mea[k]||1)+(R()-.5)*.3)));
   const snowy=WG.snowT>.5&&!window.__sym, rain=window.__sym?(window.__symLvl||.5):(S.snd&&!snowy)?RLV[RL]*(.9+.2*(M('rr')-.5)):(S.w&&!S.w.guess&&S.w.kind==='rain'&&!snowy)?.2:0, rs=window.__sym?1:RLS[RL];
@@ -1040,12 +1041,11 @@ function ambUpdate(){ if(!AU.on||!AU.ctx||!AMB.out) return; const R=Math.random,
   bedLevel('glass',rain&&!op?rc*(.14+.3*rain)*Math.min(1,rs+.3)*M('gl')*fade*MX.rain:0,3);                                   // 닫힌 창: 유리를 두드리는 비
   const uh=new Date().getHours(), late=uh>=21||uh<6;   // 손님 쪽이 밤이면 창밖이 낮이어도 새소리는 쉬고 거리 소리는 작게
   const fo=fade*MX.out*so; bedLevel('street',pk==='city'&&!night?rc*(late?.07:.14)*M('st')*fo:0,5); bedLevel('traffic',pk==='city'&&night?rc*.12*M('tr')*fo:0,5);
-  bedLevel('village',(pk==='quiet'||SOFT)&&night?.18*M('vi')*fo:0,5); bedLevel('birds',!night&&!snowy&&!late?rc*.07*calm*M('bi')*fo:0,5);
-  bedLevel('crickets',night&&summerNow()&&!snowy?.11*calm*M('cr')*fo:0,5); bedLevel('wind',(snowy||(pk==='quiet'&&!rain))?.07*M('wi')*fade*MX.out*(SOFT?.7:1):0,6);
+  bedLevel('birds',!night&&!snowy&&!late?rc*.07*calm*M('bi')*fo:0,5);
+  bedLevel('crickets',night&&summerNow()&&!snowy?.11*calm*M('cr')*fo:0,5); bedLevel('wind',(snowy||(pk==='quiet'&&!rain)||(night&&op&&(pk==='quiet'||SOFT)&&!rain))?.07*M('wi')*fade*MX.out*(SOFT?.7:1):0,6);
   seaLevel(isSea()&&!window.__sym&&sleepKind()!=='wave'?(op?.13:.08)*(late?.8:1)*calm*fade*MX.out:0);   // 바닷가 동네: 멀리서 밀려오는 파도
-  if(!KT) bedLevel('boil',window.__sym&&!SOFT?(op?.05:.12)*fade*MX.boil:0,6); else bedLevel('boil',AU.recOK?.2*MX.boil:0,2);                                  // 심포니: 주전자가 낮게 끓는다(창을 닫으면 더 가까이)
-  if(!SOFT&&op&&pk==='city'&&!(window.SLP>0)&&!window.__sym&&R()<.006) ambOnce('siren',.06); }           // 열린 창 너머, 아주 가끔 먼 사이렌
-async function ambOnce(k,v){ await sload(k); const b=SB[k]; if(!b||!AMB.out) return; const c=AU.ctx, s=c.createBufferSource(), g=c.createGain(), lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1800; s.buffer=b; g.gain.value=v*SF[k][1]; s.connect(lp).connect(g).connect(AMB.out); s.start(); }
+  if(!KT) bedLevel('boil',window.__sym&&!SOFT?(op?.05:.12)*fade*MX.boil:0,6); }
+async function ambOnce(k,v){ if(!SF[k]) return; await sload(k); const b=SB[k]; if(!b||!AMB.out) return; const c=AU.ctx, s=c.createBufferSource(), g=c.createGain(), lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1800; s.buffer=b; g.gain.value=v*SF[k][1]; s.connect(lp).connect(g).connect(AMB.out); s.start(); }
 function roomSay(t){ let d=$('roomSay'); if(!d){ d=document.createElement('div'); d.id='roomSay'; d.setAttribute('role','status'); document.body.appendChild(d); } d.textContent=t; d.classList.add('on'); clearTimeout(roomSay.t); roomSay.t=setTimeout(()=>d.classList.remove('on'),2600); }
 function toggleWindow(){ AMB.open=!AMB.open; LS.set('wopen',AMB.open); window.__wopen=AMB.open; blip('curtain'); if(!AU.on) setAudio(true); else ambUpdate(); upWin();
   roomSay(AMB.open?'창문을 열었어요 · 빗소리와 바깥 소리가 또렷해져요':'창문을 닫았어요 · 바깥 소리는 멀어지고 유리를 두드리는 비만 남아요'); }
@@ -1679,12 +1679,12 @@ function toggleKettle(){ const c=actx(); if(!c) return; if(!AU.on) setAudio(true
   const lay=(buf,type,freq,q,gain)=>{ const sr=c.createBufferSource(); sr.buffer=buf; sr.loop=true; const f=c.createBiquadFilter(); f.type=type; f.frequency.value=freq; if(q) f.Q.value=q; const gg=c.createGain(); gg.gain.value=gain; sr.connect(f).connect(gg).connect(g); sr.start(); srcs.push(sr); };
   lay(noise(4,true),'lowpass',420,0,.5);          // 주전자 바닥의 낮은 울림
   lay(noise(3,false),'bandpass',3200,.7,.022);    // 김 새는 소리
-  g.gain.setTargetAtTime((AU.recOK?.08:.3)*MX.boil,c.currentTime,3); if(AU.recOK) bedLevel('boil',.2*MX.boil,3);
+  g.gain.setTargetAtTime(.3*MX.boil,c.currentTime,3);
   const bub=setInterval(()=>{ if(!KT||Math.random()<.35) return; const t=c.currentTime+Math.random()*.15, o=c.createOscillator(), og=c.createGain(), f0=280+Math.random()*700;   // 보글보글
     o.frequency.setValueAtTime(f0,t); o.frequency.exponentialRampToValueAtTime(f0*1.9,t+.035); og.gain.setValueAtTime(0,t); og.gain.linearRampToValueAtTime(.018+Math.random()*.02,t+.004); og.gain.exponentialRampToValueAtTime(.0001,t+.05);
     o.connect(og).connect(g); o.start(t); o.stop(t+.07); },70);
   const mea=setInterval(()=>{ if(KT) g.gain.setTargetAtTime((KT.base||.3)*(.7+Math.random()*.5)*MX.boil,c.currentTime,4); },9000);   // 소리 크기가 저절로 천천히 오르내림
-  KT={g,srcs,bub,mea,base:AU.recOK?.08:.3}; stage.classList.add('boil'); upKettle(); }
+  KT={g,srcs,bub,mea,base:.3}; stage.classList.add('boil'); upKettle(); }   // 주전자는 합성음만 (출처가 분명한 녹음이 없음)
 function upKettle(){ almUI(); const b=$('tKet'); if(b) b.textContent=KT?'불 끄기':'물 올리기'; }
 /* ---------- 찻잔: 지금 이 방에 어울리는 차 + 우리기 타이머 ---------- */
 // 찻장. caf 0 없음 · 1 조금 · 2 보통 · 3 많은 편. s=머그 한 잔 우리는 초(0이면 타이머 없음). c=찻물 빛깔.
@@ -1988,6 +1988,18 @@ function mixUI(){ const box=$('mxRows'); if(!box) return; const now=mixNow(), to
   const nz=$('mxNz'); if(nz) nz.hidden=!SN; document.querySelectorAll('[data-nz]').forEach(b=>b.setAttribute('aria-pressed',!!SN&&SN.kind===b.dataset.nz));
   const sv=LS.get('mixSaved',[]); $('mxSaved').innerHTML=sv.length?sv.map((p,i)=>`<span class="mxs"><button class="chip" data-ms="${i}">${escH(p.n)}</button><button class="mxx" data-mx-del="${i}" aria-label="${escH(p.n)} 지우기">×</button></span>`).join(''):'<small>섞은 소리가 마음에 들면 이름을 붙여 간직해 두세요.</small>';
   document.querySelectorAll('[data-ms]').forEach(b=>b.onclick=()=>mixApply(LS.get('mixSaved',[])[+b.dataset.ms].v)); document.querySelectorAll('[data-mx-del]').forEach(b=>b.onclick=()=>{ const a=LS.get('mixSaved',[]); a.splice(+b.dataset.mxDel,1); LS.set('mixSaved',a); mixUI(); }); }
+const CRED=[['비','Rain','alex36917','https://freesound.org/people/alex36917/sounds/524605/','CC BY','길이 그대로, 창 닫힌 소리는 높은 소리를 깎음'],
+ ['도시','City','gezortenplotz','https://freesound.org/people/gezortenplotz/sounds/44796/','CC BY','모노로'],
+ ['파도','oceanwavescrushing','Luftrum','https://freesound.org/people/Luftrum/sounds/48412/','CC BY 4.0','90초로'],
+ ['새','Birds','kvgarlic','https://freesound.org/people/kvgarlic/sounds/156826/','CC0','90초, 모노로'],
+ ['바람','Wind','felix.blume','https://freesound.org/people/felix.blume/sounds/217506/','CC0','모노로'],
+ ['여름밤 풀벌레','Crickets Chirping At Night','Lisa Redfern','https://soundbible.com/2083-Crickets-Chirping-At-Night.html','퍼블릭 도메인','모노로']];
+function openCredits(){ blip('paper');
+  show(`<h2>소리 출처</h2><p>'실제 녹음 소리'를 고르면 들리는 녹음이에요. 모두 오픈소스 앱 <a href="https://github.com/rafaelmardojai/blanket" target="_blank" rel="noopener">Blanket</a>이 손본 파일을 받아, 이 방에 맞게 다시 고쳤어요.</p>
+   <ul class="cred">${CRED.map(([k,t,a,u,l,ch])=>`<li><b>${k}</b> · <a href="${u}" target="_blank" rel="noopener">${escH(t)}</a> — ${escH(a)} · ${l}${l==='CC BY 4.0'?' (<a href="https://creativecommons.org/licenses/by/4.0/deed.ko" target="_blank" rel="noopener">이용 조건</a>)':l==='CC BY'?' (버전은 원본 페이지에 적혀 있어요)':''}<small>고친 것: ${ch}${k==='여름밤 풀벌레'?'':'. Blanket에서 Porrumentzio가 먼저 손봄'}</small></li>`).join('')}</ul>
+   <small>빗소리·주전자·바람·파도의 '부드러운 소리', 시계, 종은 이 방에서 코드로 만든 소리예요.</small>
+   <div class="row"><button class="chip" id="crBack">소리 섞기로 돌아가기</button></div>`);
+  $('crBack').onclick=e=>{ e.stopPropagation(); openMix(); }; }
 function openMix(){ blip('paper');
   show(`<h2>소리 섞기</h2><p>방 안의 소리를 재료처럼 섞어 오늘 밤의 자리를 만들어요. 작게, 냉장고 소리쯤이 알맞아요.</p>
    <div class="chips" id="mxSoft"><button class="chip" data-sf="1">부드러운 소리</button><button class="chip" data-sf="0">실제 녹음 소리</button></div>
@@ -2002,7 +2014,7 @@ function openMix(){ blip('paper');
    <div class="row"><input id="mxName" maxlength="14" placeholder="이 소리에 이름 붙이기" aria-label="자리 이름"><button class="ok" id="mxSave">간직하기</button></div>
    <div class="row"><button class="chip" id="mxShare">이 소리를 링크로 나누기</button></div>
    <div class="row"><button class="chip" id="mxSleep">이 소리로 잠들기</button><button class="chip" id="mxWays">세계의 잠 청하는 법</button></div>
-   <small>노래·라디오는 턴테이블과 라디오에서 그대로 틀 수 있어요. 심포니는 기타 반주가 있어서 노래·라디오와 함께 켜지 않아요. 간직한 자리는 이 기기에만 저장돼요.</small>`);
+   <small>노래·라디오는 턴테이블과 라디오에서 그대로 틀 수 있어요. 심포니는 기타 반주가 있어서 노래·라디오와 함께 켜지 않아요. 간직한 자리는 이 기기에만 저장돼요. <button class="lnk" id="mxCred" type="button">소리 출처</button></small>`);
   window.__slPanel=false;
   document.querySelectorAll('[data-mx]').forEach(r=>{ r.oninput=()=>{ mixSet(r.dataset.mx,+r.value,true); mixUI(); }; });
   document.querySelectorAll('[data-nz]').forEach(b=>b.onclick=()=>{ LS.set('mixNoise',b.dataset.nz); sleepSound(b.dataset.nz); setTimeout(()=>{ if(SN) SN.g.gain.setTargetAtTime(SN.base*MX.noise,AU.ctx.currentTime,.4); mixUI(); },80); });
@@ -2010,6 +2022,7 @@ function openMix(){ blip('paper');
   $('mxSave').onclick=()=>{ const n=$('mxName').value.trim()||'나의 자리', a=LS.get('mixSaved',[]).filter(p=>p.n!==n); a.unshift({n,v:mixNow()}); LS.set('mixSaved',a.slice(0,6)); $('mxName').value=''; mixUI(); roomSay(`‘${n}’ 자리를 간직했어요`); };
   $('mxAuto').onclick=e=>{ e.stopPropagation(); mixAuto(); }; $('mxTone').value=LS.get('tone',.7); $('mxTone').oninput=e=>{ if(!AU.on) setAudio(true); toneSet(+e.target.value); };
   $('mxShare').onclick=async e=>{ e.stopPropagation(); const u=mixLink(); try{ await navigator.clipboard.writeText(u); roomSay('링크를 복사했어요 · 받는 사람의 방에 같은 소리가 담겨요'); }catch(_){ $('mxName').removeAttribute('maxlength'); $('mxName').value=u; $('mxName').select(); roomSay('링크를 이름 칸에 적어 두었어요 · 길게 눌러 복사해 주세요'); } };
+  $('mxCred').onclick=e=>{ e.stopPropagation(); openCredits(); };
   $('mxSleep').onclick=()=>openSleep(); $('mxWays').onclick=e=>{ e.stopPropagation(); openWays(); }; mixUI(); }
 $('bMix').addEventListener('click',e=>{ e.stopPropagation(); openMix(); }); $('rmMix').addEventListener('click',e=>{ e.stopPropagation(); openMix(); });
 /* ---------- 세계의 잠 청하는 법: 오늘 밤의 방법 하나, 양 세기, 낱말 띄우기 ---------- */
