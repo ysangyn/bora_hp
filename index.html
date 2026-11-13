@@ -967,7 +967,7 @@ function toggleLamp(){ blip('switch'); S.lamp=!S.lamp; setTimeout(humSet,0); sta
 const AU={ctx:null,out:null,on:false,rain:null,vinyl:null};
 function actx(){
   if(!AU.ctx){ try{ AU.ctx=(()=>{ const A=window.AudioContext||window.webkitAudioContext; try{ return new A({latencyHint:'playback'}); }catch(_){ return new A(); } })(); AU.out=AU.ctx.createGain(); AU.out.gain.value=AU.on?1:0; try{ const cp=AU.ctx.createDynamicsCompressor(); cp.threshold.value=-3; cp.knee.value=0; cp.ratio.value=20; cp.attack.value=.003; cp.release.value=.25; const cpT=AU.ctx.createGain(); cpT.gain.value=.82; AU.tone=AU.ctx.createBiquadFilter(); AU.tone.type='lowpass'; AU.tone.Q.value=.3; AU.tone.frequency.value=toneHz(LS.get('tone',.7)); AU.out.connect(AU.tone).connect(cp).connect(cpT).connect(AU.ctx.destination); }catch(_){ AU.out.connect(AU.ctx.destination); }
-    try{ Object.defineProperty(AU,'recOK',{get:()=>!!AU.recHas&&!SOFT,configurable:true}); }catch(_){} }catch(e){ return null; } }
+    try{ Object.defineProperty(AU,'recOK',{get:()=>!!AU.recHas,configurable:true}); }catch(_){} }catch(e){ return null; } }
   if(AU.ctx.state==='suspended') AU.ctx.resume(); return AU.ctx;
 }
 function noise(sec,brown){ const c=AU.ctx,n=Math.floor(c.sampleRate*sec),b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0); let last=0;
@@ -987,13 +987,13 @@ function rainSound(on,soft){ const c=actx(); if(!c) return;
     const dbuf=noise(1.5,false); const drop=t=>{ const s=c.createBufferSource(); s.buffer=dbuf; const big=Math.random()<.18, f=c.createBiquadFilter(); f.type='bandpass'; f.frequency.value=big?700+Math.random()*600:1900+Math.random()*2300; f.Q.value=big?2.2:3.5;
       const gg=c.createGain(), v=(big?1.5:.85)*(.3+Math.random()*.7), d=big?.07:.028+Math.random()*.03; gg.gain.setValueAtTime(0,t); gg.gain.linearRampToValueAtTime(v,t+.002); gg.gain.exponentialRampToValueAtTime(.0005,t+d);
       const p=c.createStereoPanner?c.createStereoPanner():null; if(p){ p.pan.value=(Math.random()*2-1)*.7; s.connect(f).connect(gg).connect(p).connect(dg); } else s.connect(f).connect(gg).connect(dg); s.start(t,Math.random()*1.3); s.stop(t+d+.03); };
-    AU.rainDrop=setInterval(()=>{ if(!S.snd||!AU.rain||!L.rate||AU.rain.gain.value<.005) return; const now=c.currentTime; if(L.next<now) L.next=now; while(L.next<now+.4){ drop(L.next+.02); L.next+=-Math.log(1-Math.random())/L.rate; } },200);
+    AU.rainDrop=setInterval(()=>{ if(!S.snd||!AU.rain||!L.rate||AMB.open||AU.rain.gain.value<.005) return; const now=c.currentTime; if(L.next<now) L.next=now; while(L.next<now+.4){ drop(L.next+.02); L.next+=-Math.log(1-Math.random())/L.rate; } },200);
     AU.rain=g; AU.rainMea=setInterval(()=>{ if(!S.snd||!AU.rain) return; const c2=AU.ctx, base=AU.rainBase||0, k=.82+Math.random()*.32; if(!base) return; AU.rain.gain.setTargetAtTime(base*k,c2.currentTime,3+Math.random()*4); },7000); }
   // 세기마다 소리의 '결'이 다르다: [쏴— , 잔소리, 낮은 울림, 초당 빗방울 수, 빗줄기 밝기]
-  const L=AU.rainL, M=soft?[0,0,.06,0,1700]:[[.045,0,.1,5,1100],[.4,.004,.32,9,1500],[1,.016,.55,15,1700]][RL], T=c.currentTime;
+  const L=AU.rainL, M=soft?[0,0,0,0,1700]:[[0,0,0,3,1100],[0,0,0,6,1500],[0,0,0,11,1700]][RL], T=c.currentTime;
   L.wash.gain.setTargetAtTime(M[0],T,.8); L.hiss.gain.setTargetAtTime(M[1],T,.8); L.low.gain.setTargetAtTime(M[2],T,.8); L.washF.frequency.setTargetAtTime(M[4],T,.8); L.rate=M[3];
-  L.wind.gain.setTargetAtTime(soft?.42:0,T,1.2); L.windLfo.gain.setTargetAtTime(soft?.22:0,T,1.2);
-  AU.rain.gain.cancelScheduledValues(c.currentTime); AU.rainBase=(AU.recOK?0:(soft?.085:[.38,.25,.27][RL]))*((S.playing||S.radio)?.45:1); /* 노래나 라디오가 나오면 빗소리는 뒤로 물러난다 */ AU.rain.gain.setTargetAtTime(on?AU.rainBase:0,c.currentTime,on?.7:.4); }
+  L.wind.gain.setTargetAtTime(0,T,1.2); L.windLfo.gain.setTargetAtTime(0,T,1.2);
+  AU.rain.gain.cancelScheduledValues(c.currentTime); AU.rainBase=(soft?0:[.2,.24,.3][RL])*MX.rain*((S.playing||S.radio)?.45:1); /* 노래나 라디오가 나오면 빗소리는 뒤로 물러난다 */ AU.rain.gain.setTargetAtTime(on?AU.rainBase:0,c.currentTime,on?.7:.4); }
 function vinyl(on){ const c=actx(); if(!c) return;
   if(!AU.vinyl){ const n=c.sampleRate*6,b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0); for(let i=0;i<n;i++){ d[i]=(Math.random()*2-1)*.012; if(Math.random()<.00035) d[i]+=(Math.random()*2-1)*.7; }
     const s=c.createBufferSource(); s.buffer=b; s.loop=true; const f=c.createBiquadFilter(); f.type='bandpass'; f.frequency.value=2600; f.Q.value=.3; const g=c.createGain(); g.gain.value=0; s.connect(f).connect(g).connect(AU.out); s.start(); AU.vinyl=g; }
@@ -1011,7 +1011,7 @@ const SF={lrain:['sound/rain.mp3',1.22],hrain:['sound/rain.mp3',1.2],glass:['sou
 const SB={}, SPR={}, AMB={beds:{},open:LS.get('wopen',false),iv:0,out:null,lp:null,mea:{}};
 function sload(k){ if(!SF[k]) return Promise.resolve(null); if(SPR[k]) return SPR[k]; const c=actx(); SPR[k]=fetch(SF[k][0]).then(r=>{ if(!r.ok) throw 0; return r.arrayBuffer(); }).then(a=>new Promise((res,rej)=>c.decodeAudioData(a,res,rej))).then(b=>(SB[k]=b)).catch(()=>null); return SPR[k]; }
 function ambStart(){ const c=actx(); if(!c) return; if(!AMB.out){ AMB.out=c.createGain(); AMB.out.gain.value=.8; AMB.lp=c.createBiquadFilter(); AMB.lp.type='lowpass'; AMB.lp.frequency.value=AMB.open?16000:650; AMB.lim=c.createDynamicsCompressor(); AMB.lim.threshold.value=-10; AMB.lim.knee.value=6; AMB.lim.ratio.value=12; AMB.lim.attack.value=.005; AMB.lim.release.value=.25; AMB.out.connect(AMB.lp).connect(AMB.lim).connect(AU.out);
-    sload('lrain').then(b=>{ AU.recHas=!!b; if(AU.rain&&AU.recOK) AU.rain.gain.setTargetAtTime(0,c.currentTime,1); ambUpdate(); }); }
+    sload('lrain').then(b=>{ AU.recHas=!!b; ambUpdate(); }); }
   if(!AMB.iv) AMB.iv=setInterval(ambUpdate,6000); ambUpdate(); }
 function bedOf(k){ if(AMB.beds[k]) return AMB.beds[k]; const c=AU.ctx, g=c.createGain(); g.gain.value=0; g.connect(k==='glass'||k==='boil'?AU.out:AMB.out); return (AMB.beds[k]={k,g,on:false,timer:0}); }
 function bedPlay(B,t){ const c=AU.ctx, b=SB[B.k]; if(!b||!B.on) return; t=Math.max(t,c.currentTime+.05); const xf=Math.min(4,b.duration/6), seg=Math.min(b.duration-.5,16+Math.random()*24), off=Math.random()*Math.max(0,b.duration-seg);
@@ -1046,12 +1046,12 @@ let SEA=null;
 function seaLevel(v){ const c=AU.ctx; if(!c||!AMB.out) return; bedLevel('waves',SOFT?0:v,4); if(!SOFT) v=0; if(v>.001&&!SEA){ const g=c.createGain(); g.gain.value=0; const src=c.createBufferSource(); src.buffer=mkNoise(c,'pink',12); src.loop=true; const hp=c.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=160; const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1100; lp.Q.value=.3; const amp=c.createGain(); amp.gain.value=.5; const lfo=c.createOscillator(), lg=c.createGain(), fl=c.createGain(); lfo.frequency.value=.085; lg.gain.value=.42; fl.gain.value=700; src.connect(hp).connect(lp).connect(amp).connect(g).connect(AMB.out); lfo.connect(lg).connect(amp.gain); lfo.connect(fl).connect(lp.frequency); src.start(); lfo.start(); SEA={g,nodes:[src,lfo]}; }
   if(SEA) SEA.g.gain.setTargetAtTime(Math.max(0,v),c.currentTime,4); if(v<=.001&&SEA){ const o=SEA; SEA=null; setTimeout(()=>o.nodes.forEach(x=>{ try{x.stop();}catch(_){} }),14000); } }   // 소리 섞기: 재료마다 손님이 정한 세기
 function ambUpdate(){ if(!AU.on||!AU.ctx||!AMB.out) return; const R=Math.random, M=k=>(AMB.mea[k]=Math.min(1.25,Math.max(.5,(AMB.mea[k]||1)+(R()-.5)*.3)));
-  const snowy=WG.snowT>.5&&!window.__sym, rain=window.__sym?(window.__symLvl||.5):(S.snd&&!snowy)?RLV[RL]*(.9+.2*(M('rr')-.5)):(S.w&&!S.w.guess&&S.w.kind==='rain'&&!snowy)?.2:0, rs=window.__sym?1:RLS[RL];
+  const snowy=WG.snowT>.5&&!window.__sym, rain=window.__sym?(window.__symLvl||.5):(S.snd&&!snowy)?RLV[RL]*(.9+.2*(M('rr')-.5)):0, rs=window.__sym?1:RLS[RL];
   const h=Math.max(0,Math.min(1,(rain-.45)/.5)), op=AMB.open, fade=(1-(window.SLP||0)*.6)*(window.__sym?.7:1)*((S.playing||S.radio)?.4:1), pk=placeKind(), night=!(S.w&&S.w.isDay), calm=Math.max(.15,1-rain*.8);
-  AMB.lp.frequency.setTargetAtTime(op?16000:650,AU.ctx.currentTime,.8);
+  AMB.lp.frequency.setTargetAtTime(op?16000:2600,AU.ctx.currentTime,.8);   // 닫힌 창: 높은 소리만 조금 누른다(예전 650Hz는 비가 웅웅거리는 잡음으로 들렸다)
   const rc=SOFT?0:1, so=SOFT?(op?.6:0):1;
-  bedLevel('lrain',rain?rc*(.4*(1-h)+.12)*rs*M('lr')*fade*MX.rain:0,4); bedLevel('hrain',rain?rc*.3*h*M('hr')*fade*MX.rain:0,4);
-  bedLevel('glass',rain&&!op?rc*(.14+.3*rain)*Math.min(1,rs+.3)*M('gl')*fade*MX.rain:0,3);                                   // 닫힌 창: 유리를 두드리는 비
+  bedLevel('lrain',rain?3.4*(.4*(1-h)+.12)*rs*M('lr')*fade*MX.rain*(op?1:.8):0,4); bedLevel('hrain',rain?3.4*.3*h*M('hr')*fade*MX.rain:0,4);
+  bedLevel('glass',0,3);                                   // 닫힌 창: 유리를 두드리는 비
   const uh=new Date().getHours(), late=uh>=21||uh<6;   // 손님 쪽이 밤이면 창밖이 낮이어도 새소리는 쉬고 거리 소리는 작게
   const fo=fade*MX.out*so; bedLevel('street',pk==='city'&&!night?rc*(late?.07:.14)*M('st')*fo:0,5); bedLevel('traffic',pk==='city'&&night?rc*.12*M('tr')*fo:0,5);
   bedLevel('birds',!night&&!snowy&&!late?rc*.07*calm*M('bi')*fo:0,5);
@@ -1064,7 +1064,7 @@ function toggleWindow(){ AMB.open=!AMB.open; LS.set('wopen',AMB.open); window.__
   roomSay(AMB.open?'창문을 열었어요 · 빗소리와 바깥 소리가 또렷해져요':'창문을 닫았어요 · 바깥 소리는 멀어지고 유리를 두드리는 비만 남아요'); }
 function upWin(){ const l=$('lbWin'); if(l) l.textContent=AMB.open?'창문 닫기':'창문 열기'; win.classList.toggle('wopen',AMB.open); document.querySelectorAll('[data-wo]').forEach(b=>b.setAttribute('aria-pressed',(b.dataset.wo==='1')===AMB.open)); }
 window.__wopen=AMB.open; setTimeout(upWin,0);
-function toggleRainSound(){ S.snd=!S.snd; if(S.snd&&!AU.on) setAudio(true); rainSound(S.snd); setRain(); }
+function toggleRainSound(){ S.rainMan=true; S.snd=!S.snd; if(S.snd&&!AU.on) setAudio(true); rainSound(S.snd); setRain(); }
 const TRACKS=[{f:'music/01.mp3',g:0.407,t:'토닥토닥 (Remastered)'},{f:'music/02.mp3',g:1,t:'Sad Thing'},{f:'music/03.mp3',g:0.668,t:'Annabel Lee'},{f:'music/04.mp3',g:0.966,t:'B TL B TL'},{f:'music/05.mp3',g:0.562,t:'아주 아주 슬픈 꿈'}];
 const songEl=$('songEl'); let trk=LS.get('trk',0)%TRACKS.length; songEl.volume=Math.min(1,S.vol*(window.__slf==null?1:window.__slf)*songGain());
 function songLabel(){ $('np').textContent='♪ '+TRACKS[trk].t+' — 어른아이'; }
@@ -1167,8 +1167,9 @@ const VIEWS=[
 ];
 function cityView(){ return VIEWS.find(v=>km(S.place.lat,S.place.lon,v.lat,v.lon)<=v.r)||null; }
 function setRain(){ if(window.__sym){ WG.snowT=0; return; } if(typeof SN!=='undefined'&&SN){ WG.snowT=0; WG.rainT=SN.kind==='wave'?.55:.8; return; } const w=S.w, v=cityView(); const t=w&&!w.guess?w.temp:null, snowy=(w&&!w.guess&&w.kind==='snow') || (t!=null ? t<=(v&&v.pr==='snow'?6:1.5) : !!(v&&v.pr==='snow'));   // 날씨를 알면 그대로, 모르면 그 장소에 어울리는 쪽으로
+  { const rainy=!snowy&&!!w&&!w.guess&&w.kind==='rain'; if(!S.rainMan&&AU.on&&!!S.snd!==rainy){ S.snd=rainy; rainSound(rainy,false); } }   // 비 오는 풍경에만 빗소리
   WG.snowT=snowy?(S.snd?1.5:1):0;
-  WG.rainT = snowy ? .12 : S.snd ? [.5,.75,1][RL] : !w ? .45 : w.kind==='rain' ? 1 : w.guess ? .45 : w.cloud>.6 ? .5 : .25;
+  WG.rainT = snowy ? .12 : S.snd ? [.5,.75,1][RL] : (w&&!w.guess&&w.kind==='rain') ? 1 : 0;   // 비가 오지 않는 풍경에는 빗줄기도 그리지 않는다
   const lb=$('lbRain'); if(lb) lb.textContent=(snowy?'눈 오는 밤 바람 ':'빗소리 ')+(S.snd?'끄기':'켜기'); if(S.snd) rainSound(true,snowy); }
 let shownView=null;
 // 큰 지도 화면이 포커스를 받으면 브라우저가 방 전체를 스크롤해 버리므로 막는다
@@ -1188,7 +1189,7 @@ function applyWindow(){ if(window.__draft) return;
     else { shownView=null; city=null; drawWindow(); setViewSource(wc,1.5,1.06,[.5,.5]); } WG.ngT=(v&&v.own&&v.src===v.dsrc&&night)?1:0; }
   setRain(); drawPrecip(); try{ const {lat,lon}=S.place; $('mCo').textContent=`${Math.abs(lat).toFixed(2)}°${lat>=0?'N':'S'}  ${Math.abs(lon).toFixed(2)}°${lon>=0?'E':'W'}`+(win.classList.contains('street')?'  ·  거리 사진 Google':pin?`  ·  사진 ${pin.a} · ${pin.l}`:''); }catch(_){}
 }
-window.__setWin=(p,d)=>{ S.place=p; S.w={kind:'rain',cloud:.8,isDay:d,tz:null,guess:true}; applyWindow(); $('mPlace').textContent=p.name; };
+window.__setWin=(p,d,k)=>{ S.rainMan=false; S.place=p; S.w=k?{kind:k,cloud:.8,isDay:d,tz:null,temp:k==='snow'?-2:12}:{kind:'rain',cloud:.8,isDay:d,tz:null,guess:true}; applyWindow(); $('mPlace').textContent=p.name; };
 const WCODE={0:'맑음',1:'대체로 맑음',2:'구름 조금',3:'흐림',45:'안개',48:'안개',51:'이슬비',53:'이슬비',55:'이슬비',56:'어는 비',57:'어는 비',61:'비',63:'비',65:'강한 비',66:'어는 비',67:'어는 비',71:'눈',73:'눈',75:'많은 눈',77:'싸락눈',80:'소나기',81:'소나기',82:'강한 소나기',85:'눈',86:'눈',95:'뇌우',96:'뇌우',99:'뇌우'};
 async function loadWeather(){
   const {lat,lon,name}=S.place; if(!window.__draft) $('mPlace').textContent=name; $('mCo').textContent=`${Math.abs(lat).toFixed(2)}°${lat>=0?'N':'S'}  ${Math.abs(lon).toFixed(2)}°${lon>=0?'E':'W'}`+(win.classList.contains('street')?'  ·  거리 사진 Google':'');
@@ -1303,7 +1304,7 @@ const PICKS=[
   {name:'제주 애월',lat:33.4634,lon:126.3105,cc:'kr'},
   {name:'부산 해운대',lat:35.1587,lon:129.1604,cc:'kr'}
 ];
-async function setPlace(p,out){ S.place=p; LS.set('place6',p); city=null; S.visit=false; LS.set('visit',false); if(out) out.textContent=`창밖을 ${p.name}(으)로 바꿨어요.`; await loadWeather(); if(S.radio) radioTune(); }
+async function setPlace(p,out){ S.rainMan=false; S.place=p; LS.set('place6',p); city=null; S.visit=false; LS.set('visit',false); if(out) out.textContent=`창밖을 ${p.name}(으)로 바꿨어요.`; await loadWeather(); if(S.radio) radioTune(); }
 
 /* ---------- 패널 ---------- */
 const MC='<span class="mctl"><button class="mc" id="rcPrev" aria-label="이전 곡"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 6h2v12H7zM10 12l9-6v12z"/></svg></button><button class="mc pp" id="rcPlay" aria-label="재생 또는 멈춤"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="pl1" d="M8 5v14l11-7z"/><path class="pa1" d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button><button class="mc" id="rcNext" aria-label="다음 곡"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6h2v12h-2zM14 12 5 6v12z"/></svg></button></span>';
@@ -2624,7 +2625,7 @@ Promise.all([img.decode?img.decode().catch(()=>{}):0, document.fonts&&document.f
 function lightsOn(){ if(S.lamp) return; blip('switch'); lampMix=.2; setTimeout(()=>{ lampMix=.95; },70); setTimeout(()=>{ lampMix=.35; },160);
   setTimeout(()=>{ S.lamp=true; stage.classList.remove('lampoff'); $('lbLamp').textContent='스탠드 끄기'; },240); }
 function enter(withSound){
-  enterAt=performance.now(); pRing.classList.remove('on'); askTilt(); if(withSound){ setAudio(true); if(!S.snd) toggleRainSound(); }
+  enterAt=performance.now(); pRing.classList.remove('on'); askTilt(); if(withSound){ setAudio(true); setRain(); }
   document.body.classList.add('entered'); scene.classList.add('entering'); intro.classList.add('out'); setTimeout(()=>{ try{ noteChip(); }catch(e){} },6500); deepGo();
   requestAnimationFrame(()=>requestAnimationFrame(()=>{ scene.classList.remove('entering'); scene.style.transition='transform 3.6s cubic-bezier(.3,0,.1,1)'; setTimeout(()=>{ scene.style.transition=''; },3700); }));
   setTimeout(()=>{ intro.hidden=true; },1700);
