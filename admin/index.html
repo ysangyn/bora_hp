@@ -225,20 +225,20 @@ async function viewGate(err) {
     return;
   }
   busy(true, '확인 중…'); let ok = false; try { ok = await fb.canWrite(); } catch (e) { err = e.message; } busy(false);
-  if (!ok) {
+  if (!ok || new URLSearchParams(location.search).has('rules')) {
     let extra = ''; try { extra = localStorage.getItem('bora_uids') || ''; } catch (e) {}
     const uids = () => [u.uid, ...$('#uX').value.split(/[\s,]+/)].filter((x, i, a) => x && a.indexOf(x) === i);
     $('#app').innerHTML = `<h1 class="lt">주인장 방</h1><p class="ls">${esc(u.email || '')} 계정으로 들어왔어요. 처음 한 번, 이 계정이 저장할 수 있게 규칙을 바꿔 주세요.</p>
     <div class="card"><ol class="hint" style="line-height:1.9;padding-left:18px"><li>아래 '규칙 복사'를 눌러요.</li><li>Firebase 콘솔 → Firestore → <b>규칙</b> 탭에서 원래 글을 모두 지우고 붙여 넣은 뒤 <b>게시</b>해요.</li><li>여기로 돌아와 '다시 확인'을 눌러요.</li></ol>
-    <p class="hint">이 계정 번호: <code>${esc(u.uid)}</code> · 다른 사람(예: 아내분)도 쓰려면 그 사람이 여기서 본 계정 번호를 아래에 넣어요.</p>
-    <input id="uX" placeholder="다른 계정 번호(없으면 비워 두기)" value="${esc(extra)}" style="width:100%;box-sizing:border-box">
+    <p class="hint">이 계정 번호: <code>${esc(u.uid)}</code> · 함께 들어올 사람이 있으면 그 사람의 구글 메일 주소(또는 계정 번호)를 아래에 넣어요. 여러 명이면 쉼표로 나눠요. 여기 적은 사람만 보라다방에 들어올 수 있어요.</p>
+    <input id="uX" placeholder="함께 들어올 사람의 구글 메일 주소(없으면 비워 두기)" value="${esc(extra)}" style="width:100%;box-sizing:border-box">
     <textarea rows="12" readonly id="rT" style="width:100%;box-sizing:border-box;margin-top:10px;font:12px/1.5 ui-monospace,Menlo,monospace;white-space:pre;overflow:auto"></textarea>
     ${err ? `<p class="warnline">${esc(err)}</p>` : ''}
     <div class="row" style="margin-top:10px"><button class="btn" id="rC" type="button">규칙 복사</button><button class="btn pri" id="rOk" type="button">다시 확인</button><button class="btn sm" id="gOut" type="button">다른 계정으로</button></div></div>`;
     const upd = () => { $('#rT').value = fb.rulesFor(uids()); try { localStorage.setItem('bora_uids', $('#uX').value.trim()); } catch (e) {} };
     upd(); $('#uX').oninput = upd;
     $('#rC').onclick = () => { const t = $('#rT'); (navigator.clipboard ? navigator.clipboard.writeText(t.value) : Promise.reject()).then(() => toast('규칙을 복사했어요.'), () => { t.focus(); t.select(); toast('길게 눌러 복사해 주세요.'); }); };
-    $('#rOk').onclick = () => viewGate(); $('#gOut').onclick = async () => { await fb.signOut(); viewGate(); };
+    $('#rOk').onclick = () => { if (new URLSearchParams(location.search).has('rules')) location.replace(location.pathname); else viewGate(); }; $('#gOut').onclick = async () => { await fb.signOut(); viewGate(); };
     return;
   }
   $('#app').innerHTML = '<h1 class="lt">주인장 방</h1><p class="ls">불러오는 중…</p>';
