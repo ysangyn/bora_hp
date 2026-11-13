@@ -12,3 +12,8 @@
 | paper_1024.webp | GPT 2차 V2 (1254) | 1024로 축소, 이음매 보정 |
 | desk_1536.webp | GPT 2차 V3 | 그대로(webp 변환) |
 | ribbon.webp | GPT 2차 V4 (투명) | 끈 주변 반투명 후광 제거, 여백 자름 |
+| hourglass.webp | GPT 3차 P1 (투명) | 후광 정리, 여백 자름 |
+| teacup.webp | GPT 3차 P2 (투명) | 가장자리 정리, 여백 자름 |
+| notepage.webp | GPT 3차 P3 (투명) | 가장자리 정리, 여백 자름 |
+| drawer.webp | GPT 3차 P4 | 그대로(webp 변환) |
+| envelope.webp | GPT 3차 P5 (투명) | 가장자리 정리, 여백 자름 |
