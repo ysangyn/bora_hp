@@ -993,7 +993,7 @@ function rainSound(on,soft){ const c=actx(); if(!c) return;
   const L=AU.rainL, M=soft?[0,0,.06,0,1700]:[[.045,0,.1,5,1100],[.4,.004,.32,9,1500],[1,.016,.55,15,1700]][RL], T=c.currentTime;
   L.wash.gain.setTargetAtTime(M[0],T,.8); L.hiss.gain.setTargetAtTime(M[1],T,.8); L.low.gain.setTargetAtTime(M[2],T,.8); L.washF.frequency.setTargetAtTime(M[4],T,.8); L.rate=M[3];
   L.wind.gain.setTargetAtTime(soft?.42:0,T,1.2); L.windLfo.gain.setTargetAtTime(soft?.22:0,T,1.2);
-  AU.rain.gain.cancelScheduledValues(c.currentTime); AU.rainBase=AU.recOK?0:(soft?.085:[.2,.23,.36][RL]); AU.rain.gain.setTargetAtTime(on?AU.rainBase:0,c.currentTime,on?.7:.4); }
+  AU.rain.gain.cancelScheduledValues(c.currentTime); AU.rainBase=(AU.recOK?0:(soft?.085:[.2,.23,.36][RL]))*((S.playing||S.radio)?.3:1); /* 노래나 라디오가 나오면 빗소리는 뒤로 물러난다 */ AU.rain.gain.setTargetAtTime(on?AU.rainBase:0,c.currentTime,on?.7:.4); }
 function vinyl(on){ const c=actx(); if(!c) return;
   if(!AU.vinyl){ const n=c.sampleRate*6,b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0); for(let i=0;i<n;i++){ d[i]=(Math.random()*2-1)*.012; if(Math.random()<.00035) d[i]+=(Math.random()*2-1)*.7; }
     const s=c.createBufferSource(); s.buffer=b; s.loop=true; const f=c.createBiquadFilter(); f.type='bandpass'; f.frequency.value=2600; f.Q.value=.3; const g=c.createGain(); g.gain.value=0; s.connect(f).connect(g).connect(AU.out); s.start(); AU.vinyl=g; }
@@ -1047,7 +1047,7 @@ function seaLevel(v){ const c=AU.ctx; if(!c||!AMB.out) return; bedLevel('waves',
   if(SEA) SEA.g.gain.setTargetAtTime(Math.max(0,v),c.currentTime,4); if(v<=.001&&SEA){ const o=SEA; SEA=null; setTimeout(()=>o.nodes.forEach(x=>{ try{x.stop();}catch(_){} }),14000); } }   // 소리 섞기: 재료마다 손님이 정한 세기
 function ambUpdate(){ if(!AU.on||!AU.ctx||!AMB.out) return; const R=Math.random, M=k=>(AMB.mea[k]=Math.min(1.25,Math.max(.5,(AMB.mea[k]||1)+(R()-.5)*.3)));
   const snowy=WG.snowT>.5&&!window.__sym, rain=window.__sym?(window.__symLvl||.5):(S.snd&&!snowy)?RLV[RL]*(.9+.2*(M('rr')-.5)):(S.w&&!S.w.guess&&S.w.kind==='rain'&&!snowy)?.2:0, rs=window.__sym?1:RLS[RL];
-  const h=Math.max(0,Math.min(1,(rain-.45)/.5)), op=AMB.open, fade=(1-(window.SLP||0)*.6)*(window.__sym?.7:1), pk=placeKind(), night=!(S.w&&S.w.isDay), calm=Math.max(.15,1-rain*.8);
+  const h=Math.max(0,Math.min(1,(rain-.45)/.5)), op=AMB.open, fade=(1-(window.SLP||0)*.6)*(window.__sym?.7:1)*((S.playing||S.radio)?.4:1), pk=placeKind(), night=!(S.w&&S.w.isDay), calm=Math.max(.15,1-rain*.8);
   AMB.lp.frequency.setTargetAtTime(op?16000:650,AU.ctx.currentTime,.8);
   const rc=SOFT?0:1, so=SOFT?(op?.6:0):1;
   bedLevel('lrain',rain?rc*(.4*(1-h)+.12)*rs*M('lr')*fade*MX.rain:0,4); bedLevel('hrain',rain?rc*.3*h*M('hr')*fade*MX.rain:0,4);
@@ -1624,6 +1624,7 @@ async function rb(path){ for(const h of RB){ try{ const r=await fetch(h+path,{he
 
 songEl.addEventListener('play',()=>{ songEl.volume=Math.min(1,S.vol*(window.__slf==null?1:window.__slf)*songGain()); });
 const radioEl=$('radioEl'); radioEl.volume=S.vol;
+[[songEl,['play','pause','ended']],[radioEl,['playing','pause','emptied']]].forEach(([el,evs])=>evs.forEach(ev=>el.addEventListener(ev,()=>setTimeout(()=>{ try{ if(S.snd) setRain(); ambUpdate(); }catch(_){} },80))));
 const SILENT='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
 let order=[], idx=0;
 function sortStations(){ order=STATIONS.map(s=>({...s,dist:km(S.place.lat,S.place.lon,s.lat,s.lon)})).sort((a,b)=>a.dist-b.dist); idx=0; }
@@ -1633,15 +1634,19 @@ async function resolve(st){
   return (j&&j[0]&&(j[0].url_resolved||j[0].url)) || st.url;
 }
 function radioLabel(st){ return st.local ? `${st.n} · 그 동네 방송` : `${st.n} · ${st.city}`; }
-async function radioPlay(st){ symYield(); if(typeof songStop==='function'&&S.playing) songStop();
+async function radioPlay(st,hop){ hop=hop||0; symYield(); if(typeof songStop==='function'&&S.playing) songStop();
   S.radio=st; $('npR').textContent='라디오 맞추는 중…'; stage.classList.add('onair'); updRadioPanel();
   const tok=(radioPlay.n=(radioPlay.n||0)+1);
   radioEl.src=st.url||SILENT; radioEl.volume=0; const first=radioEl.play().catch(()=>{});      // 누른 순간 재생 권한을 잡아 둔다
   const url=st.url ? st.url : await resolve(st); if(tok!==radioPlay.n) return;
   if(!url){ try{ radioEl.pause(); }catch(e){} $('npR').textContent=''; stage.classList.remove('onair'); S.radio=null; setRadioMsg('이 방송은 지금 연결할 수 없어요. 다음 방송을 눌러 보세요.'); return; }
   if(radioEl.src!==url) radioEl.src=url; radioEl.volume=0;
-  try{ await radioEl.play(); if(tok!==radioPlay.n) return; fade(S.vol,1500); $('npR').textContent='라디오 · '+radioLabel(st); setRadioMsg(!st.local&&st.dist>1500?`창밖 ${S.place.name} 가까이에는 광고 없는 방송이 없어서, 가장 가까운 ${st.city}의 ${st.n}을 틀었어요.`:''); }
-  catch(e){ if(tok!==radioPlay.n) return; try{ radioEl.pause(); }catch(_){} $('npR').textContent=''; stage.classList.remove('onair'); S.radio=null; setRadioMsg('방송을 틀지 못했어요. 다음 방송을 눌러 보세요.'); }
+  try{ await Promise.race([radioEl.play(),new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),9000))]); if(tok!==radioPlay.n) return; fade(S.vol,1500); $('npR').textContent='라디오 · '+radioLabel(st); setRadioMsg(!st.local&&st.dist>1500?`창밖 ${S.place.name} 가까이에는 광고 없는 방송이 없어서, 가장 가까운 ${st.city}의 ${st.n}을 틀었어요.`:''); }
+  catch(e){ if(tok!==radioPlay.n) return;
+    // 적어 둔 주소가 죽었으면 Radio Browser에서 최신 주소를 찾아 한 번 더, 그래도 안 되면 다음 방송으로 알아서 넘어간다
+    if(!st.local&&!st._re){ const u2=await resolve({...st,url:''}).catch(()=>null); if(tok!==radioPlay.n) return; if(u2&&u2!==url){ st._re=true; return radioPlay({...st,url:u2,_re:true},hop); } }
+    if(order.length>1&&hop<order.length-1){ idx=(idx+1)%order.length; setRadioMsg(`${st.n}은 지금 연결이 안 돼서 다음 방송으로 넘어가요…`); return radioPlay(order[idx],hop+1); }
+    try{ radioEl.pause(); }catch(_){} $('npR').textContent=''; stage.classList.remove('onair'); S.radio=null; setRadioMsg('지금은 연결되는 방송이 없어요. 잠시 뒤에 다시 눌러 보세요.'); }
   updRadioPanel();
 }
 let fadeT; function fade(to,ms,done){ clearInterval(fadeT); const from=radioEl.volume, t0=performance.now(); fadeT=setInterval(()=>{ const k=Math.min(1,(performance.now()-t0)/ms); radioEl.volume=from+(to-from)*k; if(k>=1){ clearInterval(fadeT); done&&done(); } },50); }
