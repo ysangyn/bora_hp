@@ -1,0 +1,200 @@
+{
+ "commit": "027e9e9",
+ "note": "현재 상태를 옮겨 적은 것. sf_gain은 코드의 SF 상수, 나머지 수치는 measure_audio.py 측정값.",
+ "recorded": [
+  {
+   "key": "lrain",
+   "file": "sound/light-rain.mp3",
+   "mix_group": "rain",
+   "sf_gain": 1.8,
+   "route": "AMB.out",
+   "playback": "16~40초 임의 구간을 겹쳐 이어 붙임(크로스페이드 최대 4초, 재생속도 0.97~1.03)",
+   "lufs_i": -31.3,
+   "lufs_after_sf": -26.2,
+   "true_peak_dbfs": -0.8,
+   "dur": 90.04,
+   "ch": 2
+  },
+  {
+   "key": "hrain",
+   "file": "sound/heavy-rain.mp3",
+   "mix_group": "rain",
+   "sf_gain": 0.48,
+   "route": "AMB.out",
+   "playback": "16~40초 임의 구간을 겹쳐 이어 붙임(크로스페이드 최대 4초, 재생속도 0.97~1.03)",
+   "lufs_i": -19.9,
+   "lufs_after_sf": -26.3,
+   "true_peak_dbfs": -1.3,
+   "dur": 21.84,
+   "ch": 2
+  },
+  {
+   "key": "glass",
+   "file": "sound/rain-on-window.mp3",
+   "mix_group": "rain",
+   "sf_gain": 0.33,
+   "route": "AU.out",
+   "playback": "16~40초 임의 구간을 겹쳐 이어 붙임(크로스페이드 최대 4초, 재생속도 0.97~1.03)",
+   "lufs_i": -16.9,
+   "lufs_after_sf": -26.5,
+   "true_peak_dbfs": -2.0,
+   "dur": 33.18,
+   "ch": 2
+  },
+  {
+   "key": "street",
+   "file": "sound/busy-street.mp3",
+   "mix_group": "out",
+   "sf_gain": 0.7,
+   "route": "AMB.out",
+   "playback": "16~40초 임의 구간을 겹쳐 이어 붙임(크로스페이드 최대 4초, 재생속도 0.97~1.03)",
+   "lufs_i": -28.0,
+   "lufs_after_sf": -31.1,
+   "true_peak_dbfs": -8.2,
+   "dur": 90.04,
+   "ch": 1
+  },
+  {
+   "key": "traffic",
+   "file": "sound/traffic.mp3",
+   "mix_group": "out",
+   "sf_gain": 1.4,
+   "route": "AMB.out",
+   "playback": "16~40초 임의 구간을 겹쳐 이어 붙임(크로스페이드 최대 4초, 재생속도 0.97~1.03)",
+   "lufs_i": -33.2,
+   "lufs_after_sf": -30.3,
+   "true_peak_dbfs": -12.2,
+   "dur": 39.94,
+   "ch": 1
+  },
+  {
+   "key": "village",
+   "file": "sound/night-village.mp3",
+   "mix_group": "out",
+   "sf_gain": 1.8,
+   "route": "AMB.out",
+   "playback": "16~40초 임의 구간을 겹쳐 이어 붙임(크로스페이드 최대 4초, 재생속도 0.97~1.03)",
+   "lufs_i": -35.8,
+   "lufs_after_sf": -30.7,
+   "true_peak_dbfs": -14.2,
+   "dur": 90.04,
+   "ch": 1
+  },
+  {
+   "key": "birds",
+   "file": "sound/birds.mp3",
+   "mix_group": "out",
+   "sf_gain": 0.73,
+   "route": "AMB.out",
+   "playback": "16~40초 임의 구간을 겹쳐 이어 붙임(크로스페이드 최대 4초, 재생속도 0.97~1.03)",
+   "lufs_i": -23.1,
+   "lufs_after_sf": -25.8,
+   "true_peak_dbfs": -5.4,
+   "dur": 90.04,
+   "ch": 1
+  },
+  {
+   "key": "crickets",
+   "file": "sound/crickets.mp3",
+   "mix_group": "out",
+   "sf_gain": 2.2,
+   "route": "AMB.out",
+   "playback": "16~40초 임의 구간을 겹쳐 이어 붙임(크로스페이드 최대 4초, 재생속도 0.97~1.03)",
+   "lufs_i": -42.9,
+   "lufs_after_sf": -36.1,
+   "true_peak_dbfs": -27.2,
+   "dur": 90.04,
+   "ch": 1
+  },
+  {
+   "key": "siren",
+   "file": "sound/ambulance-siren.mp3",
+   "mix_group": "out",
+   "sf_gain": 0.5,
+   "route": "AMB.out (1회 재생, 1.8kHz 저역통과)",
+   "playback": "한 번 재생",
+   "lufs_i": -21.7,
+   "lufs_after_sf": -27.7,
+   "true_peak_dbfs": -6.1,
+   "dur": 22.62,
+   "ch": 1
+  },
+  {
+   "key": "wind",
+   "file": "sound/wind.mp3",
+   "mix_group": "out",
+   "sf_gain": 0.8,
+   "route": "AMB.out",
+   "playback": "16~40초 임의 구간을 겹쳐 이어 붙임(크로스페이드 최대 4초, 재생속도 0.97~1.03)",
+   "lufs_i": -29.0,
+   "lufs_after_sf": -30.9,
+   "true_peak_dbfs": -6.0,
+   "dur": 73.46,
+   "ch": 1
+  },
+  {
+   "key": "boil",
+   "file": "sound/boiling-water.mp3",
+   "mix_group": "boil",
+   "sf_gain": 1.1,
+   "route": "AU.out",
+   "playback": "16~40초 임의 구간을 겹쳐 이어 붙임(크로스페이드 최대 4초, 재생속도 0.97~1.03)",
+   "lufs_i": -32.8,
+   "lufs_after_sf": -32.0,
+   "true_peak_dbfs": -12.1,
+   "dur": 18.55,
+   "ch": 1
+  }
+ ],
+ "unused_files": [
+  "sound/dog-barking.mp3",
+  "sound/tuning-radio.mp3"
+ ],
+ "music": [
+  {
+   "file": "music/01.mp3",
+   "track_gain": 0.407,
+   "lufs_i": -9.2,
+   "lufs_after_gain": -17.0,
+   "true_peak_dbfs": 2.2,
+   "dur": 249.77,
+   "ch": 2
+  },
+  {
+   "file": "music/02.mp3",
+   "track_gain": 1,
+   "lufs_i": -17.0,
+   "lufs_after_gain": -17.0,
+   "true_peak_dbfs": -5.6,
+   "dur": 369.89,
+   "ch": 2
+  },
+  {
+   "file": "music/03.mp3",
+   "track_gain": 0.668,
+   "lufs_i": -13.5,
+   "lufs_after_gain": -17.0,
+   "true_peak_dbfs": -1.3,
+   "dur": 295.75,
+   "ch": 2
+  },
+  {
+   "file": "music/04.mp3",
+   "track_gain": 0.966,
+   "lufs_i": -16.7,
+   "lufs_after_gain": -17.0,
+   "true_peak_dbfs": -5.0,
+   "dur": 320.95,
+   "ch": 2
+  },
+  {
+   "file": "music/05.mp3",
+   "track_gain": 0.562,
+   "lufs_i": -12.0,
+   "lufs_after_gain": -17.0,
+   "true_peak_dbfs": -0.7,
+   "dur": 222.94,
+   "ch": 2
+  }
+ ]
+}
