@@ -713,7 +713,7 @@ function schedule(c,song,t0,opt){ const R=rng(song.seed+99), nodes=[], from=opt.
   const ring=[null,null,null,null,null,null,null];
   const HP=opt.mix||opt.hum?humPlan(song):null, lead=song.notes.filter(n=>n.inst==='g'||(opt.leadGtr&&n.abs>=from&&n.abs<to&&(!opt.mix||!HP.isHum(n))&&(!opt.leadThin||n.end||(n.wordStart&&!n.fn)))).map(n=>({slot:n.abs,s:6,m:n.m,vel:n.inst?.78:(n.em?.95:n.anchor?.82:.68)*(n.type==='outro'?.7:1),off:0,_e:!!n.end,_ws:!!n.wordStart}));
   // 멜로디 기타: 글자마다 똑같은 세기로 격자에 찍지 않는다. 줄마다 숨(세기 곡선), 박 뒤로 살짝 기대기, 이웃한 음은 다시 뜯지 않고 이어서
-  const EXPR=!/[?&]expr=0/.test(location.search)&&(window.__LAB||{}).expr!==false;
+  const EXPR=/[?&]expr=1/.test(location.search)||(window.__LAB||{}).expr===true;   // 2026-11-14 청감: 슬라이드·비브라토가 싸구려 효과처럼 들려 더 기계 같다 → 기본은 끔
   if((window.__LAB||{}).lead!==false&&lead.length){ const LQ=rng((song.seed||1)+4242), gs=()=>(LQ()+LQ()+LQ()-1.5)*.011; lead.sort((x,y)=>x.slot-y.slot); let i0=0;
     for(let i=0;i<lead.length;i++){ const last=i===lead.length-1||lead[i]._e||lead[i+1].slot-lead[i].slot>3; if(!last) continue; const ph=lead.slice(i0,i+1), n=ph.length, ms=ph.map(x=>x.m), lo=Math.min(...ms), hi=Math.max(...ms), pk=ms.indexOf(hi);
       ph.forEach((x,j)=>{ const pos=n>1?j/(n-1):.5, arc=.8+.28*Math.sin(Math.PI*Math.min(1,pos*.85+.1)), top=hi>lo?(x.m-lo)/(hi-lo):.5;
