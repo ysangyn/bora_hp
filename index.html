@@ -1062,7 +1062,7 @@ function mixLink(){ const n=mixNow(), q=MIXI.map(([k])=>k[0]+Math.round((n[k]||0
   const a=LS.get('mixSaved',[]).filter(p=>p.n!=='나눠 받은 자리'); a.unshift({n:'나눠 받은 자리',v}); LS.set('mixSaved',a.slice(0,6)); history.replaceState(null,'',location.pathname+location.hash); setTimeout(()=>roomSay('나눠 받은 소리를 ‘소리 섞기’의 나만의 자리에 넣어 두었어요'),4000); }catch(e){} })();
 let SOFT=LS.get('sndSoft',true);   // 소리 결: 처음의 부드러운 합성 소리(기본) / 실제 녹음
 function sndSoft(v){ SOFT=!!v; LS.set('sndSoft',SOFT); if(KT){ toggleKettle(); toggleKettle(); } setRain(); ambUpdate(); }
-window.__snd=()=>({sl:sleepKind(),tick:!!TK,fc:!!FC,soft:SOFT,rec:AU.recOK,rain:AU.rain?+AU.rain.gain.value.toFixed(3):null,base:AU.rainBase,snd:S.snd,beds:Object.fromEntries(Object.entries(AMB.beds).map(([k,v])=>[k,+v.g.gain.value.toFixed(3)])),kt:KT?+KT.g.gain.value.toFixed(3):null});
+window.__snd=()=>({on:AU.on,sl:sleepKind(),tick:!!TK,fc:!!FC,soft:SOFT,rec:AU.recOK,rain:AU.rain?+AU.rain.gain.value.toFixed(3):null,base:AU.rainBase,snd:S.snd,beds:Object.fromEntries(Object.entries(AMB.beds).map(([k,v])=>[k,+v.g.gain.value.toFixed(3)])),kt:KT?+KT.g.gain.value.toFixed(3):null});
 let RL=0; const RLN=['부슬비','보통 비','장대비'], RLV=[.26,.5,.82], RLS=[.34,.62,1];   // 비 세기: 기본은 창가에 토닥이는 부슬비
 function rainLv(n){ RL=n; LS.set('rainLv',n); setRain(); ambUpdate(); }
 function isSea(){ const n=(S.place&&S.place.name)||''; return /해운대|애월|해변|해수욕장|바닷가|beach|coast/i.test(n); }
@@ -1092,7 +1092,7 @@ function toggleRainSound(){ S.rainMan=true; S.snd=!S.snd; if(S.snd&&!AU.on) setA
 const TRACKS=[{f:'music/01.mp3',g:0.407,t:'토닥토닥 (Remastered)'},{f:'music/02.mp3',g:1,t:'Sad Thing'},{f:'music/03.mp3',g:0.668,t:'Annabel Lee'},{f:'music/04.mp3',g:0.966,t:'B TL B TL'},{f:'music/05.mp3',g:0.562,t:'아주 아주 슬픈 꿈'}];
 const songEl=$('songEl'); let trk=LS.get('trk',0)%TRACKS.length; songEl.volume=Math.min(1,S.vol*(window.__slf==null?1:window.__slf)*songGain());
 function songLabel(){ $('np').textContent='♪ '+TRACKS[trk].t+' — 어른아이'; }
-function songPlay(i){ symYield(); skI=-1; if(i!=null) trk=(i+TRACKS.length)%TRACKS.length; LS.set('trk',trk); if(!AU.on) setAudio(true); if(S.radio) radioOff(); songEl.src=TRACKS[trk].f; songEl.muted=false; songEl.play().catch(()=>{ $('np').textContent='음원 파일을 찾지 못했어요 (music 폴더)'; });
+function songPlay(i){ symYield(); skI=-1; if(i!=null) trk=(i+TRACKS.length)%TRACKS.length; LS.set('trk',trk); if(S.radio) radioOff();   /* 노래는 방 소리를 켜지 않는다: 배경이 없었으면 노래만, 켜 둔 배경이 있었으면 그 배경과 함께 */ songEl.src=TRACKS[trk].f; songEl.muted=false; songEl.play().catch(()=>{ $('np').textContent='음원 파일을 찾지 못했어요 (music 폴더)'; });
   S.playing=true; vinyl(true); stage.classList.add('playing'); $('lbPlay').textContent='바늘 들기'; songLabel(); updRecords(); mediaMeta(); }
 let HOLD=null;
 function holdMusic(){ if(HOLD) return; const h={}; if(S.playing){ h.song=trk; h.t=songEl.currentTime||0; songStop(); } else if(S.radio){ h.radio=S.radio; radioOff(); } else if(typeof PJ!=='undefined'&&PJ){ h.pj=PJ; projOff(); } if(h.song!=null||h.radio||h.pj) HOLD=h; }
@@ -1395,7 +1395,7 @@ function openBooks(id){ openOver('books/?embed=1'+(id?'&b='+encodeURIComponent(i
 /* 습작 노트: 정식 곡이 되기 전, 떠오른 대로 만들어 본 짧은 곡들 */
 const SKETCHES=[ /* {f:'sketch/01.mp3',t:'제목',d:'2026.11 · 한 줄 메모'} */ ];
 let skI=-1;
-function sketchPlay(i){ const k=SKETCHES[i]; if(!k) return; if(S.radio) radioOff(); if(!AU.on) setAudio(true); skI=i; songEl.src=k.f; songEl.muted=false; songEl.play().catch(()=>{});
+function sketchPlay(i){ const k=SKETCHES[i]; if(!k) return; if(S.radio) radioOff(); skI=i; songEl.src=k.f; songEl.muted=false; songEl.play().catch(()=>{});
   S.playing=true; vinyl(true); stage.classList.add('playing'); $('lbPlay').textContent='바늘 들기'; $('np').textContent='♪ 습작 · '+k.t; updSketch(); }
 function updSketch(){ document.querySelectorAll('.skb').forEach(b=>b.setAttribute('aria-pressed',S.playing&&skI===+b.dataset.i)); }
 songEl.addEventListener('ended',()=>{ if(skI>=0){ skI=-1; } });
