@@ -898,7 +898,7 @@ body.hasnote .hs[data-p="mailbox"]{display:block!important}
 
   <button class="hs pl" data-z="1" style="left:44%;top:31%;--w:9%" data-a="rain"><span class="lb" id="lbRain">빗소리 켜기</span></button>
   <button class="hs pl" data-z="1" style="left:50.05%;top:36.2%;--w:3.5%" data-a="wopen"><span class="lb" id="lbWin">창문 열기</span></button>
-  <button class="hs pl" data-z="1" style="left:42%;top:18.2%;--w:4%" data-a="curtain"><span class="lb" id="lbCur">블라인드 내리기</span></button>
+  <button class="hs pl" data-z="1" style="left:64.9%;top:33%;--w:3.4%" data-a="curtain"><span class="lb" id="lbCur">블라인드 내리기</span></button>
   <button class="hs pl" data-z="0.93" style="left:80.4%;top:34.5%;--w:5%" data-a="lamp"><span class="lb" id="lbLamp">스탠드 켜기</span></button>
   <button class="hs pl" data-z="0.95" style="left:37.4%;top:53.6%;--w:5%" data-a="play"><span class="lb" id="lbPlay">노래 틀기</span></button>
   <button class="hs pl" data-z="0.78" style="left:15.2%;top:61%;--w:5.5%" data-p="records"><span class="lb">레코드장</span></button>
@@ -994,7 +994,8 @@ const AU={ctx:null,out:null,on:false,rain:null,vinyl:null};
 function actx(){
   if(!AU.ctx){ try{ AU.ctx=(()=>{ const A=window.AudioContext||window.webkitAudioContext; try{ return new A({latencyHint:'playback'}); }catch(_){ return new A(); } })(); AU.out=AU.ctx.createGain(); AU.out.gain.value=AU.on?1:0; try{ const cp=AU.ctx.createDynamicsCompressor(); cp.threshold.value=-3; cp.knee.value=0; cp.ratio.value=20; cp.attack.value=.003; cp.release.value=.25; const cpT=AU.ctx.createGain(); cpT.gain.value=.82; AU.tone=AU.ctx.createBiquadFilter(); AU.tone.type='lowpass'; AU.tone.Q.value=.3; AU.tone.frequency.value=toneHz(LS.get('tone',.7)); AU.adapt=AU.ctx.createGain(); AU.out.connect(AU.adapt).connect(AU.tone).connect(cp).connect(cpT).connect(AU.ctx.destination); }catch(_){ AU.out.connect(AU.ctx.destination); }
     try{ Object.defineProperty(AU,'recOK',{get:()=>!!AU.recHas,configurable:true}); }catch(_){} }catch(e){ return null; } }
-  if(AU.ctx.state==='suspended'&&!window.__roomHold) AU.ctx.resume(); return AU.ctx;
+  if(window.__roomHold){ const so=document.getElementById('songOv'), oo=document.getElementById('overOv'); if(!((so&&so.classList.contains('on'))||(oo&&oo.classList.contains('on')))) window.__roomHold=false; }   // 덮개가 닫혔는데 멈춤 표시만 남은 경우(뒤로 가기 등)는 풀어 준다
+  if(AU.ctx.state!=='running'&&!window.__roomHold) AU.ctx.resume(); return AU.ctx;
 }
 function noise(sec,brown){ const c=AU.ctx,n=Math.floor(c.sampleRate*sec),b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0); let last=0;
   for(let i=0;i<n;i++){ const w=Math.random()*2-1; if(brown){ last=(last+0.02*w)/1.02; d[i]=last*3.5; } else d[i]=w; } return b; }
@@ -1064,7 +1065,7 @@ function mixLink(){ const n=mixNow(), q=MIXI.map(([k])=>k[0]+Math.round((n[k]||0
   const a=LS.get('mixSaved',[]).filter(p=>p.n!=='나눠 받은 자리'); a.unshift({n:'나눠 받은 자리',v}); LS.set('mixSaved',a.slice(0,6)); history.replaceState(null,'',location.pathname+location.hash); setTimeout(()=>roomSay('나눠 받은 소리를 ‘소리 섞기’의 나만의 자리에 넣어 두었어요'),4000); }catch(e){} })();
 let SOFT=LS.get('sndSoft',true);   // 소리 결: 처음의 부드러운 합성 소리(기본) / 실제 녹음
 function sndSoft(v){ SOFT=!!v; LS.set('sndSoft',SOFT); if(KT){ toggleKettle(); toggleKettle(); } setRain(); ambUpdate(); }
-window.__snd=()=>({on:AU.on,sl:sleepKind(),tick:!!TK,fc:!!FC,soft:SOFT,rec:AU.recOK,rain:AU.rain?+AU.rain.gain.value.toFixed(3):null,base:AU.rainBase,snd:S.snd,beds:Object.fromEntries(Object.entries(AMB.beds).map(([k,v])=>[k,+v.g.gain.value.toFixed(3)])),kt:KT?+KT.g.gain.value.toFixed(3):null});
+window.__snd=()=>({ctx:AU.ctx?AU.ctx.state:null,hold:window.__roomHold||false,on:AU.on,sl:sleepKind(),tick:!!TK,fc:!!FC,soft:SOFT,rec:AU.recOK,rain:AU.rain?+AU.rain.gain.value.toFixed(3):null,base:AU.rainBase,snd:S.snd,beds:Object.fromEntries(Object.entries(AMB.beds).map(([k,v])=>[k,+v.g.gain.value.toFixed(3)])),kt:KT?+KT.g.gain.value.toFixed(3):null});
 let RL=0; const RLN=['부슬비','보통 비','장대비'], RLV=[.26,.5,.82], RLS=[.34,.62,1];   // 비 세기: 기본은 창가에 토닥이는 부슬비
 function rainLv(n){ RL=n; LS.set('rainLv',n); setRain(); ambUpdate(); }
 function isSea(){ const n=(S.place&&S.place.name)||''; return /해운대|애월|해변|해수욕장|바닷가|beach|coast/i.test(n); }
