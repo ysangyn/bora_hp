@@ -1295,7 +1295,7 @@ function pinSrc(pin){ return pin.src||('img/pin/'+pin.f); }
 const MLY='MLY|28940021905666587|6f123c26e51ffb21e04cccff938c19c6';
 async function mlyPins(pl){ try{ const cs=(pl.spots&&pl.spots.length?pl.spots:[{lat:pl.lat,lon:pl.lon,n:pl.name}]).slice(0,4), seen=new Set();
   const per=await Promise.all(cs.map(async c=>{ const out=[]; for(const d of [.0012,.004]){ const cl=Math.max(.3,Math.cos(c.lat*Math.PI/180)), bb=[c.lon-d/cl,c.lat-d,c.lon+d/cl,c.lat+d].map(v=>v.toFixed(6)).join(',');
-      const j=await (await tfetch(`https://graph.mapillary.com/images?access_token=${encodeURIComponent(MLY)}&fields=id,thumb_2048_url,is_pano,captured_at,creator&bbox=${bb}&limit=40`,null,5000)).json();
+      const j=await (await tfetch(`https://graph.mapillary.com/images?access_token=${encodeURIComponent(MLY)}&fields=id,thumb_2048_url,is_pano,captured_at,creator&bbox=${bb}&limit=40`,null,12000)).json();
       const ims=(j.data||[]).filter(x=>!x.is_pano&&x.thumb_2048_url).sort((a,b)=>(b.captured_at||0)-(a.captured_at||0));
       let k=0; for(const x of ims){ if(seen.has(x.id)) continue; if(k++%5) continue; seen.add(x.id); out.push({n:c.n||pl.name,src:x.thumb_2048_url,a:((x.creator&&x.creator.username)||'Mapillary')+' · Mapillary',l:'CC BY-SA 4.0',u:'https://www.mapillary.com/app/?pKey='+x.id}); if(out.length>=3) break; }
       if(ims.length>=3) break; }
@@ -1653,7 +1653,9 @@ function openPlace(){
       if(S.place!==pl0) return; if(sp.length){ S.place.spots=sp; LS.set('place6',S.place); }
       await Promise.all([cwP].concat(sp.filter(x=>x.wd).slice(0,6).map(x=>wikiPins(x.wd,x.n).then(a=>add(a.slice(0,2))).catch(()=>{}))));          // 이름난 곳마다 위키 사진 두 장까지
       if(S.place!==pl0) return; if(!nPin(pl0)) applyWindow(); $('pOut').textContent=`지금 창밖: ${S.place.name}`+(nPin(S.place)>1?` · 사진 ${nPin(S.place)}장`:''); svBar(); }
-    { const pl=S.place, o=$('pOut'), t0=o.textContent; o.textContent=t0+' · 거리 사진 찾는 중…'; const mp=await mlyPins(pl); if(S.place===pl&&mp.length){ const had=new Set((pl.pins||[]).map(x=>x.src)), n0=nPin(pl); pl.pins=(pl.pins||[]).concat(mp.filter(x=>!had.has(x.src))); LS.set('place6',pl); if(!n0){ pl.sv=0; pend=0; applyWindow(); } svBar(); early(); } const P=pl.pins||[], nr=P.length&&P.every(x=>x.near)?P[0].near:'';
+    { const pl=S.place, o=$('pOut'), t0=o.textContent; o.textContent=t0+' · 거리 사진 찾는 중…'; const mp=await mlyPins(pl); if(S.place===pl&&mp.length){ const had=new Set((pl.pins||[]).map(x=>x.src)), old=pl.pins||[], onlyNear=old.length&&old.every(x=>x.near), nw=mp.filter(x=>!had.has(x.src));
+        if(onlyNear||!old.length){ pl.pins=nw.concat(old); pl.sv=0; pend=0; applyWindow(); } else pl.pins=old.concat(nw);      // 주소에서는 그 거리의 사진이 먼저, 그 지역 대표 사진은 뒤로
+        LS.set('place6',pl); svBar(); early(); } const P=pl.pins||[], nr=P.length&&P.every(x=>x.near)?P[0].near:'';
       o.textContent = mp.length||P.length>1 ? `창밖을 ${pl.name}(으)로 바꿨어요 · 사진 ${P.length}장` : nr ? `${pl.name}의 거리 사진은 찾지 못해서, ${nr}의 풍경을 창에 걸었어요.` : P.length||(pl.spots&&pl.spots.length>1) ? `창밖을 ${pl.name}(으)로 바꿨어요.` : `${pl.name}의 사진을 찾지 못해서 창밖 풍경은 그대로예요. 시간과 날씨만 그곳을 따라가요.`; }
     if(false&&S.key&&S.place.spots){ const pl=S.place, o=$('pOut'), t0=o.textContent; o.textContent=t0+' · 사진이 잘 보이는 자리 고르는 중…'; const vs=await resolveViews(pl); if(S.place===pl){ if(vs){ pl.views=vs; pl.sv=0; pend=0; padj={h:0,p:0,f:90}; LS.set('place6',pl); applyWindow(); } o.textContent=t0+(vs?` · 사진 ${vs.length}장`:` · 자리 확인 안 됨 (${window.__svErr||'?'})`); svBar(); } } } };
   svBar();
