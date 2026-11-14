@@ -992,7 +992,7 @@ const AU={ctx:null,out:null,on:false,rain:null,vinyl:null};
 function actx(){
   if(!AU.ctx){ try{ AU.ctx=(()=>{ const A=window.AudioContext||window.webkitAudioContext; try{ return new A({latencyHint:'playback'}); }catch(_){ return new A(); } })(); AU.out=AU.ctx.createGain(); AU.out.gain.value=AU.on?1:0; try{ const cp=AU.ctx.createDynamicsCompressor(); cp.threshold.value=-3; cp.knee.value=0; cp.ratio.value=20; cp.attack.value=.003; cp.release.value=.25; const cpT=AU.ctx.createGain(); cpT.gain.value=.82; AU.tone=AU.ctx.createBiquadFilter(); AU.tone.type='lowpass'; AU.tone.Q.value=.3; AU.tone.frequency.value=toneHz(LS.get('tone',.7)); AU.out.connect(AU.tone).connect(cp).connect(cpT).connect(AU.ctx.destination); }catch(_){ AU.out.connect(AU.ctx.destination); }
     try{ Object.defineProperty(AU,'recOK',{get:()=>!!AU.recHas,configurable:true}); }catch(_){} }catch(e){ return null; } }
-  if(AU.ctx.state==='suspended') AU.ctx.resume(); return AU.ctx;
+  if(AU.ctx.state==='suspended'&&!window.__roomHold) AU.ctx.resume(); return AU.ctx;
 }
 function noise(sec,brown){ const c=AU.ctx,n=Math.floor(c.sampleRate*sec),b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0); let last=0;
   for(let i=0;i<n;i++){ const w=Math.random()*2-1; if(brown){ last=(last+0.02*w)/1.02; d[i]=last*3.5; } else d[i]=w; } return b; }
@@ -1372,9 +1372,9 @@ function openPanel(k){
   const p=P[k]; if(k==='records'){ show(`<h2>${p.t}</h2><p>어른아이의 노래들. 누르면 턴테이블에 올려요.</p><div class="rcbar"><span id="rcNow"></span>${MC}</div><ul>${TRACKS.map((t,i)=>`<li><button class="trk" data-i="${i}">${t.t}</button></li>`).join('')}</ul>`); document.querySelectorAll('.trk').forEach(b=>b.onclick=()=>{ blip('needle'); songPlay(+b.dataset.i); }); wireMC('rc'); updRecords(); try{ moodUI(); }catch(e){} return; }
   show(`<h2>${p.t}</h2><p>${p.d}</p><ul>${p.items.map(i=>`<li>${i}</li>`).join('')}</ul>`);
 }
-function openSong(){ closePanel(); HOLD=null; holdMusic(); duck(true);
+function openSong(){ closePanel(); HOLD=null; holdMusic(); duck(true); window.__roomHold=true; setTimeout(()=>{ if(window.__roomHold&&AU.ctx&&AU.ctx.state==='running') AU.ctx.suspend(); },400);   // 노래 짓기가 열려 있는 동안 방 소리는 아예 멈춰 둔다(휴대폰이 소리 두 벌을 동시에 처리하다 버벅이지 않게)
   let o=$('songOv'); if(!o){ o=document.createElement('div'); o.id='songOv'; o.className='songov'; o.innerHTML='<div class="sbar"><b>노래 짓기</b><button id="songX">방으로</button></div><iframe id="songF" title="기타로 노래 짓기" allow="autoplay"></iframe>'; document.body.appendChild(o);
-    $('songX').onclick=()=>{ o.classList.remove('on'); window.__covered=false; setTimeout(()=>{ $('songF').src='about:blank'; duck(false); resumeMusic(); },400); }; }
+    $('songX').onclick=()=>{ o.classList.remove('on'); window.__covered=false; setTimeout(()=>{ $('songF').src='about:blank'; window.__roomHold=false; try{ AU.ctx&&AU.ctx.resume(); }catch(_){} duck(false); resumeMusic(); },400); }; }
   $('songF').src='song.html'; window.__covered=true; requestAnimationFrame(()=>o.classList.add('on')); }
 // 페이지를 방 위에 덮어 연다(노래·빗소리는 계속). 휴대폰 '뒤로'·페이지의 '방으로'는 덮개를 닫는다
 function openOver(url,title){ closePanel(); blip('paper');
