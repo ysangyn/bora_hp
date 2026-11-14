@@ -1119,10 +1119,10 @@ function duck(on){ const c=AU.ctx; if(!c||!AU.out) return; AU.out.gain.cancelSch
 function symYield(){ if(typeof SYM!=='undefined'&&SYM){ symStop(); try{ upSleepSnd(); rmUpdate(); }catch(e){} } }
 function songStop(){ S.playing=false; songEl.pause(); vinyl(false); stage.classList.remove('playing'); $('lbPlay').textContent='노래 틀기'; updRecords(); }
 songEl.addEventListener('ended',()=>{ if(skI>=0){ songStop(); return; } songPlay(S.shuf?rndOther(trk,TRACKS.length):trk+1); });
-function togglePlay(){ blip('needle'); if(S.playing) songStop(); else songPlay(); }
+function togglePlay(){ if(S.playing) songStop(); else songPlay(); }
 function updRecords(){ document.querySelectorAll('.trk').forEach((b,i)=>{ b.setAttribute('aria-pressed',S.playing&&i===trk); });
   document.querySelectorAll('.mc.pp').forEach(b=>b.classList.toggle('on',!!S.playing)); const rn=$('rcNow'); if(rn) rn.textContent=(S.playing?'지금 ':'다음에 ')+TRACKS[trk].t; }
-function songPrev(){ blip('needle'); if(S.playing&&songEl.currentTime>4){ songEl.currentTime=0; return; } songPlay(trk-1); }
+function songPrev(){ if(S.playing&&songEl.currentTime>4){ songEl.currentTime=0; return; } songPlay(trk-1); }
 function rndOther(i,n){ if(n<2) return i; let j; do{ j=Math.floor(Math.random()*n); }while(j===i); return j; }
 function songNext(){ songPlay(S.shuf?rndOther(trk,TRACKS.length):trk+1); }
 function wireMC(p){ const a=$(p+'Prev'),b=$(p+'Play'),c=$(p+'Next'); if(!a) return; a.onclick=e=>{e.stopPropagation();songPrev();}; b.onclick=e=>{e.stopPropagation();togglePlay();}; c.onclick=e=>{e.stopPropagation();songNext();}; }
@@ -1421,7 +1421,7 @@ function openSketch(){
   if(!SKETCHES.length){ closePanel(); return; }
   show(`<h2>습작 노트</h2><p>정식 곡이 되기 전, 떠오른 대로 만들어 본 짧은 곡들이에요. 다듬지 않은 그대로라 조금 거칠어도 들어 주세요.</p>
    <ul class="sk">${SKETCHES.map((k,i)=>`<li><button class="skb" data-i="${i}"><b>${k.t}</b>${k.d?`<small>${k.d}</small>`:''}</button></li>`).join('')}</ul>`);
-  document.querySelectorAll('.skb').forEach(b=>b.onclick=()=>{ blip('needle'); if(S.playing&&skI===+b.dataset.i){ songStop(); skI=-1; updSketch(); } else sketchPlay(+b.dataset.i); }); updSketch(); }
+  document.querySelectorAll('.skb').forEach(b=>b.onclick=()=>{ if(S.playing&&skI===+b.dataset.i){ songStop(); skI=-1; updSketch(); } else sketchPlay(+b.dataset.i); }); updSketch(); }
 /* ---------- 리모컨 ---------- */
 S.shuf=LS.get('shuf',false);
 function rmMode(){ return (typeof PJ!=='undefined'&&PJ)?'proj':S.radio?'radio':(S.playing||songEl.src&&!songEl.ended&&songEl.currentTime>0)?'song':null; }
