@@ -1021,7 +1021,7 @@ function rainSound(on,soft){ const c=actx(); if(!c) return;
 function vinyl(on){ const c=actx(); if(!c) return;
   if(!AU.vinyl){ const n=c.sampleRate*6,b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0); for(let i=0;i<n;i++){ d[i]=(Math.random()*2-1)*.012; if(Math.random()<.00035) d[i]+=(Math.random()*2-1)*.7; }
     const s=c.createBufferSource(); s.buffer=b; s.loop=true; const f=c.createBiquadFilter(); f.type='bandpass'; f.frequency.value=2600; f.Q.value=.3; const g=c.createGain(); g.gain.value=0; s.connect(f).connect(g).connect(AU.out); s.start(); AU.vinyl=g; }
-  AU.vinyl.gain.setTargetAtTime(on?.5:0,c.currentTime,.3); }
+  AU.vinyl.gain.setTargetAtTime(0,c.currentTime,.3); }   // 2026-11-14: 레코드를 틀 때 붙던 합성 지직거림을 끔(사용자가 켜지 않은 소리를 노래에 섞지 않는다)
 function blip(type){ if(!AU.on) return; const c=actx(); if(!c) return; const t=c.currentTime;
   const burst=(dur,ft,freq,gain,q)=>{ const s=c.createBufferSource(); s.buffer=noise(dur,false); const f=c.createBiquadFilter(); f.type=ft; f.frequency.setValueAtTime(freq,t); if(q) f.Q.value=q; const g=c.createGain(); g.gain.setValueAtTime(gain,t); g.gain.exponentialRampToValueAtTime(.0001,t+dur); s.connect(f).connect(g).connect(AU.out); s.start(t); return {f,g}; };
   const tone=(f0,f1,dur,gain)=>{ const o=c.createOscillator(),g=c.createGain(); o.frequency.setValueAtTime(f0,t); o.frequency.exponentialRampToValueAtTime(f1,t+dur); g.gain.setValueAtTime(gain,t); g.gain.exponentialRampToValueAtTime(.0001,t+dur); o.connect(g).connect(AU.out); o.start(t); o.stop(t+dur+.02); };
@@ -1118,13 +1118,13 @@ function resumeMusic(){ const h=HOLD; HOLD=null; if(!h) return; if(h.song!=null)
 function duck(on){ const c=AU.ctx; if(!c||!AU.out) return; AU.out.gain.cancelScheduledValues(c.currentTime); AU.out.gain.setTargetAtTime(on?0:(AU.on?1:0),c.currentTime,.3); }
 function symYield(){ if(typeof SYM!=='undefined'&&SYM){ symStop(); try{ upSleepSnd(); rmUpdate(); }catch(e){} } }
 function songStop(){ S.playing=false; songEl.pause(); vinyl(false); stage.classList.remove('playing'); $('lbPlay').textContent='노래 틀기'; updRecords(); }
-songEl.addEventListener('ended',()=>{ if(skI>=0){ songStop(); return; } blip('needle'); songPlay(S.shuf?rndOther(trk,TRACKS.length):trk+1); });
+songEl.addEventListener('ended',()=>{ if(skI>=0){ songStop(); return; } songPlay(S.shuf?rndOther(trk,TRACKS.length):trk+1); });
 function togglePlay(){ blip('needle'); if(S.playing) songStop(); else songPlay(); }
 function updRecords(){ document.querySelectorAll('.trk').forEach((b,i)=>{ b.setAttribute('aria-pressed',S.playing&&i===trk); });
   document.querySelectorAll('.mc.pp').forEach(b=>b.classList.toggle('on',!!S.playing)); const rn=$('rcNow'); if(rn) rn.textContent=(S.playing?'지금 ':'다음에 ')+TRACKS[trk].t; }
 function songPrev(){ blip('needle'); if(S.playing&&songEl.currentTime>4){ songEl.currentTime=0; return; } songPlay(trk-1); }
 function rndOther(i,n){ if(n<2) return i; let j; do{ j=Math.floor(Math.random()*n); }while(j===i); return j; }
-function songNext(){ blip('needle'); songPlay(S.shuf?rndOther(trk,TRACKS.length):trk+1); }
+function songNext(){ songPlay(S.shuf?rndOther(trk,TRACKS.length):trk+1); }
 function wireMC(p){ const a=$(p+'Prev'),b=$(p+'Play'),c=$(p+'Next'); if(!a) return; a.onclick=e=>{e.stopPropagation();songPrev();}; b.onclick=e=>{e.stopPropagation();togglePlay();}; c.onclick=e=>{e.stopPropagation();songNext();}; }
 wireMC('np');
 function mediaMeta(){ if(!('mediaSession' in navigator)) return; try{ navigator.mediaSession.metadata=new MediaMetadata({title:TRACKS[trk].t,artist:'어른아이',album:'보라다방'});
@@ -1389,7 +1389,7 @@ function closePanel(){ panelLeave(); if(window.__undoDraft) window.__undoDraft()
 function show(html){ panelLeave(); blip('paper'); panel.innerHTML='<i class="grab" aria-hidden="true"></i><button class="x" aria-label="닫기"><span>닫기</span></button>'+html; panel.style.transform=''; panel.hidden=false; panel.classList.remove('in'); void panel.offsetWidth; panel.classList.add('in'); panel.querySelector('.x').onclick=closePanel; }
 function openPanel(k){
   if(k==='books') return openBooks(); if(k==='mailbox') return openNote(); if(k==='drawer') return openDrawer(); if(k==='plant') return openPlant(); if(k==='focus') return openFocus(); if(k==='notes') return openSketch(); if(k==='guitar') return openSong();
-  const p=P[k]; if(k==='records'){ show(`<h2>${p.t}</h2><p>어른아이의 노래들. 누르면 턴테이블에 올려요.</p><div class="rcbar"><span id="rcNow"></span>${MC}</div><ul>${TRACKS.map((t,i)=>`<li><button class="trk" data-i="${i}">${t.t}</button></li>`).join('')}</ul>`); document.querySelectorAll('.trk').forEach(b=>b.onclick=()=>{ blip('needle'); songPlay(+b.dataset.i); }); wireMC('rc'); updRecords(); try{ moodUI(); }catch(e){} return; }
+  const p=P[k]; if(k==='records'){ show(`<h2>${p.t}</h2><p>어른아이의 노래들. 누르면 턴테이블에 올려요.</p><div class="rcbar"><span id="rcNow"></span>${MC}</div><ul>${TRACKS.map((t,i)=>`<li><button class="trk" data-i="${i}">${t.t}</button></li>`).join('')}</ul>`); document.querySelectorAll('.trk').forEach(b=>b.onclick=()=>{ songPlay(+b.dataset.i); }); wireMC('rc'); updRecords(); try{ moodUI(); }catch(e){} return; }
   show(`<h2>${p.t}</h2><p>${p.d}</p><ul>${p.items.map(i=>`<li>${i}</li>`).join('')}</ul>`);
 }
 function openSong(){ closePanel(); HOLD=null; holdMusic(); duck(true); window.__roomHold=true; setTimeout(()=>{ if(window.__roomHold&&AU.ctx&&AU.ctx.state==='running') AU.ctx.suspend(); },400);   // 노래 짓기가 열려 있는 동안 방 소리는 아예 멈춰 둔다(휴대폰이 소리 두 벌을 동시에 처리하다 버벅이지 않게)
@@ -1525,13 +1525,13 @@ function moodUI(){ const R=window.__room||{}, M=(R.moods||[]).filter(m=>m&&m.n&&
   p.insertAdjacentHTML('afterend',`<div class="moods"><small>오늘은 어떤 밤인가요?</small><div class="chips">${M.map((m,i)=>`<button type="button" class="chip" data-md="${i}">${escH(m.n)}</button>`).join('')}</div><div class="mdc" id="mdc" hidden></div></div>`);
   document.querySelectorAll('[data-md]').forEach(b=>b.onclick=()=>{ const m=M[+b.dataset.md], i=TRACKS.findIndex(t=>t.f===m.f); document.querySelectorAll('[data-md]').forEach(x=>x.setAttribute('aria-pressed',x===b));
     const c=$('mdc'); c.hidden=false; c.innerHTML=`<span>주인장이 고른 한 곡</span><b>${escH(TRACKS[i].t)}</b>${m.msg?`<p>“${escH(m.msg)}”</p>`:''}<button type="button" class="ok" id="mdGo">턴테이블에 올리기</button>`;
-    $('mdGo').onclick=()=>{ blip('needle'); songPlay(i); }; }); }
+    $('mdGo').onclick=()=>{ songPlay(i); }; }); }
 // 음반장에서: ?album=앨범&n=곡번호 → 턴테이블에 그 앨범, ?mv=영상 → 프로젝터
 const DEEP=(()=>{ const q=new URLSearchParams(location.search), a=q.get('album'), mv=q.get('mv'); if(a||mv){ try{ history.replaceState(null,'',location.pathname+location.hash); }catch(e){} } return {a,n:+q.get('n')||1,mv}; })();
 async function deepGo(){ if(!DEEP.a&&!DEEP.mv) return; const d={...DEEP}; DEEP.a=DEEP.mv=null; await window.__dataP;
   if(d.a){ const al=(window.__albums||[]).find(x=>x.id===d.a), all=window.__tracksAll||[]; if(!al) return; const L=(al.tracks||[]).map((t,k)=>({t,k})).filter(x=>x.t.f);
     if(!L.length) return; TRACKS.length=0; L.forEach(x=>{ const g=(all.find(y=>y.f===x.t.f)||{}).g||1; TRACKS.push({f:x.t.f,t:x.t.t,g}); });
-    const start=Math.max(0,L.findIndex(x=>x.k===d.n-1)); setTimeout(()=>{ blip('needle'); songPlay(start); roomSay(`턴테이블에 ‘${al.t}’ 앨범을 올렸어요`); },1800); }
+    const start=Math.max(0,L.findIndex(x=>x.k===d.n-1)); setTimeout(()=>{ songPlay(start); roomSay(`턴테이블에 ‘${al.t}’ 앨범을 올렸어요`); },1800); }
   if(d.mv){ const v=VIDEOS.find(x=>x.id===d.mv)||{id:d.mv,t:'',kind:'mv'}; setTimeout(()=>projPlay(v),1800); } }
 
 /* 사진첩: 벽의 사진 세 장은 여기 올린 사진 중 최근 것 */
