@@ -8,7 +8,8 @@ html,body{margin:0;height:100%;background:#1a141c;color:#e9dfd3;font:15px/1.7 "N
 #f{position:fixed;inset:0;width:100%;height:100%;border:0;display:block;background:#1a141c}
 #msg{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:0 28px;text-align:center;word-break:keep-all}
 #msg small{color:#a99c90;font-size:13px}
-#back{position:fixed;left:max(10px,env(safe-area-inset-left));bottom:max(10px,env(safe-area-inset-bottom));z-index:5;padding:9px 16px;min-height:40px;border-radius:20px;border:1px solid rgba(233,223,211,.35);background:rgba(26,20,28,.72);color:#e9dfd3;font:inherit;font-size:14px;cursor:pointer}
+#msg[hidden]{display:none}   /* 화면이 열리면 안내막을 확실히 치운다(전에는 display:flex가 hidden을 덮어 투명한 막이 화면을 가렸음) */
+#back{position:fixed;left:50%;transform:translateX(-50%);top:max(12px,env(safe-area-inset-top));z-index:5;padding:7px 16px;min-height:40px;border-radius:20px;border:1px solid rgba(233,223,211,.35);background:rgba(26,20,28,.72);color:#e9dfd3;font:inherit;font-size:14px;cursor:pointer}
 </style></head>
 <body>
 <div id="msg"><div>보관함을 여는 중…</div><small>처음에는 몇 초 걸려요</small></div>
