@@ -994,7 +994,7 @@ const AU={ctx:null,out:null,on:false,rain:null,vinyl:null};
 function actx(){
   if(!AU.ctx){ try{ AU.ctx=(()=>{ const A=window.AudioContext||window.webkitAudioContext; try{ return new A({latencyHint:'playback'}); }catch(_){ return new A(); } })(); AU.out=AU.ctx.createGain(); AU.out.gain.value=AU.on?1:0; try{ const cp=AU.ctx.createDynamicsCompressor(); cp.threshold.value=-3; cp.knee.value=0; cp.ratio.value=20; cp.attack.value=.003; cp.release.value=.25; const cpT=AU.ctx.createGain(); cpT.gain.value=.82; AU.tone=AU.ctx.createBiquadFilter(); AU.tone.type='lowpass'; AU.tone.Q.value=.3; AU.tone.frequency.value=toneHz(LS.get('tone',.7)); AU.adapt=AU.ctx.createGain(); AU.out.connect(AU.adapt).connect(AU.tone).connect(cp).connect(cpT).connect(AU.ctx.destination); }catch(_){ AU.out.connect(AU.ctx.destination); }
     try{ Object.defineProperty(AU,'recOK',{get:()=>!!AU.recHas,configurable:true}); }catch(_){} }catch(e){ return null; } }
-  if(window.__roomHold){ const so=document.getElementById('songOv'), oo=document.getElementById('overOv'); if(!((so&&so.classList.contains('on'))||(oo&&oo.classList.contains('on')))) window.__roomHold=false; }   // 덮개가 닫혔는데 멈춤 표시만 남은 경우(뒤로 가기 등)는 풀어 준다
+  if(window.__roomHold){ const so=document.getElementById('songOv'), oo=document.getElementById('overOv'); if(!window.__covered&&!((so&&so.classList.contains('on'))||(oo&&oo.classList.contains('on')))) window.__roomHold=false; }   // 덮개가 닫혔는데 멈춤 표시만 남은 경우(뒤로 가기 등)는 풀어 준다
   if(AU.ctx.state!=='running'&&!window.__roomHold) AU.ctx.resume(); return AU.ctx;
 }
 function noise(sec,brown){ const c=AU.ctx,n=Math.floor(c.sampleRate*sec),b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0); let last=0;
@@ -1412,7 +1412,7 @@ function closeOver(fromPop){ const o=$('overOv'); if(!o||!o.classList.contains('
   setTimeout(()=>{ if(!o.classList.contains('on')) o.innerHTML=''; },450);
   if(!fromPop&&!o.dataset.nav&&history.state&&history.state.bk){ try{ history.back(); }catch(e){} } }
 /* 디지털 영양제(소리 한 방울): 보관함이 열린 기기에서만. 듣는 동안 방 소리는 쉬고, 닫으면 다시 */
-function openSupp(){ if(!window.__be) return; closePanel(); HOLD=null; holdMusic(); duck(true); window.__roomHold='supp'; setTimeout(()=>{ if(window.__roomHold==='supp'&&AU.ctx&&AU.ctx.state==='running') AU.ctx.suspend(); },400); openOver('supp/','소리 한 방울'); }
+function openSupp(){ if(!window.__be) return; closePanel(); HOLD=null; holdMusic(); duck(true); openOver('supp/','소리 한 방울'); window.__roomHold='supp'; setTimeout(()=>{ if(window.__roomHold==='supp'&&AU.ctx&&AU.ctx.state==='running') AU.ctx.suspend(); },400); }
 function openBooks(id){ openOver('books/?embed=1'+(id?'&b='+encodeURIComponent(id):''),'책장'); }
 (()=>{ const n=$('bNotes'); if(n) n.addEventListener('click',e=>{ if(e.metaKey||e.ctrlKey||e.shiftKey) return; e.preventDefault(); openOver('notes/','노트'); }); })();
 /* 습작 노트: 정식 곡이 되기 전, 떠오른 대로 만들어 본 짧은 곡들 */
