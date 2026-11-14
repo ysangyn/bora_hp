@@ -1079,8 +1079,11 @@ function seaLevel(v){ const c=AU.ctx; if(!c||!AMB.out) return; bedLevel('waves',
    - 라디오: 소리를 분석할 수 없으니 6초 지켜본 뒤 16초에 걸쳐 천천히 낮춘다. */
 let BE=null, beT0=0; const BEG=new Map();
 const beDuck=a=>BE?(S.playing?.63:1):a;                              // 엔진이 있으면 바닥은 덜 낮추고, 나머지는 엔진이 움직인다
+/* 보관함 암호문은 용량 때문에 Firebase 배포에서 빼고 GitHub Pages에서 받는다(사이트 안에 있으면 그걸 먼저) */
+const VAULT_ALT='https://ysangyn.github.io/bora_hp/vault/';
+const vaultGet=n=>fetch('vault/'+n,{cache:'no-cache'}).then(r=>r.ok?r:fetch(VAULT_ALT+n,{cache:'no-cache'})).catch(()=>fetch(VAULT_ALT+n,{cache:'no-cache'})).then(r=>{ if(!r.ok) throw new Error(r.status); return r.arrayBuffer(); });
 async function beLoad(){ try{ const fb=await import('./assets/fbstore.js'); if(!await fb.currentUser()) return; const k=await fb.vaultKey(); if(!k) return;
-    const {vault}=await import('./assets/vault-core.mjs'), v=await vault(k,n=>fetch('vault/'+n,{cache:'no-cache'}).then(r=>{ if(!r.ok) throw new Error(r.status); return r.arrayBuffer(); }));
+    const {vault}=await import('./assets/vault-core.mjs'), v=await vault(k,n=>vaultGet(n));
     const u=URL.createObjectURL(new Blob([await v.text('bed_follow.mjs')],{type:'text/javascript'})); const m=await import(u); URL.revokeObjectURL(u); BE=m; window.__be=m.VERSION; }catch(e){ BE=null; window.__be=''; } }
 async function beProfile(src){ if(!BE||BEG.has(src)) return; BEG.set(src,null);
   try{ const ab=await (await fetch(src)).arrayBuffer(), OC=window.OfflineAudioContext||window.webkitOfflineAudioContext, b=await new OC(1,16000,16000).decodeAudioData(ab), ch=[]; for(let i=0;i<Math.min(2,b.numberOfChannels);i++) ch.push(b.getChannelData(i)); BEG.set(src,{F:BE.features(ch,b.sampleRate)}); }catch(e){ BEG.delete(src); } }

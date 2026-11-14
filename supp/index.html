@@ -19,14 +19,14 @@ html,body{margin:0;height:100%;background:#1a141c;color:#e9dfd3;font:15px/1.7 "N
 const $ = id => document.getElementById(id), say = (a, b = '') => { $('msg').hidden = false; $('msg').innerHTML = `<div>${a}</div>${b ? `<small>${b}</small>` : ''}`; };
 $('back').onclick = () => { try { parent.postMessage({ bora: 'page-close' }, location.origin); } catch (e) {} if (parent === window) location.href = '../'; };
 /* 단계마다 무엇을 하는지 보여 주고, 한 단계가 25초를 넘으면 어디서 멈췄는지 알린다 */
-let stepName = '';
+let stepName = ''; const ALT = 'https://ysangyn.github.io/bora_hp/vault/';   // 암호문은 GitHub Pages에서(Firebase 용량 절약)
 const step = (name, p, ms = 25000) => { stepName = name; say('보관함을 여는 중…', name); return Promise.race([p, new Promise((_, rj) => setTimeout(() => rj(new Error(name + ' 단계에서 ' + ms / 1000 + '초가 지나도 끝나지 않았어요')), ms))]); };
 try {
   const fb = await step('로그인 확인', import('../assets/fbstore.js'));
   if (!await step('로그인 확인', fb.currentUser())) throw Object.assign(new Error('login'), { k: 1 });
   const key = await step('열쇠 받기', fb.vaultKey()); if (!key) throw Object.assign(new Error('nokey'), { k: 2 });
   const { vault } = await step('보관함 준비', import('../assets/vault-core.mjs'));
-  const v = await step('목록 열기', vault(key, n => fetch('../vault/' + n, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error('암호문을 받지 못했어요 (' + r.status + ')'); return r.arrayBuffer(); })), 40000);
+  const v = await step('목록 열기', vault(key, n => fetch('../vault/' + n, { cache: 'no-cache' }).then(r => r.ok ? r : fetch(ALT + n, { cache: 'no-cache' })).catch(() => fetch(ALT + n, { cache: 'no-cache' })).then(r => { if (!r.ok) throw new Error('암호문을 받지 못했어요 (' + r.status + ')'); return r.arrayBuffer(); })), 40000);
   if (!v.index.files['ritual.html']) throw new Error('보관함 목록이 예전 것이에요. 새로고침해 주세요.');
   const urls = new Map();
   window.__suppVault = {

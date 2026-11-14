@@ -7,7 +7,8 @@
       "**/node_modules/**",
       "tools/**",
       "*.md",
-      "package*.json"
+      "package*.json",
+      "vault/**"
     ],
     "cleanUrls": false,
     "headers": [

@@ -227,7 +227,7 @@ async function viewVault() {
       <div class="row"><button class="btn pri" id="vNew" type="button">열쇠 만들기</button><button class="btn" id="vBack" type="button">돌아가기</button></div>`}</div>`;
     $('#vBack').onclick = () => location.replace(location.pathname);
     if ($('#vTry')) $('#vTry').onclick = async () => { const r = $('#vRes'); r.textContent = '여는 중…';                     // 이 열쇠로 운영에 올라간 암호문이 풀리는지(= GitHub에 넣은 값과 같은지)
-      try { const { vault } = await import('../assets/vault-core.mjs'); const v = await vault(key, n => fetch('../vault/' + n, { cache: 'no-store' }).then(x => { if (!x.ok) throw new Error('암호문이 아직 없어요(' + x.status + ')'); return x.arrayBuffer(); }));
+      try { const { vault } = await import('../assets/vault-core.mjs'); const ALT = 'https://ysangyn.github.io/bora_hp/vault/', v = await vault(key, n => fetch('../vault/' + n, { cache: 'no-store' }).then(x => x.ok ? x : fetch(ALT + n, { cache: 'no-store' })).then(x => { if (!x.ok) throw new Error('암호문이 아직 없어요(' + x.status + ')'); return x.arrayBuffer(); }));
         const u = URL.createObjectURL(new Blob([await v.text('bed_follow.mjs')], { type: 'text/javascript' })), m = await import(u); URL.revokeObjectURL(u);
         r.textContent = `열렸어요 · 파일 ${Object.keys(v.index.files).length}개 · ${m.VERSION}`; }
       catch (e) { r.textContent = /OperationError|decrypt/i.test(String(e && (e.name || e.message))) || e.name === 'OperationError' ? '열리지 않아요. GitHub의 VAULT_SECRET 값이 이 열쇠와 다른 것 같아요. 열쇠 복사 → GitHub 비밀값을 다시 붙여 넣어 주세요.' : '열지 못했어요: ' + (e.message || e); } };
