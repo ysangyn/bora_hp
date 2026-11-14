@@ -222,10 +222,15 @@ async function viewVault() {
   const draw = (key, fresh) => { $('#app').innerHTML = `<h1 class="lt">잠금 보관함 열쇠</h1><p class="ls">비공개 소리 엔진을 여는 열쇠예요. 초대받은 계정만 읽을 수 있어요.</p>
     <div class="card">${err ? `<p class="warnline">${esc(err)}</p>` : ''}${key ? `<p>${fresh ? '열쇠를 새로 만들었어요.' : '열쇠가 이미 있어요.'} 아래 값을 복사해서 GitHub <b>bora-rnd-private → Settings → Secrets and variables → Actions → New repository secret</b> 에 이름 <code>VAULT_SECRET</code> 로 붙여 넣어 주세요. 다른 곳(대화, 메모, 이슈)에는 적지 마세요.</p>
       <textarea id="vK" readonly rows="2" style="width:100%;font:13px ui-monospace,monospace">${esc(key)}</textarea>
-      <div class="row"><button class="btn pri" id="vCopy" type="button">열쇠 복사</button><button class="btn" id="vBack" type="button">돌아가기</button></div>`
+      <div class="row"><button class="btn pri" id="vCopy" type="button">열쇠 복사</button><button class="btn" id="vTry" type="button">보관함 열어 보기</button><button class="btn" id="vBack" type="button">돌아가기</button></div><p id="vRes" class="ls"></p>`
       : `<p>아직 열쇠가 없어요. 만들면 이 계정들만 읽을 수 있는 곳에 저장돼요. <b>먼저 새 규칙을 게시해야 저장돼요</b> (주인장 방 → <a href="?rules=1">규칙 만들기</a>).</p>
       <div class="row"><button class="btn pri" id="vNew" type="button">열쇠 만들기</button><button class="btn" id="vBack" type="button">돌아가기</button></div>`}</div>`;
     $('#vBack').onclick = () => location.replace(location.pathname);
+    if ($('#vTry')) $('#vTry').onclick = async () => { const r = $('#vRes'); r.textContent = '여는 중…';                     // 이 열쇠로 운영에 올라간 암호문이 풀리는지(= GitHub에 넣은 값과 같은지)
+      try { const { vault } = await import('../assets/vault-core.mjs'); const v = await vault(key, n => fetch('../vault/' + n, { cache: 'no-store' }).then(x => { if (!x.ok) throw new Error('암호문이 아직 없어요(' + x.status + ')'); return x.arrayBuffer(); }));
+        const u = URL.createObjectURL(new Blob([await v.text('bed_follow.mjs')], { type: 'text/javascript' })), m = await import(u); URL.revokeObjectURL(u);
+        r.textContent = `열렸어요 · 파일 ${Object.keys(v.index.files).length}개 · ${m.VERSION}`; }
+      catch (e) { r.textContent = /OperationError|decrypt/i.test(String(e && (e.name || e.message))) || e.name === 'OperationError' ? '열리지 않아요. GitHub의 VAULT_SECRET 값이 이 열쇠와 다른 것 같아요. 열쇠 복사 → GitHub 비밀값을 다시 붙여 넣어 주세요.' : '열지 못했어요: ' + (e.message || e); } };
     if ($('#vCopy')) $('#vCopy').onclick = async () => { try { await navigator.clipboard.writeText(key); $('#vCopy').textContent = '복사했어요'; } catch (e) { $('#vK').select(); } };
     if ($('#vNew')) $('#vNew').onclick = async () => { const b = crypto.getRandomValues(new Uint8Array(32)), nk = btoa(String.fromCharCode(...b)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
       busy(true, '열쇠 저장 중…'); try { await fb.vaultKeySet(nk); busy(false); draw(nk, true); } catch (e) { busy(false); err = e.code === 'permission-denied' ? '저장이 거절됐어요. 새 규칙(보관함 포함)을 먼저 게시해 주세요.' : (e.message || String(e)); draw(null); } }; };
