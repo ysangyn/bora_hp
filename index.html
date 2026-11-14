@@ -488,6 +488,8 @@ body.lite .grade .grain,body.lite .steam i,body.lite .flake,body.lite .record i:
 .clock svg,.clock::after{display:none}
 .clock .dg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:600 1.08cqw/1 ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:.06cqw;color:#ffb36b;text-shadow:0 0 .25cqw rgba(255,150,70,.9),0 0 .7cqw rgba(255,120,50,.45);font-variant-numeric:tabular-nums}
 .clock .dg b{font-weight:600;display:inline-block;width:.5cqw;text-align:center}
+.clock .dg svg{display:block;width:88%;height:80%;overflow:visible;filter:drop-shadow(0 0 .2cqw rgba(255,150,70,.85))}
+.clock .dg text{font:600 15px ui-monospace,"SF Mono",Menlo,monospace;fill:currentColor;letter-spacing:.6px}
 .lampoff .clock{filter:none} .lampoff .clock .dg{color:#ff9f55}
 
 /* 닫기·끌어내리기 */
@@ -1581,7 +1583,7 @@ function openGalleryUp(){ const mine=PH!==SAMPLE;
 function tickClock(){ let h,m,sec; const now=new Date();
   if(S.w&&S.w.tz){ const p=new Intl.DateTimeFormat('en-US',{hour:'numeric',minute:'numeric',second:'numeric',hourCycle:'h23',timeZone:S.w.tz}).formatToParts(now); const g=k=>+p.find(x=>x.type===k).value; h=g('hour'); m=g('minute'); sec=g('second'); }
   else { const t=(now.getUTCHours()*3600+now.getUTCMinutes()*60+now.getUTCSeconds()+Math.round(S.place.lon/15)*3600+86400*2)%86400; h=Math.floor(t/3600); m=Math.floor(t%3600/60); sec=t%60; }
-  const dg=$('ckD'); if(dg) dg.innerHTML=String(h).padStart(2,'0')+'<b>'+(sec%2?'&nbsp;':':')+'</b>'+String(m).padStart(2,'0');
+  const dg=$('ckD'); if(dg) dg.innerHTML='<svg viewBox="0 0 52 20" preserveAspectRatio="xMidYMid meet"><text x="26" y="14.6" text-anchor="middle">'+String(h).padStart(2,'0')+'<tspan'+(sec%2?' fill-opacity="0"':'')+'>:</tspan>'+String(m).padStart(2,'0')+'</text></svg>';   // 글자 대신 그림 글씨: 휴대폰의 '최소 글자 크기' 설정에 커지지 않고 화면 안에 맞춘다
   const rot=(el,a)=>el.setAttribute('transform',`rotate(${a.toFixed(1)} 50 50)`); rot($('ckH'),(h%12+m/60)*30); rot($('ckM'),(m+sec/60)*6); rot($('ckS'),sec*6); }
 tickClock(); setInterval(tickClock,1000);
 $('clock').addEventListener('click',e=>{ e.stopPropagation(); closeZoom(); openClock(); });
