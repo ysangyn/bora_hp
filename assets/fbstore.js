@@ -58,6 +58,9 @@ export async function waiting() { await init(); try { const q = await F.getDocs(
 /* 잠금 보관함 열쇠: 초대받은 계정만 읽고 쓴다(규칙의 vault). 이 저장소에는 열쇠가 없다 */
 export async function vaultKey() { await init(); try { const d = await F.getDoc(F.doc(db, 'vault', 'key')); return d.exists() ? (d.data().k || null) : null; } catch (e) { if (e.code === 'permission-denied') return null; throw e; } }
 export async function vaultKeySet(k) { await init(); await F.setDoc(F.doc(db, 'vault', 'key'), { k, at: F.serverTimestamp() }); }
+/* 관리자(규칙·열쇠)인지, 그리고 관리자 구분이 있는 새 규칙이 게시돼 있는지 */
+export async function isAdmin() { await init(); try { await F.getDoc(F.doc(db, 'adm', '_probe')); return true; } catch (e) { if (e.code === 'permission-denied') return false; throw e; } }
+export async function rulesHaveAdmin() { await init(); try { await F.getDoc(F.doc(db, 'adm', '_ver')); return true; } catch (e) { if (e.code === 'permission-denied') return false; throw e; } }
 /* 초대받은 계정인지: 규칙의 owner()만 읽을 수 있는 곳을 읽어 본다 */
 export async function isOwner() {
   await init();
@@ -65,13 +68,15 @@ export async function isOwner() {
   catch (e) { if (e.code === 'permission-denied') return false; throw e; }
 }
 /* ids: 계정 번호(uid) 또는 구글 메일 주소. 메일 주소는 규칙 글에만 들어가고 이 저장소에는 남지 않는다 */
-export function rulesFor(ids) {
+/* ids: 들어올 수 있는 계정(메일 또는 번호). admins: 관리 기능(규칙·열쇠)을 쓸 수 있는 계정 번호 — 규칙을 만드는 사람 자신 */
+export function rulesFor(ids, admins) {
   const q = a => a.map(x => `'${x.replace(/[^A-Za-z0-9@._+-]/g, '')}'`).join(', ');
   const U = q(ids.filter(x => x && !x.includes('@'))), M = q(ids.filter(x => x && x.includes('@')).map(x => x.toLowerCase()));
   return `rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function owner() { return request.auth != null && (request.auth.uid in [${U}]${M ? ` || (request.auth.token.email_verified == true && request.auth.token.email in [${M}])` : ''}); }
+    function admin() { return request.auth != null && request.auth.uid in [${q((admins || []).filter(Boolean)) || "'-'"}]; }
     match /stamps/{id} {
       allow create: if request.resource.data.keys().hasOnly(['k', 't', 'at'])
         && request.resource.data.k is string && request.resource.data.k.size() <= 120
@@ -86,7 +91,8 @@ service cloud.firestore {
       match /parts/{p} { allow read, write: if owner(); }
     }
     match /pending/{id} { allow read, write: if owner(); }
-    match /vault/{id} { allow read, write: if owner(); }
+    match /vault/{id} { allow read: if owner(); allow write: if admin(); }
+    match /adm/{id} { allow read: if admin() || (owner() && id == '_ver'); }
   }
 }`;
 }
