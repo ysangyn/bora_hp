@@ -1080,7 +1080,7 @@ function seaLevel(v){ const c=AU.ctx; if(!c||!AMB.out) return; bedLevel('waves',
 let BE=null, beT0=0; const BEG=new Map();
 const beDuck=a=>BE?(S.playing?.63:1):a;                              // 엔진이 있으면 바닥은 덜 낮추고, 나머지는 엔진이 움직인다
 async function beLoad(){ try{ const fb=await import('./assets/fbstore.js'); if(!await fb.currentUser()) return; const k=await fb.vaultKey(); if(!k) return;
-    const {vault}=await import('./assets/vault-core.mjs'), v=await vault(k,n=>fetch('vault/'+n).then(r=>{ if(!r.ok) throw new Error(r.status); return r.arrayBuffer(); }));
+    const {vault}=await import('./assets/vault-core.mjs'), v=await vault(k,n=>fetch('vault/'+n,{cache:'no-cache'}).then(r=>{ if(!r.ok) throw new Error(r.status); return r.arrayBuffer(); }));
     const u=URL.createObjectURL(new Blob([await v.text('bed_follow.mjs')],{type:'text/javascript'})); const m=await import(u); URL.revokeObjectURL(u); BE=m; window.__be=m.VERSION; }catch(e){ BE=null; window.__be=''; } }
 async function beProfile(src){ if(!BE||BEG.has(src)) return; BEG.set(src,null);
   try{ const ab=await (await fetch(src)).arrayBuffer(), OC=window.OfflineAudioContext||window.webkitOfflineAudioContext, b=await new OC(1,16000,16000).decodeAudioData(ab), ch=[]; for(let i=0;i<Math.min(2,b.numberOfChannels);i++) ch.push(b.getChannelData(i)); BEG.set(src,{F:BE.features(ch,b.sampleRate)}); }catch(e){ BEG.delete(src); } }
@@ -1334,13 +1334,29 @@ async function resolveViews(p){ if(!S.key) return null; const N=Math.min(svCount
       if(to&&dk<.03) continue;                                                          // 바로 밑에 붙은 자리는 빼기(건물만 보인다)
       out.push({lat:la,lon:lo,h,name:V.name,pano:m.pano_id,to}); }
     window.__svErr=out.length?'':'사진 있는 자리를 못 찾음'; return out.length?out:null; }catch(e){ window.__svErr=String(e&&e.message||e).slice(0,80); return null; } }
-async function findPlace(q,out){
-  out.textContent='찾는 중…';
-  try{ const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=1&extratags=1&accept-language=ko&q=${encodeURIComponent(q)}`); const j=await r.json();
-    if(!j.length){ const m=q.match(/^(.*?[시군구])\s/); if(m){ const r2=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=1&extratags=1&accept-language=ko&q=${encodeURIComponent(m[1])}`); const j2=await r2.json(); if(j2.length) j.push(j2[0]); } }
+/* 주소·장소 찾기
+   - '일중로30', '일중로 30', '일산서구 일중로 30' 모두 같은 주소로 알아듣는다(도로 이름과 번호 사이를 띄움)
+   - 적은 지역 이름(시·군·구)이 들어간 결과를 먼저 고른다. 못 찾으면 구 이름을 빼고 다시 찾는다
+   - 같은 이름이 여러 지역에 있으면 홈페이지 안에서 되묻는다(울산의 일중로 / 고양 일산서구의 일중로) */
+const normQ=q=>q.trim().replace(/\s+/g,' ').replace(/([가-힣0-9]+(?:대로|로|길))\s*(\d+(?:-\d+)?)(?=$|\s)/g,'$1 $2');
+const nomi=async(q,n)=>{ const r=await tfetch(`https://nominatim.openstreetmap.org/search?format=json&limit=${n}&addressdetails=1&extratags=1&accept-language=ko${/[가-힣]/.test(q)?'&countrycodes=kr':''}&q=${encodeURIComponent(q)}`,null,9000); return r.ok?r.json():[]; };
+const areaOf=x=>{ const a=x.address||{}, v=[a.province||a.state,a.city||a.county||a.town,a.borough||a.city_district||a.suburb].filter(Boolean); return v.filter((t,i)=>v.indexOf(t)===i).join(' '); };
+function askWhich(c,q,out){ return new Promise(res=>{
+  out.innerHTML=`<span>‘${escH(q)}’이(가) 여러 곳에 있어요. 어디인가요?</span><span class="row" style="flex-wrap:wrap;gap:6px;margin-top:8px">${c.map((x,i)=>`<button type="button" class="chip" data-i="${i}">${escH(areaOf(x)||x.display_name.split(',').slice(1,4).join(' '))}</button>`).join('')}<button type="button" class="chip" data-i="-1">취소</button></span>`;
+  out.querySelectorAll('button[data-i]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); const i=+b.dataset.i; res(i<0?null:c[i]); }); }); }
+async function findPlace(q0,out){
+  const q=normQ(q0); out.textContent='찾는 중…';
+  try{ const tok=q.split(' '), area=tok.filter(t=>t.length>1&&/[시군구도]$/.test(t)), rest=tok.filter(t=>!area.includes(t)).join(' ');
+    let j=await nomi(q,8);
+    if(area.length&&rest){ const j2=await nomi(rest,10); const seen=new Set(j.map(x=>x.place_id)); j=j.concat(j2.filter(x=>!seen.has(x.place_id))); }      // 구 이름을 빼고도 찾아 본다
+    if(!j.length){ const m=q.match(/^(.*?[시군구])\s/); if(m) j=await nomi(m[1],1); }
     if(!j.length){ out.textContent='그런 곳을 못 찾았어요. 도시 이름이나 주소로 다시 써 주세요.'; return false; }
-    S.place={name:q,lat:+j[0].lat,lon:+j[0].lon,cc:(j[0].address&&j[0].address.country_code)||'',sv:0,wd:(j[0].extratags&&j[0].extratags.wikidata)||'',kind:j[0].addresstype||j[0].type||'',bb:(j[0].boundingbox||[]).map(Number),addr:j[0].address||{}}; LS.set('place6',S.place); city=null; S.visit=true; LS.set('visit',true);
-    out.textContent=`${q}을(를) 찾았어요. 창에 걸 사진을 찾는 중…`;
+    if(area.length){ const hit=j.filter(x=>area.some(a=>(x.display_name||'').includes(a)||areaOf(x).includes(a))); if(hit.length) j=hit; }     // 적은 지역이 들어간 것만
+    const by=new Map(); for(const x of j){ const k=areaOf(x)||x.display_name; if(!by.has(k)) by.set(k,x); }
+    const c=[...by.values()]; let p=c[0], name=q;
+    if(c.length>1){ p=await askWhich(c.slice(0,6),q,out); if(!p){ out.textContent='고르지 않아서 창밖은 그대로예요.'; return false; } const ar=areaOf(p).split(' ').slice(-1)[0]; if(ar&&!q.includes(ar)) name=ar+' '+q; }
+    S.place={name,lat:+p.lat,lon:+p.lon,cc:(p.address&&p.address.country_code)||'',sv:0,wd:(p.extratags&&p.extratags.wikidata)||'',kind:p.addresstype||p.type||'',bb:(p.boundingbox||[]).map(Number),addr:p.address||{}}; LS.set('place6',S.place); city=null; S.visit=true; LS.set('visit',true);
+    out.textContent=`${name}을(를) 찾았어요. 창에 걸 사진을 찾는 중…`;
     await loadWeather(); if(S.radio) radioTune(); return true;
   }catch(e){ out.textContent='장소를 찾지 못했어요. 인터넷 연결을 확인해 주세요.'; return false; }
 }
@@ -1600,7 +1616,7 @@ function openPlace(){
    <div class="chips">${picks.map(n=>`<button class="chip" data-n="${n}" aria-pressed="${!S.visit&&S.place.name===n}">${n}</button>`).join('')}</div>
    <label class="sl">동네·주소 적기</label>
    <div class="row"><input id="pIn" placeholder="예: 대림동, 일중로 30" autocomplete="off" aria-label="동네나 주소"><button class="ok" id="pGo">보기</button></div>
-   <div class="row"><button class="chip" id="pPost">우리나라 주소 찾기</button></div><div id="pPostBox" class="postbox" hidden></div>
+
    <small id="pOut">지금 창밖: ${S.place.name}${S.visit?' (거리)':''}</small>
    <small>적은 주소는 이 휴대폰(브라우저)에만 남아요.</small>`);
   let pend=null, padj=null, svBusy=false;
@@ -1630,7 +1646,7 @@ function openPlace(){
     const snap={p:S.place,v:S.visit,w:S.w}; window.__draft=true;
     window.__undoDraft=()=>{ window.__undoDraft=null; if(!window.__draft) return; window.__draft=false; S.place=snap.p; S.visit=snap.v; S.w=snap.w; LS.set('place6',S.place); LS.set('visit',S.visit); ids.forEach((i,k)=>{ if($(i)) $(i).textContent=tx[k]; }); applyWindow(); if(S.radio) radioTune(); }; };
   const go=async q=>{ if(q) draftOn(); svBusy=true; svBar(); try{ await go0(q); } finally { svBusy=false; svBar(); } };
-  const early=()=>{ if(svBusy&&nPin(S.place)>=2){ svBusy=false; pend=null; svBar(); } };   // 사진이 두 장 모이면 나머지를 기다리지 않고 바로 넘겨 볼 수 있게
+  const early=()=>{ if(svBusy&&nPin(S.place)>=1){ svBusy=false; pend=null; svBar(); } };   // 사진이 두 장 모이면 나머지를 기다리지 않고 바로 넘겨 볼 수 있게
   const go0=async q=>{ if(q&&await findPlace(q,$('pOut'))){ padj={h:0,p:0,f:90}; let pins=await pinsFor(q); if(!pins.length){ const ad=S.place.addr||{}; for(const k of ['city_district','borough','suburb','city','county','town','municipality','province','state']){ const v=ad[k]; if(!v) continue; const r2=await pinsFor(v); if(r2.length){ pins=r2.map(x=>({...x,near:v})); break; } } } const city=CITYISH.test(S.place.kind||'')||S.place.kind===''; if(!pins.length&&!city) pins=await wikiPins(S.place.wd,S.place.name); if(!city){ S.place.spots=[{n:S.place.name,lat:S.place.lat,lon:S.place.lon}]; S.place.sv=0; LS.set('place6',S.place); applyWindow(); } if(pins.length){ S.place.pins=pins; S.place.sv=0; LS.set('place6',S.place); applyWindow(); } pend=null; svBar(); early(); if(CITYISH.test(S.place.kind||'')||S.place.kind===''){ $('pOut').textContent='그곳의 이름난 곳들과 사진을 찾는 중…'; const pl0=S.place, have=new Set((pl0.pins||[]).map(x=>x.src)), add=a=>{ if(S.place!==pl0) return; const n0=nPin(pl0), nw=(a||[]).filter(x=>x&&!have.has(x.src)&&(have.add(x.src),true)); if(!nw.length) return;
         pl0.pins=(pl0.pins||[]).concat(nw); LS.set('place6',pl0); if(!n0){ pl0.sv=0; applyWindow(); } if(svBusy) early(); else svBar(); };        // 오는 대로 붙인다(보고 있는 사진은 그대로)
       const cwP=wikiPins(pl0.wd,pl0.name).then(add), [cur,more]=await Promise.all([curatedSpots(q,pl0),findSpots(pl0)]), seen=new Set(cur.map(x=>x.n)), sp=cur.concat(more.filter(x=>!seen.has(x.n))).slice(0,16);
@@ -1642,11 +1658,6 @@ function openPlace(){
     if(false&&S.key&&S.place.spots){ const pl=S.place, o=$('pOut'), t0=o.textContent; o.textContent=t0+' · 사진이 잘 보이는 자리 고르는 중…'; const vs=await resolveViews(pl); if(S.place===pl){ if(vs){ pl.views=vs; pl.sv=0; pend=0; padj={h:0,p:0,f:90}; LS.set('place6',pl); applyWindow(); } o.textContent=t0+(vs?` · 사진 ${vs.length}장`:` · 자리 확인 안 됨 (${window.__svErr||'?'})`); svBar(); } } } };
   svBar();
   $('pGo').onclick=()=>go($('pIn').value.trim());
-  // 우리나라 주소: 카카오 우편번호 서비스(무료, 키 없음)로 도로명만 적어도 고르게 하고, 고른 주소의 시·군·구까지 붙여 찾는다
-  $('pPost').onclick=e=>{ e.stopPropagation(); const box=$('pPostBox'); if(!box.hidden){ box.hidden=true; box.innerHTML=''; return; } box.hidden=false; box.textContent='주소 찾기를 여는 중…';
-    const open=()=>{ box.innerHTML=''; try{ new daum.Postcode({ width:'100%', height:'100%', q:$('pIn').value.trim(), oncomplete:d=>{ const road=d.roadAddress||d.jibunAddress||d.address, short=(d.sigungu?d.sigungu+' ':'')+(d.roadname||d.bname||'')+(d.roadAddress&&d.buildingName?'':'');
-        box.hidden=true; box.innerHTML=''; $('pIn').value=road; go(road); } }).embed(box,{autoClose:true}); }catch(_){ box.textContent='주소 찾기를 열지 못했어요. 위 칸에 주소를 그대로 적어 주세요.'; } };
-    if(window.daum&&daum.Postcode) open(); else { const sc=document.createElement('script'); sc.src='https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'; sc.onload=open; sc.onerror=()=>{ box.textContent='주소 찾기를 열지 못했어요. 위 칸에 주소를 그대로 적어 주세요.'; }; document.head.appendChild(sc); } };
   $('pIn').addEventListener('keydown',e=>{ if(e.key==='Enter') go(e.target.value.trim()); });
   const cityPrev=(p,c)=>{ const v=VIEWS.find(x=>x.n===p.name), box=$('cpBox'); panel.querySelectorAll('.chip[data-n]').forEach(x=>x.setAttribute('aria-pressed',x===c));
     if(!v||!box){ setPlace({...p},$('pOut')); svBar(); return; }
