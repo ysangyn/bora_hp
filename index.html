@@ -1234,17 +1234,19 @@ function tickPlace(){ if(S.w&&S.w.tz) $('mT').textContent=new Intl.DateTimeForma
 const SVC=(()=>{ const a=[]; [0,90,180,270].forEach(h=>a.push([0,0,h])); [[1,0,0],[0,1,90],[-1,0,180],[0,-1,270],[2,0,180],[0,2,270],[-2,0,0],[0,-2,90]].forEach(([n,e,h])=>a.push([n*.0009,e*.0011,h])); return a; })();
 const CITYISH=/^(country|city|town|municipality|county|state|province|region|administrative|city_district|borough|island|village)$/;
 let SPOTDB=null;
+/* 사진·지도 서비스가 느리면 그 몇 초만 기다리고 넘어간다 */
+function tfetch(u,o,ms){ const ac=new AbortController(), t=setTimeout(()=>ac.abort(),ms||6000); return fetch(u,{...(o||{}),signal:ac.signal}).finally(()=>clearTimeout(t)); }
 async function curatedSpots(q,p){ try{ if(!SPOTDB) SPOTDB=await (await fetch('data/spots.json')).json(); }catch(e){ return []; }
   const n=q.replace(/\s+/g,''), keys=Object.keys(SPOTDB); let k=keys.find(x=>x.replace(/\s+/g,'')===n)||keys.filter(x=>x.length>=2&&n.includes(x.replace(/\s+/g,''))).sort((a,b)=>b.length-a.length)[0];
   if(!k) return []; const out=[];
-  for(const sq of SPOTDB[k]){ try{ const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=ko&q=${encodeURIComponent(sq)}`); const j=await r.json();
+  for(const sq of SPOTDB[k]){ try{ const r=await tfetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=ko&q=${encodeURIComponent(sq)}`,null,5000); const j=await r.json();
       if(j[0]){ const la=+j[0].lat, lo=+j[0].lon; if(Math.abs(la-p.lat)<1.2&&Math.abs(lo-p.lon)<1.5) out.push({n:(j[0].name||sq).split(',')[0],lat:la,lon:lo}); } }catch(e){}
     await new Promise(r=>setTimeout(r,1100)); }                                     // 지도 검색은 1초에 한 번만
   return out; }
 async function findSpots(p){ if(!CITYISH.test(p.kind||'')||p.bb.length<4) return [];
   let [s1,n1,w1,e1]=p.bb; const cy=(s1+n1)/2, cx=(w1+e1)/2, hs=Math.min(.18,(n1-s1)/2), hw=Math.min(.22,(e1-w1)/2); s1=cy-hs; n1=cy+hs; w1=cx-hw; e1=cx+hw;
   const bb=`${s1},${w1},${n1},${e1}`, q=`[out:json][timeout:12];(node["tourism"="viewpoint"](${bb});node["tourism"="attraction"]["wikidata"](${bb});way["tourism"="attraction"]["wikidata"](${bb});node["historic"]["wikidata"](${bb});way["leisure"="park"]["wikidata"](${bb});node["natural"="beach"](${bb});way["natural"="beach"](${bb}););out center 80;`;
-  try{ const r=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:'data='+encodeURIComponent(q)}); const j=await r.json();
+  try{ const r=await tfetch('https://overpass-api.de/api/interpreter',{method:'POST',body:'data='+encodeURIComponent(q)},8000); const j=await r.json();
     const rank=t=>t.tourism==='viewpoint'?0:t.natural==='beach'?1:t.tourism==='attraction'?2:t.leisure==='park'?3:4, seen=new Set(), out=[];
     j.elements.map(e=>({n:(e.tags&&(e.tags['name:ko']||e.tags.name))||'',lat:e.lat||(e.center&&e.center.lat),lon:e.lon||(e.center&&e.center.lon),r:rank(e.tags||{}),wd:(e.tags&&e.tags.wikidata)||''}))
       .filter(x=>x.n&&x.lat).sort((a,b)=>a.r-b.r).forEach(x=>{ const k=x.n.replace(/\s/g,''); if(!seen.has(k)&&out.length<16){ seen.add(k); out.push(x); } });
@@ -1255,15 +1257,15 @@ async function pinsFor(q){ try{ if(!PINDB) PINDB=await (await fetch('data/pins.j
   const hit=x=>{ const k=x.replace(/\s+/g,'').toLowerCase(); return k.length>=2&&(n===k||n.startsWith(k)); };
   return PINDB.filter(p=>p.k.some(hit)).slice(0,3); }
 async function wikiPins(wd,name){ if(!wd) return []; try{
-  const W=await (await fetch(`https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${wd}&props=labels|claims&languages=en|ko&format=json&origin=*`)).json(), en=W.entities[wd]||{};
+  const W=await (await tfetch(`https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${wd}&props=labels|claims&languages=en|ko&format=json&origin=*`,null,5000)).json(), en=W.entities[wd]||{};
   const lab=((en.labels||{}).en||(en.labels||{}).ko||{}).value||name, p18=en.claims&&en.claims.P18&&en.claims.P18[0].mainsnak.datavalue.value;
   const base='https://commons.wikimedia.org/w/api.php?action=query&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=1600&format=json&origin=*';
   const tx=h=>(h||'').replace(/<[^>]*>/g,'').trim(), out=[], seen=new Set();
   const take=ps=>ps.forEach(pg=>{ const ii=pg.imageinfo&&pg.imageinfo[0]; if(!ii||seen.has(pg.title)||out.length>=3) return; seen.add(pg.title);
     if(!(ii.thumbwidth>=ii.thumbheight*1.25&&ii.thumbwidth>=1000)) return;                  // 창에 맞는 가로 사진만
     const md=ii.extmetadata||{}; out.push({n:name,src:ii.thumburl,a:tx(md.Artist&&md.Artist.value).slice(0,40)||'Wikimedia Commons',l:tx(md.LicenseShortName&&md.LicenseShortName.value),u:ii.descriptionurl}); });
-  if(p18){ const c=await (await fetch(base+'&titles='+encodeURIComponent('File:'+p18))).json(); take(Object.values((c.query||{}).pages||{})); }
-  { const q=await (await fetch(base+'&generator=search&gsrnamespace=6&gsrlimit=20&gsrsearch='+encodeURIComponent('intitle:"'+lab+'" filetype:bitmap'))).json();
+  if(p18){ const c=await (await tfetch(base+'&titles='+encodeURIComponent('File:'+p18),null,5000)).json(); take(Object.values((c.query||{}).pages||{})); }
+  { const q=await (await tfetch(base+'&generator=search&gsrnamespace=6&gsrlimit=20&gsrsearch='+encodeURIComponent('intitle:"'+lab+'" filetype:bitmap'),null,5000)).json();
     const bad=/sign|map|logo|plan|diagram|interior|museum|ticket|menu|poster|표지|지도|안내/i;
     take(Object.values((q.query||{}).pages||{}).filter(p=>!bad.test(p.title)).sort((a,b)=>(a.index||0)-(b.index||0)).slice(0,8)); out.splice(3); }
   return out; }catch(e){ return []; } }
@@ -1272,7 +1274,7 @@ function pinSrc(pin){ return pin.src||('img/pin/'+pin.f); }
 const MLY='MLY|28940021905666587|6f123c26e51ffb21e04cccff938c19c6';
 async function mlyPins(pl){ try{ const cs=(pl.spots&&pl.spots.length?pl.spots:[{lat:pl.lat,lon:pl.lon,n:pl.name}]).slice(0,4), seen=new Set();
   const per=await Promise.all(cs.map(async c=>{ const out=[]; for(const d of [.0012,.004]){ const cl=Math.max(.3,Math.cos(c.lat*Math.PI/180)), bb=[c.lon-d/cl,c.lat-d,c.lon+d/cl,c.lat+d].map(v=>v.toFixed(6)).join(',');
-      const j=await (await fetch(`https://graph.mapillary.com/images?access_token=${encodeURIComponent(MLY)}&fields=id,thumb_2048_url,is_pano,captured_at,creator&bbox=${bb}&limit=40`)).json();
+      const j=await (await tfetch(`https://graph.mapillary.com/images?access_token=${encodeURIComponent(MLY)}&fields=id,thumb_2048_url,is_pano,captured_at,creator&bbox=${bb}&limit=40`,null,5000)).json();
       const ims=(j.data||[]).filter(x=>!x.is_pano&&x.thumb_2048_url).sort((a,b)=>(b.captured_at||0)-(a.captured_at||0));
       let k=0; for(const x of ims){ if(seen.has(x.id)) continue; if(k++%5) continue; seen.add(x.id); out.push({n:c.n||pl.name,src:x.thumb_2048_url,a:((x.creator&&x.creator.username)||'Mapillary')+' · Mapillary',l:'CC BY-SA 4.0',u:'https://www.mapillary.com/app/?pKey='+x.id}); if(out.length>=3) break; }
       if(ims.length>=3) break; }
@@ -1604,14 +1606,15 @@ function openPlace(){
   const draftOn=()=>{ if(innerWidth>=760||window.__draft) return; const ids=['mPlace','mW','mT','mCo'], tx=ids.map(i=>$(i)?$(i).textContent:'');
     const snap={p:S.place,v:S.visit,w:S.w}; window.__draft=true;
     window.__undoDraft=()=>{ window.__undoDraft=null; if(!window.__draft) return; window.__draft=false; S.place=snap.p; S.visit=snap.v; S.w=snap.w; LS.set('place6',S.place); LS.set('visit',S.visit); ids.forEach((i,k)=>{ if($(i)) $(i).textContent=tx[k]; }); applyWindow(); if(S.radio) radioTune(); }; };
-  const go=async q=>{ if(q) draftOn(); svBusy=true; svBar(); try{ await go0(q); } finally { svBusy=false; pend=null; svBar(); } };
-  const go0=async q=>{ if(q&&await findPlace(q,$('pOut'))){ padj={h:0,p:0,f:90}; let pins=await pinsFor(q); if(!pins.length){ const ad=S.place.addr||{}; for(const k of ['city_district','borough','suburb','city','county','town','municipality','province','state']){ const v=ad[k]; if(!v) continue; const r2=await pinsFor(v); if(r2.length){ pins=r2.map(x=>({...x,near:v})); break; } } } const city=CITYISH.test(S.place.kind||'')||S.place.kind===''; if(!pins.length&&!city) pins=await wikiPins(S.place.wd,S.place.name); if(!city){ S.place.spots=[{n:S.place.name,lat:S.place.lat,lon:S.place.lon}]; S.place.sv=0; LS.set('place6',S.place); applyWindow(); } if(pins.length){ S.place.pins=pins; S.place.sv=0; LS.set('place6',S.place); applyWindow(); } pend=null; svBar(); if(CITYISH.test(S.place.kind||'')||S.place.kind===''){ $('pOut').textContent='그곳의 이름난 곳들과 사진을 찾는 중…'; const pl0=S.place, [cur,more,cw]=await Promise.all([curatedSpots(q,pl0),findSpots(pl0),wikiPins(pl0.wd,pl0.name)]), seen=new Set(cur.map(x=>x.n)), sp=cur.concat(more.filter(x=>!seen.has(x.n))).slice(0,16);
-      if(S.place!==pl0) return; if(sp.length){ S.place.spots=sp; S.place.sv=0; pend=0; }
-      { const sw=await Promise.all(sp.filter(x=>x.wd).slice(0,6).map(x=>wikiPins(x.wd,x.n).then(a=>a.slice(0,2)).catch(()=>[])));          // 이름난 곳마다 위키 사진 두 장까지
-        if(S.place!==pl0) return; const have=new Set((pl0.pins||[]).map(x=>x.src)), add=cw.concat(...sw).filter(x=>x&&!have.has(x.src)&&(have.add(x.src),true));
-        if(add.length){ pl0.pins=(pl0.pins||[]).concat(add); pl0.sv=0; pend=0; } }
-      LS.set('place6',S.place); applyWindow(); $('pOut').textContent=`지금 창밖: ${S.place.name}`+(nPin(S.place)>1?` · 사진 ${nPin(S.place)}장`:''); svBar(); }
-    { const pl=S.place, o=$('pOut'), t0=o.textContent; o.textContent=t0+' · 거리 사진 찾는 중…'; const mp=await mlyPins(pl); if(S.place===pl&&mp.length){ const had=new Set((pl.pins||[]).map(x=>x.src)); pl.pins=(pl.pins||[]).concat(mp.filter(x=>!had.has(x.src))); pl.sv=0; pend=0; LS.set('place6',pl); applyWindow(); svBar(); } const P=pl.pins||[], nr=P.length&&P.every(x=>x.near)?P[0].near:'';
+  const go=async q=>{ if(q) draftOn(); svBusy=true; svBar(); try{ await go0(q); } finally { svBusy=false; svBar(); } };
+  const early=()=>{ if(svBusy&&nPin(S.place)>=2){ svBusy=false; pend=null; svBar(); } };   // 사진이 두 장 모이면 나머지를 기다리지 않고 바로 넘겨 볼 수 있게
+  const go0=async q=>{ if(q&&await findPlace(q,$('pOut'))){ padj={h:0,p:0,f:90}; let pins=await pinsFor(q); if(!pins.length){ const ad=S.place.addr||{}; for(const k of ['city_district','borough','suburb','city','county','town','municipality','province','state']){ const v=ad[k]; if(!v) continue; const r2=await pinsFor(v); if(r2.length){ pins=r2.map(x=>({...x,near:v})); break; } } } const city=CITYISH.test(S.place.kind||'')||S.place.kind===''; if(!pins.length&&!city) pins=await wikiPins(S.place.wd,S.place.name); if(!city){ S.place.spots=[{n:S.place.name,lat:S.place.lat,lon:S.place.lon}]; S.place.sv=0; LS.set('place6',S.place); applyWindow(); } if(pins.length){ S.place.pins=pins; S.place.sv=0; LS.set('place6',S.place); applyWindow(); } pend=null; svBar(); early(); if(CITYISH.test(S.place.kind||'')||S.place.kind===''){ $('pOut').textContent='그곳의 이름난 곳들과 사진을 찾는 중…'; const pl0=S.place, have=new Set((pl0.pins||[]).map(x=>x.src)), add=a=>{ if(S.place!==pl0) return; const n0=nPin(pl0), nw=(a||[]).filter(x=>x&&!have.has(x.src)&&(have.add(x.src),true)); if(!nw.length) return;
+        pl0.pins=(pl0.pins||[]).concat(nw); LS.set('place6',pl0); if(!n0){ pl0.sv=0; applyWindow(); } if(svBusy) early(); else svBar(); };        // 오는 대로 붙인다(보고 있는 사진은 그대로)
+      const cwP=wikiPins(pl0.wd,pl0.name).then(add), [cur,more]=await Promise.all([curatedSpots(q,pl0),findSpots(pl0)]), seen=new Set(cur.map(x=>x.n)), sp=cur.concat(more.filter(x=>!seen.has(x.n))).slice(0,16);
+      if(S.place!==pl0) return; if(sp.length){ S.place.spots=sp; LS.set('place6',S.place); }
+      await Promise.all([cwP].concat(sp.filter(x=>x.wd).slice(0,6).map(x=>wikiPins(x.wd,x.n).then(a=>add(a.slice(0,2))).catch(()=>{}))));          // 이름난 곳마다 위키 사진 두 장까지
+      if(S.place!==pl0) return; if(!nPin(pl0)) applyWindow(); $('pOut').textContent=`지금 창밖: ${S.place.name}`+(nPin(S.place)>1?` · 사진 ${nPin(S.place)}장`:''); svBar(); }
+    { const pl=S.place, o=$('pOut'), t0=o.textContent; o.textContent=t0+' · 거리 사진 찾는 중…'; const mp=await mlyPins(pl); if(S.place===pl&&mp.length){ const had=new Set((pl.pins||[]).map(x=>x.src)), n0=nPin(pl); pl.pins=(pl.pins||[]).concat(mp.filter(x=>!had.has(x.src))); LS.set('place6',pl); if(!n0){ pl.sv=0; pend=0; applyWindow(); } svBar(); early(); } const P=pl.pins||[], nr=P.length&&P.every(x=>x.near)?P[0].near:'';
       o.textContent = mp.length||P.length>1 ? `창밖을 ${pl.name}(으)로 바꿨어요 · 사진 ${P.length}장` : nr ? `${pl.name}의 거리 사진은 찾지 못해서, ${nr}의 풍경을 창에 걸었어요.` : P.length||(pl.spots&&pl.spots.length>1) ? `창밖을 ${pl.name}(으)로 바꿨어요.` : `${pl.name}의 사진을 찾지 못해서 창밖 풍경은 그대로예요. 시간과 날씨만 그곳을 따라가요.`; }
     if(false&&S.key&&S.place.spots){ const pl=S.place, o=$('pOut'), t0=o.textContent; o.textContent=t0+' · 사진이 잘 보이는 자리 고르는 중…'; const vs=await resolveViews(pl); if(S.place===pl){ if(vs){ pl.views=vs; pl.sv=0; pend=0; padj={h:0,p:0,f:90}; LS.set('place6',pl); applyWindow(); } o.textContent=t0+(vs?` · 사진 ${vs.length}장`:` · 자리 확인 안 됨 (${window.__svErr||'?'})`); svBar(); } } } };
   svBar();
