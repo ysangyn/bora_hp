@@ -1432,7 +1432,7 @@ function closeOver(fromPop){ const o=$('overOv'); if(!o||!o.classList.contains('
   if(!fromPop&&!o.dataset.nav&&history.state&&history.state.bk){ try{ history.back(); }catch(e){} } }
 /* 디지털 영양제(소리 한 방울): 보관함이 열린 기기에서만. 듣는 동안 방 소리는 쉬고, 닫으면 다시 */
 const signedIn=()=>{ try{ const g=JSON.parse(localStorage.getItem('bora_gate')||'null'); return !!(g&&g.u); }catch(e){ return false; } };   // 이 기기에서 초대 계정으로 들어온 적이 있는가(보관함은 supp/에서 다시 확인)
-function openSupp(){ closePanel(); HOLD=null; holdMusic(); duck(true); openOver('supp/','소리 한 방울'); window.__roomHold='supp'; setTimeout(()=>{ if(window.__roomHold==='supp'&&AU.ctx&&AU.ctx.state==='running') AU.ctx.suspend(); },400); }
+function openSupp(){ closePanel(); HOLD=null; holdMusic(); duck(true); openOver('supp/?t='+Date.now(),'소리 한 방울'); /* 늘 새 화면으로 */ window.__roomHold='supp'; setTimeout(()=>{ if(window.__roomHold==='supp'&&AU.ctx&&AU.ctx.state==='running') AU.ctx.suspend(); },400); }
 function openBooks(id){ openOver('books/?embed=1'+(id?'&b='+encodeURIComponent(id):''),'책장'); }
 (()=>{ const n=$('bNotes'); if(n) n.addEventListener('click',e=>{ if(e.metaKey||e.ctrlKey||e.shiftKey) return; e.preventDefault(); openOver('notes/','노트'); }); })();
 /* 습작 노트: 정식 곡이 되기 전, 떠오른 대로 만들어 본 짧은 곡들 */
