@@ -2115,7 +2115,7 @@ function openMix(){ blip('paper');
   document.querySelectorAll('[data-nz]').forEach(b=>b.onclick=()=>{ LS.set('mixNoise',b.dataset.nz); sleepSound(b.dataset.nz); setTimeout(()=>{ if(SN) SN.g.gain.setTargetAtTime(SN.base*MX.noise,AU.ctx.currentTime,.4); mixUI(); },80); });
   document.querySelectorAll('[data-mp]').forEach(b=>b.onclick=()=>{ const i=+b.dataset.mp; mixApply(i<0?{}:MIXP[i].v); });
   $('mxSave').onclick=()=>{ const n=$('mxName').value.trim()||'나의 자리', a=LS.get('mixSaved',[]).filter(p=>p.n!==n); a.unshift({n,v:mixNow()}); LS.set('mixSaved',a.slice(0,6)); $('mxName').value=''; mixUI(); roomSay(`‘${n}’ 자리를 간직했어요`); };
-  $('mxAuto').onclick=e=>{ e.stopPropagation(); mixAuto(); }; $('mxTone').value=LS.get('tone',.7); $('mxTone').oninput=e=>{ if(!AU.on) setAudio(true); toneSet(+e.target.value); };
+  $('mxAuto').onclick=e=>{ e.stopPropagation(); mixAuto(); }; if($('mxSupp')) $('mxSupp').onclick=e=>{ e.stopPropagation(); openSupp(); }; $('mxTone').value=LS.get('tone',.7); $('mxTone').oninput=e=>{ if(!AU.on) setAudio(true); toneSet(+e.target.value); };
   $('mxShare').onclick=async e=>{ e.stopPropagation(); const u=mixLink(); try{ await navigator.clipboard.writeText(u); roomSay('링크를 복사했어요 · 받는 사람의 방에 같은 소리가 담겨요'); }catch(_){ $('mxName').removeAttribute('maxlength'); $('mxName').value=u; $('mxName').select(); roomSay('링크를 이름 칸에 적어 두었어요 · 길게 눌러 복사해 주세요'); } };
   $('mxCred').onclick=e=>{ e.stopPropagation(); openCredits(); };
   $('mxSleep').onclick=()=>openSleep(); $('mxWays').onclick=e=>{ e.stopPropagation(); openWays(); }; mixUI(); }
