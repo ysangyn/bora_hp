@@ -2697,6 +2697,11 @@ $('bSnd').onclick=()=>{ const on=!AU.on; setAudio(on); if(on&&!S.snd) toggleRain
 /* ---------- 시작 ---------- */
 document.body.classList.toggle('lite',S.lite);
 initFx(5);
+/* 휴대폰은 다른 화면(노래 짓기·영상 등)을 오가다 그래픽 기능(WebGL)을 잃을 때가 있다. 그러면 창밖이 까맣게 남으므로, 잃으면 다시 그린다 */
+(()=>{ const relost=(cv,lost,back)=>{ if(!cv) return; cv.addEventListener('webglcontextlost',e=>{ e.preventDefault(); lost(); }); cv.addEventListener('webglcontextrestored',()=>{ try{ back(); }catch(_){} }); };
+  relost($('wgl'),()=>{ WG.gl=null; WG.ready=false; },()=>{ initWGL(); applyWindow(); });
+  for(const cv of [canvas,$('roomgl2')]) relost(cv,()=>{ ready=false; stage.classList.remove('gl'); },()=>{ gl=null; startGL(); });
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden) return; try{ if(WG.gl&&WG.gl.isContextLost()){ WG.gl=null; WG.ready=false; } if(!WG.gl&&initWGL()) applyWindow(); }catch(_){} }); })();
 initWGL(); applyRoom(); applyWindow(); loadWeather(); startGL();
 setInterval(()=>{ applyRoom(); tickPlace(); },60000); setInterval(loadWeather,600000);
 })();
