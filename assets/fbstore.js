@@ -55,6 +55,9 @@ export async function commit(files, msg) {
 }
 /* 아직 사이트에 반영되지 않은 저장이 몇 건인지 */
 export async function waiting() { await init(); try { const q = await F.getDocs(F.query(F.collection(db, 'outbox'), F.limit(20))); return q.size; } catch (e) { return 0; } }
+/* 잠금 보관함 열쇠: 초대받은 계정만 읽고 쓴다(규칙의 vault). 이 저장소에는 열쇠가 없다 */
+export async function vaultKey() { await init(); try { const d = await F.getDoc(F.doc(db, 'vault', 'key')); return d.exists() ? (d.data().k || null) : null; } catch (e) { if (e.code === 'permission-denied') return null; throw e; } }
+export async function vaultKeySet(k) { await init(); await F.setDoc(F.doc(db, 'vault', 'key'), { k, at: F.serverTimestamp() }); }
 /* 초대받은 계정인지: 규칙의 owner()만 읽을 수 있는 곳을 읽어 본다 */
 export async function isOwner() {
   await init();
@@ -83,6 +86,7 @@ service cloud.firestore {
       match /parts/{p} { allow read, write: if owner(); }
     }
     match /pending/{id} { allow read, write: if owner(); }
+    match /vault/{id} { allow read, write: if owner(); }
   }
 }`;
 }

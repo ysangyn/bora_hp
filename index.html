@@ -990,7 +990,7 @@ function toggleLamp(){ blip('switch'); S.lamp=!S.lamp; setTimeout(humSet,0); sta
 /* ---------- 소리: 전부 코드로 합성 (파일 없음) ---------- */
 const AU={ctx:null,out:null,on:false,rain:null,vinyl:null};
 function actx(){
-  if(!AU.ctx){ try{ AU.ctx=(()=>{ const A=window.AudioContext||window.webkitAudioContext; try{ return new A({latencyHint:'playback'}); }catch(_){ return new A(); } })(); AU.out=AU.ctx.createGain(); AU.out.gain.value=AU.on?1:0; try{ const cp=AU.ctx.createDynamicsCompressor(); cp.threshold.value=-3; cp.knee.value=0; cp.ratio.value=20; cp.attack.value=.003; cp.release.value=.25; const cpT=AU.ctx.createGain(); cpT.gain.value=.82; AU.tone=AU.ctx.createBiquadFilter(); AU.tone.type='lowpass'; AU.tone.Q.value=.3; AU.tone.frequency.value=toneHz(LS.get('tone',.7)); AU.out.connect(AU.tone).connect(cp).connect(cpT).connect(AU.ctx.destination); }catch(_){ AU.out.connect(AU.ctx.destination); }
+  if(!AU.ctx){ try{ AU.ctx=(()=>{ const A=window.AudioContext||window.webkitAudioContext; try{ return new A({latencyHint:'playback'}); }catch(_){ return new A(); } })(); AU.out=AU.ctx.createGain(); AU.out.gain.value=AU.on?1:0; try{ const cp=AU.ctx.createDynamicsCompressor(); cp.threshold.value=-3; cp.knee.value=0; cp.ratio.value=20; cp.attack.value=.003; cp.release.value=.25; const cpT=AU.ctx.createGain(); cpT.gain.value=.82; AU.tone=AU.ctx.createBiquadFilter(); AU.tone.type='lowpass'; AU.tone.Q.value=.3; AU.tone.frequency.value=toneHz(LS.get('tone',.7)); AU.adapt=AU.ctx.createGain(); AU.out.connect(AU.adapt).connect(AU.tone).connect(cp).connect(cpT).connect(AU.ctx.destination); }catch(_){ AU.out.connect(AU.ctx.destination); }
     try{ Object.defineProperty(AU,'recOK',{get:()=>!!AU.recHas,configurable:true}); }catch(_){} }catch(e){ return null; } }
   if(AU.ctx.state==='suspended'&&!window.__roomHold) AU.ctx.resume(); return AU.ctx;
 }
@@ -1017,7 +1017,7 @@ function rainSound(on,soft){ const c=actx(); if(!c) return;
   const L=AU.rainL, M=soft?[0,0,0,0,1700]:[[0,0,0,3,1100],[0,0,0,6,1500],[0,0,0,11,1700]][RL], T=c.currentTime;
   L.wash.gain.setTargetAtTime(M[0],T,.8); L.hiss.gain.setTargetAtTime(M[1],T,.8); L.low.gain.setTargetAtTime(M[2],T,.8); L.washF.frequency.setTargetAtTime(M[4],T,.8); L.rate=M[3];
   L.wind.gain.setTargetAtTime(0,T,1.2); L.windLfo.gain.setTargetAtTime(0,T,1.2);
-  AU.rain.gain.cancelScheduledValues(c.currentTime); AU.rainBase=(soft?0:[.2,.24,.3][RL])*MX.rain*((S.playing||S.radio)?.45:1); /* 노래나 라디오가 나오면 빗소리는 뒤로 물러난다 */ AU.rain.gain.setTargetAtTime(on?AU.rainBase:0,c.currentTime,on?.7:.4); }
+  AU.rain.gain.cancelScheduledValues(c.currentTime); AU.rainBase=(soft?0:[.2,.24,.3][RL])*MX.rain*((S.playing||S.radio)?beDuck(.45):1); /* 노래나 라디오가 나오면 빗소리는 뒤로 물러난다 */ AU.rain.gain.setTargetAtTime(on?AU.rainBase:0,c.currentTime,on?.7:.4); }
 function vinyl(on){ const c=actx(); if(!c) return;
   if(!AU.vinyl){ const n=c.sampleRate*6,b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0); for(let i=0;i<n;i++){ d[i]=(Math.random()*2-1)*.012; if(Math.random()<.00035) d[i]+=(Math.random()*2-1)*.7; }
     const s=c.createBufferSource(); s.buffer=b; s.loop=true; const f=c.createBiquadFilter(); f.type='bandpass'; f.frequency.value=2600; f.Q.value=.3; const g=c.createGain(); g.gain.value=0; s.connect(f).connect(g).connect(AU.out); s.start(); AU.vinyl=g; }
@@ -1069,9 +1069,27 @@ function isSea(){ const n=(S.place&&S.place.name)||''; return /해운대|애월|
 let SEA=null;
 function seaLevel(v){ const c=AU.ctx; if(!c||!AMB.out) return; bedLevel('waves',SOFT?0:v,4); if(!SOFT) v=0; if(v>.001&&!SEA){ const g=c.createGain(); g.gain.value=0; const src=c.createBufferSource(); src.buffer=mkNoise(c,'pink',12); src.loop=true; const hp=c.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=160; const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1100; lp.Q.value=.3; const amp=c.createGain(); amp.gain.value=.5; const lfo=c.createOscillator(), lg=c.createGain(), fl=c.createGain(); lfo.frequency.value=.085; lg.gain.value=.42; fl.gain.value=700; src.connect(hp).connect(lp).connect(amp).connect(g).connect(AMB.out); lfo.connect(lg).connect(amp.gain); lfo.connect(fl).connect(lp.frequency); src.start(); lfo.start(); SEA={g,nodes:[src,lfo]}; }
   if(SEA) SEA.g.gain.setTargetAtTime(Math.max(0,v),c.currentTime,4); if(v<=.001&&SEA){ const o=SEA; SEA=null; setTimeout(()=>o.nodes.forEach(x=>{ try{x.stop();}catch(_){} }),14000); } }   // 소리 섞기: 재료마다 손님이 정한 세기
+/* ---------- 잠금 보관함의 '배경 따라가기' 엔진 ----------
+   초대받은 계정으로 들어온 기기에서만 열린다. 이 파일에는 통로만 있고, 배합 규칙은 암호문(vault/*.bin) 안에 있다.
+   엔진이 없거나 열리지 않으면 예전처럼 일정하게 낮추기만 한다.
+   - 보라다방의 노래(새로 넣는 곡 포함): 곡 파일을 그 자리에서 분석해, 재생 위치에 맞춰 '켜 둔 배경만' 조금씩 움직인다. 노래 원음은 건드리지 않는다.
+   - 라디오: 소리를 분석할 수 없으니 6초 지켜본 뒤 16초에 걸쳐 천천히 낮춘다. */
+let BE=null, beT0=0; const BEG=new Map();
+const beDuck=a=>BE?(S.playing?.63:1):a;                              // 엔진이 있으면 바닥은 덜 낮추고, 나머지는 엔진이 움직인다
+async function beLoad(){ try{ const fb=await import('./assets/fbstore.js'); if(!await fb.currentUser()) return; const k=await fb.vaultKey(); if(!k) return;
+    const {vault}=await import('./assets/vault-core.mjs'), v=await vault(k,n=>fetch('vault/'+n).then(r=>{ if(!r.ok) throw new Error(r.status); return r.arrayBuffer(); }));
+    const u=URL.createObjectURL(new Blob([await v.text('bed_follow.mjs')],{type:'text/javascript'})); const m=await import(u); URL.revokeObjectURL(u); BE=m; window.__be=m.VERSION; }catch(e){ BE=null; window.__be=''; } }
+async function beProfile(src){ if(!BE||BEG.has(src)) return; BEG.set(src,null);
+  try{ const ab=await (await fetch(src)).arrayBuffer(), OC=window.OfflineAudioContext||window.webkitOfflineAudioContext, b=await new OC(1,16000,16000).decodeAudioData(ab), ch=[]; for(let i=0;i<Math.min(2,b.numberOfChannels);i++) ch.push(b.getChannelData(i)); BEG.set(src,{F:BE.features(ch,b.sampleRate)}); }catch(e){ BEG.delete(src); } }
+function beTick(){ const c=AU.ctx; if(!c||!AU.adapt) return; let g=1;
+  if(BE&&AU.on){ if(S.playing){ beT0=0; const src=songEl.currentSrc||songEl.src, P=BEG.get(src); if(P===undefined) beProfile(src);
+      if(P){ const pu=(()=>{ try{ return SL?'sleep':FC?'focus':'rest'; }catch(e){ return 'rest'; } })(); if(!P[pu]) P[pu]=BE.bedGainDb(P.F,{purpose:pu}); g=BE.gainAt(P[pu],songEl.currentTime||0); } }
+    else if(S.radio){ if(!beT0) beT0=Date.now(); g=BE.unknownMediaGain((Date.now()-beT0)/1000,-8); } else beT0=0; }
+  AU.adapt.gain.setTargetAtTime(g,c.currentTime,.2); window.__beg=+g.toFixed(3); }
+setTimeout(beLoad,2500); setInterval(beTick,250);
 function ambUpdate(){ if(!AU.on||!AU.ctx||!AMB.out) return; const R=Math.random, M=k=>(AMB.mea[k]=Math.min(1.25,Math.max(.5,(AMB.mea[k]||1)+(R()-.5)*.3)));
   const snowy=WG.snowT>.5, rain=(S.snd&&!snowy)?(window.__sym?(.16+.12*(window.__symLvl||.5)):RLV[RL]*(.9+.2*(M('rr')-.5))):0, rs=window.__sym?1:RLS[RL];
-  const h=Math.max(0,Math.min(1,(rain-.45)/.5)), op=AMB.open, fade=(1-(window.SLP||0)*.6)*(window.__sym?.7:1)*((S.playing||S.radio)?.4:1), pk=placeKind(), night=!(S.w&&S.w.isDay), calm=Math.max(.15,1-rain*.8);
+  const h=Math.max(0,Math.min(1,(rain-.45)/.5)), op=AMB.open, fade=(1-(window.SLP||0)*.6)*(window.__sym?.7:1)*((S.playing||S.radio)?beDuck(.4):1), pk=placeKind(), night=!(S.w&&S.w.isDay), calm=Math.max(.15,1-rain*.8);
   AMB.lp.frequency.setTargetAtTime(op?16000:2600,AU.ctx.currentTime,.8);   // 닫힌 창: 높은 소리만 조금 누른다(예전 650Hz는 비가 웅웅거리는 잡음으로 들렸다)
   const rc=SOFT?0:1, so=SOFT?(op?.6:0):1;
   bedLevel('lrain',rain?3.4*(.4*(1-h)+.12)*rs*M('lr')*fade*MX.rain*(op?1:.8):0,4); bedLevel('hrain',rain?3.4*.3*h*M('hr')*fade*MX.rain:0,4);
