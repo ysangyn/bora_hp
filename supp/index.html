@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><script src="/assets/gate.js"></script><meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>소리 한 방울 · 보라다방</title>
+<style>
+:root{color-scheme:dark}
+html,body{margin:0;height:100%;background:#1a141c;color:#e9dfd3;font:15px/1.7 "Noto Serif KR","Nanum Myeongjo",serif}
+#f{position:fixed;inset:0;width:100%;height:100%;border:0;display:block;background:#1a141c}
+#msg{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:0 28px;text-align:center;word-break:keep-all}
+#msg small{color:#a99c90;font-size:13px}
+#back{position:fixed;left:max(10px,env(safe-area-inset-left));bottom:max(10px,env(safe-area-inset-bottom));z-index:5;padding:9px 16px;min-height:40px;border-radius:20px;border:1px solid rgba(233,223,211,.35);background:rgba(26,20,28,.72);color:#e9dfd3;font:inherit;font-size:14px;cursor:pointer}
+</style></head>
+<body>
+<div id="msg"><div>보관함을 여는 중…</div><small>처음에는 몇 초 걸려요</small></div>
+<button id="back" type="button">방으로</button>
+<script type="module">
+/* 디지털 영양제(소리 한 방울): 화면과 음원, 배합 엔진은 모두 잠금 보관함(../vault) 안에 있다.
+   이 파일은 열쇠를 받아 보관함을 여는 통로일 뿐이다. 초대받은 계정에서만 열린다. */
+const $ = id => document.getElementById(id), say = (a, b = '') => { $('msg').hidden = false; $('msg').innerHTML = `<div>${a}</div>${b ? `<small>${b}</small>` : ''}`; };
+$('back').onclick = () => { try { parent.postMessage({ bora: 'page-close' }, location.origin); } catch (e) {} if (parent === window) location.href = '../'; };
+try {
+  const fb = await import('../assets/fbstore.js');
+  if (!await fb.currentUser()) throw Object.assign(new Error('login'), { k: 1 });
+  const key = await fb.vaultKey(); if (!key) throw Object.assign(new Error('nokey'), { k: 2 });
+  const { vault } = await import('../assets/vault-core.mjs');
+  const v = await vault(key, n => fetch('../vault/' + n).then(r => { if (!r.ok) throw new Error('암호문을 받지 못했어요 (' + r.status + ')'); return r.arrayBuffer(); }));
+  const urls = new Map();
+  window.__suppVault = {
+    meta: async () => JSON.parse(await v.text('supp/meta.json')),
+    sha: p => v.index.files[p] && v.index.files[p].sha256,
+    url: async p => { if (!urls.has(p)) urls.set(p, v.bytes(p).then(b => URL.createObjectURL(new Blob([b], { type: 'audio/mpeg' })))); return urls.get(p); },
+  };
+  const html = await v.text('ritual.html'), f = document.createElement('iframe');
+  f.id = 'f'; f.title = '소리 한 방울'; f.allow = 'autoplay'; f.srcdoc = html; document.body.prepend(f);
+  f.addEventListener('load', () => { $('msg').hidden = true; }, { once: true });
+} catch (e) {
+  if (e.k === 1) say('초대받은 계정으로 들어와야 열려요.');
+  else if (e.k === 2) say('아직 보관함 열쇠가 없어요.', '주인장 방에서 열쇠를 만들어 주세요.');
+  else say('보관함을 열지 못했어요.', String(e && e.message || e).slice(0, 120));
+}
+</script>
+</body></html>
