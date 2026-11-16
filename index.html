@@ -806,7 +806,7 @@ body.hasnote .hs[data-p="mailbox"]{display:block!important}
 .clock{left:62.8%;top:53.75%;width:2.95cqw;height:1.3cqw}
 .clock .dg{font-size:.78cqw}
 .pol{width:2.5cqw}
-.proj{left:36.9%;top:20.6%;width:26.3%;height:26.2%}
+.proj{left:38.672%;top:20.472%;width:23.047%;height:23.040%}   /* 2026-11-17 블라인드 천(940–1630 × 273–649) 안쪽에 여백을 두고 16:9로. 전에는 아래로 천 밖까지 나갔음 */
 #roomgl2{z-index:3}
 .beamsvg{position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none;opacity:0;transition:opacity 1.5s ease;mix-blend-mode:screen}
 .beam .beamsvg{opacity:.55}
@@ -840,6 +840,11 @@ body.hasnote .hs[data-p="mailbox"]{display:block!important}
 .winart .wd{clip-path:inset(0 0 100% 0);transition:clip-path 2.8s cubic-bezier(.45,.05,.25,1),opacity 1.2s ease}
 .closed .winart .wd,.cinema .winart .wd{clip-path:inset(0 0 0 0);transition:clip-path 3.2s cubic-bezier(.4,.02,.2,1),opacity 1.2s ease}
 .stage .blind{display:none}
+/* 2026-11-17 창문 열고 닫기: 가운데 기둥(오른쪽 창짝)이 왼쪽으로 밀려 겹친다. 그림 좌표 (599,262)–(634,597) / 1229×819 */
+.winart .wsl{position:absolute;left:48.739%;top:31.990%;width:2.848%;height:40.904%;transition:transform 2.4s cubic-bezier(.45,.05,.25,1)}
+.stage.wopen .winart .wsl{transform:translateX(-885.7%)}
+.window.wopen #rain{-webkit-mask-image:linear-gradient(90deg,#000 49%,transparent 51%);mask-image:linear-gradient(90deg,#000 49%,transparent 51%)}
+@media (prefers-reduced-motion:reduce){.winart .wsl{transition:none}}
 .beam .winart .wd{filter:brightness(.6) saturate(.7)}
 </style>
 </head>
@@ -876,7 +881,7 @@ body.hasnote .hs[data-p="mailbox"]{display:block!important}
   <canvas class="room" id="roomgl" aria-hidden="true"></canvas>
   <div class="record pl" data-z=".95" aria-hidden="true"><i></i></div>
   <div class="steam pl" data-z=".95" aria-hidden="true"><i></i><i></i><i></i></div>
-  <div class="layer pl" data-z="1" data-ax="50" data-ay="33" style="z-index:3;pointer-events:none"><div class="blind" id="blind"><i class="hem"></i></div><div class="winart" aria-hidden="true"><img class="wu w-on" src="img/win/up_on.webp?v=20261114" alt=""><img class="wu w-off" src="img/win/up_off.webp?v=20261114" alt=""><img class="wu w-day" src="img/win/up_day.webp?v=20261114" alt="" loading="lazy"><img class="wd w-on" src="img/win/down_on.webp?v=20261114" alt="" loading="lazy"><img class="wd w-off" src="img/win/down_off.webp?v=20261114" alt="" loading="lazy"><img class="wd w-day" src="img/win/down_day.webp?v=20261114" alt="" loading="lazy"></div><div class="proj" id="proj" aria-label="프로젝터 화면"><div class="pv" id="pv"></div></div></div>
+  <div class="layer pl" data-z="1" data-ax="50" data-ay="33" style="z-index:3;pointer-events:none"><div class="blind" id="blind"><i class="hem"></i></div><div class="winart" aria-hidden="true"><img class="wu w-on" src="img/win/frame_on.webp?v=20261117" alt=""><img class="wu w-off" src="img/win/frame_off.webp?v=20261117" alt=""><img class="wu w-day" src="img/win/frame_day.webp?v=20261117" alt="" loading="lazy"><div class="wsl"><img class="w-on" src="img/win/stile_on.webp?v=20261117" alt=""><img class="w-off" src="img/win/stile_off.webp?v=20261117" alt=""><img class="w-day" src="img/win/stile_day.webp?v=20261117" alt="" loading="lazy"></div><img class="wd w-on" src="img/win/down_on.webp?v=20261114" alt="" loading="lazy"><img class="wd w-off" src="img/win/down_off.webp?v=20261114" alt="" loading="lazy"><img class="wd w-day" src="img/win/down_day.webp?v=20261114" alt="" loading="lazy"></div><div class="proj" id="proj" aria-label="프로젝터 화면"><div class="pv" id="pv"></div></div></div>
   <canvas class="room" id="roomgl2" aria-hidden="true"></canvas>
   <svg class="beamsvg" viewBox="0 0 2000 1126" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset=".22" stop-color="#e8eeff" stop-opacity=".16"/><stop offset="1" stop-color="#cfe0ff" stop-opacity=".02"/></linearGradient><filter id="bf1" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="11"/></filter><clipPath id="bc1"><polygon id="beamC"/></clipPath></defs><polygon id="beamP" fill="url(#bg1)" filter="url(#bf1)"/><g clip-path="url(#bc1)" id="dust"></g><circle id="beamL" r="5" fill="#fff8e8" filter="url(#bf1)"/></svg>
   <div class="dial pl" data-z=".76"></div>
@@ -1110,7 +1115,7 @@ async function ambOnce(k,v){ if(!SF[k]) return; await sload(k); const b=SB[k]; i
 function roomSay(t){ let d=$('roomSay'); if(!d){ d=document.createElement('div'); d.id='roomSay'; d.setAttribute('role','status'); document.body.appendChild(d); } d.textContent=t; d.classList.add('on'); clearTimeout(roomSay.t); roomSay.t=setTimeout(()=>d.classList.remove('on'),2600); }
 function toggleWindow(){ AMB.open=!AMB.open; LS.set('wopen',AMB.open); window.__wopen=AMB.open; blip('curtain'); if(!AU.on) setAudio(true); else ambUpdate(); upWin();
   roomSay(AMB.open?'창문을 열었어요 · 빗소리와 바깥 소리가 또렷해져요':'창문을 닫았어요 · 바깥 소리는 멀어지고 유리를 두드리는 비만 남아요'); }
-function upWin(){ const l=$('lbWin'); if(l) l.textContent=AMB.open?'창문 닫기':'창문 열기'; win.classList.toggle('wopen',AMB.open); document.querySelectorAll('[data-wo]').forEach(b=>b.setAttribute('aria-pressed',(b.dataset.wo==='1')===AMB.open)); }
+function upWin(){ const l=$('lbWin'); if(l) l.textContent=AMB.open?'창문 닫기':'창문 열기'; win.classList.toggle('wopen',AMB.open); stage.classList.toggle('wopen',AMB.open); document.querySelectorAll('[data-wo]').forEach(b=>b.setAttribute('aria-pressed',(b.dataset.wo==='1')===AMB.open)); }
 window.__wopen=AMB.open; setTimeout(upWin,0);
 function toggleRainSound(){ S.rainMan=true; S.snd=!S.snd; if(S.snd&&!AU.on) setAudio(true); rainSound(S.snd); setRain(); }
 const TRACKS=[{f:'music/01.mp3',g:0.407,t:'토닥토닥 (Remastered)'},{f:'music/02.mp3',g:1,t:'Sad Thing'},{f:'music/03.mp3',g:0.668,t:'Annabel Lee'},{f:'music/04.mp3',g:0.966,t:'B TL B TL'},{f:'music/05.mp3',g:0.562,t:'아주 아주 슬픈 꿈'}];
@@ -2575,8 +2580,8 @@ function sizeGL(){ if(!gl) return; const w=scene.offsetWidth,h=scene.offsetHeigh
   for(const o of GLS){ o.cv.width=Math.max(1,Math.round(w*k)); o.cv.height=Math.max(1,Math.round(h*k)); o.gl.viewport(0,0,o.cv.width,o.cv.height); } }
 function loadDayTex(){ if(dayTex||dayBusy||!gl||!ready) return; dayBusy=true; const ims=[new Image(),new Image()]; let n=0;
   const go=()=>{ if(++n<2) return; use(0); tex(2,ims[0]); use(1); tex(2,ims[1]); use(0); dayTex=true; };
-  ims.forEach((im,i)=>{ im.onload=go; im.onerror=()=>{ dayBusy=false; }; im.src=i?'img/b_atlas_day.webp?v=20261114':'img/b_plate_day.webp?v=20261114'; }); }
-function startGL(){ if(S.lite||gl||!initGL()) return; const srcs=['img/b_plate_on.webp?v=20261114','img/b_plate_off.webp?v=20261114','img/b_atlas_on.webp?v=20261114','img/b_atlas_off.webp?v=20261114'], ims=srcs.map(()=>new Image()); let n=0;
+  ims.forEach((im,i)=>{ im.onload=go; im.onerror=()=>{ dayBusy=false; }; im.src=i?'img/b_atlas_day.webp?v=20261114':'img/b_plate_day.webp?v=20261117'; }); }
+function startGL(){ if(S.lite||gl||!initGL()) return; const srcs=['img/b_plate_on.webp?v=20261117','img/b_plate_off.webp?v=20261117','img/b_atlas_on.webp?v=20261114','img/b_atlas_off.webp?v=20261114'], ims=srcs.map(()=>new Image()); let n=0;
   const go=()=>{ if(++n<4) return; use(0); tex(0,ims[0]); tex(1,ims[1]); use(1); tex(0,ims[2]); tex(1,ims[3]); use(0); ready=true; sizeGL(); if(!S.lite) stage.classList.add('gl'); };
   ims.forEach((im,i)=>{ im.onload=go; im.onerror=()=>{}; im.src=srcs[i]; }); new ResizeObserver(sizeGL).observe(canvas); }
 function drawRoom(now,still,fl){
@@ -2607,7 +2612,7 @@ function placeLayers(){ const k=scene.offsetWidth/2000, f=BM.f, cx=BM.c[0], cy=B
     L.el.style.translate=`${((P[0]-L.u)*k).toFixed(2)}px ${((P[1]-L.v)*k).toFixed(2)}px`; if(!L.hs) L.el.style.scale=(z*f/P[2]).toFixed(4); }
   // 프로젝터 빛줄기: 렌즈에서 화면 네 귀퉁이로
   if(stage.classList.contains('beam')){ const w=(u,v,z)=>{ const q=proj((u-cx)*z,(v-cy)*z,z*f); return q[0].toFixed(1)+','+q[1].toFixed(1); }; const l=w(620,152,.75);
-    const pts=[l,w(1264,232,1),w(1264,527,1),w(738,527,1)].join(' '); $('beamP').setAttribute('points',pts); $('beamC').setAttribute('points',pts); const lp=l.split(','); $('beamL').setAttribute('cx',lp[0]); $('beamL').setAttribute('cy',lp[1]); } }
+    const pts=[l,w(1234.4,230.5,1),w(1234.4,489.9,1),w(773.4,489.9,1)].join(' '); $('beamP').setAttribute('points',pts); $('beamC').setAttribute('points',pts); const lp=l.split(','); $('beamL').setAttribute('cx',lp[0]); $('beamL').setAttribute('cy',lp[1]); } }
 const t0=performance.now();
 let lastDraw=0;
 function frame(now){
