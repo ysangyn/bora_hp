@@ -1247,7 +1247,7 @@ const WCODE={0:'맑음',1:'대체로 맑음',2:'구름 조금',3:'흐림',45:'�
 async function loadWeather(){
   const {lat,lon,name}=S.place; if(!window.__draft) $('mPlace').textContent=name; $('mCo').textContent=`${Math.abs(lat).toFixed(2)}°${lat>=0?'N':'S'}  ${Math.abs(lon).toFixed(2)}°${lon>=0?'E':'W'}`+(win.classList.contains('street')?'  ·  거리 사진 Google':'');
   try{
-    const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,precipitation,weather_code,cloud_cover,is_day&timezone=auto`);
+    const r=await tfetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,precipitation,weather_code,cloud_cover,is_day&timezone=auto`,null,8000);
     const j=await r.json(), c=j.current, code=c.weather_code; loadWeather.fail=0;
     const kind=(code>=71&&code<=77)||code===85||code===86?'snow':((code>=51&&code<=67)||(code>=80&&code<=82)||code>=95||c.precipitation>0?'rain':null);
     S.w={kind,cloud:(c.cloud_cover||0)/100,isDay:!!c.is_day,tz:j.timezone,code,temp:c.temperature_2m};
@@ -1302,8 +1302,10 @@ function pinSrc(pin){ return pin.src||('img/pin/'+pin.f); }
 // Mapillary(무료 공개 거리 사진, CC BY-SA): 그곳 둘레에서 사람들이 찍은 거리 사진을 몇 장 고른다(결제 없이)
 const MLY='MLY|28940021905666587|6f123c26e51ffb21e04cccff938c19c6';
 async function mlyPins(pl){ try{ const cs=(pl.spots&&pl.spots.length?pl.spots:[{lat:pl.lat,lon:pl.lon,n:pl.name}]).slice(0,4), seen=new Set();
-  const per=await Promise.all(cs.map(async c=>{ const out=[]; for(const d of [.0012,.004]){ const cl=Math.max(.3,Math.cos(c.lat*Math.PI/180)), bb=[c.lon-d/cl,c.lat-d,c.lon+d/cl,c.lat+d].map(v=>v.toFixed(6)).join(',');
-      const j=await (await tfetch(`https://graph.mapillary.com/images?access_token=${encodeURIComponent(MLY)}&fields=id,thumb_2048_url,is_pano,captured_at,creator&bbox=${bb}&limit=40`,null,12000)).json();
+  const per=await Promise.all(cs.map(async c=>{ const out=[], cl=Math.max(.3,Math.cos(c.lat*Math.PI/180));
+    const ask=d=>{ const bb=[c.lon-d/cl,c.lat-d,c.lon+d/cl,c.lat+d].map(v=>v.toFixed(6)).join(','); return tfetch(`https://graph.mapillary.com/images?access_token=${encodeURIComponent(MLY)}&fields=id,thumb_2048_url,is_pano,captured_at,creator&bbox=${bb}&limit=40`,null,7000).then(r=>r.json()).catch(()=>({data:[]})); };
+    const res=await Promise.all([ask(.0012),ask(.004),ask(.012)]);   // 가까운 곳 → 동네 → 1km 남짓까지(주소 둘레에 거리 사진이 없을 때)      // 2026-11-17 두 범위를 차례로(최대 24초) 기다리던 것을 동시에(최대 7초)
+    for(const j of res){
       const ims=(j.data||[]).filter(x=>!x.is_pano&&x.thumb_2048_url).sort((a,b)=>(b.captured_at||0)-(a.captured_at||0));
       let k=0; for(const x of ims){ if(seen.has(x.id)) continue; if(k++%5) continue; seen.add(x.id); out.push({n:c.n||pl.name,src:x.thumb_2048_url,a:((x.creator&&x.creator.username)||'Mapillary')+' · Mapillary',l:'CC BY-SA 4.0',u:'https://www.mapillary.com/app/?pKey='+x.id}); if(out.length>=3) break; }
       if(ims.length>=3) break; }
@@ -1347,7 +1349,12 @@ async function resolveViews(p){ if(!S.key) return null; const N=Math.min(svCount
    - 적은 지역 이름(시·군·구)이 들어간 결과를 먼저 고른다. 못 찾으면 구 이름을 빼고 다시 찾는다
    - 같은 이름이 여러 지역에 있으면 홈페이지 안에서 되묻는다(울산의 일중로 / 고양 일산서구의 일중로) */
 const normQ=q=>q.trim().replace(/\s+/g,' ').replace(/([가-힣0-9]+(?:대로|로|길))\s*(\d+(?:-\d+)?)(?=$|\s)/g,'$1 $2');
-const nomi=async(q,n)=>{ const r=await tfetch(`https://nominatim.openstreetmap.org/search?format=json&limit=${n}&addressdetails=1&extratags=1&accept-language=ko${/[가-힣]/.test(q)?'&countrycodes=kr':''}&q=${encodeURIComponent(q)}`,null,9000); return r.ok?r.json():[]; };
+const nomi1=async(q,n,kr)=>{ try{ const r=await tfetch(`https://nominatim.openstreetmap.org/search?format=json&limit=${n}&addressdetails=1&extratags=1&accept-language=ko${kr?'&countrycodes=kr':''}&q=${encodeURIComponent(q)}`,null,7000); return r.ok?await r.json():[]; }catch(e){ return []; } };
+const ADDRQ=/(대로|로|길)\s\d|\d+번지|[동리]\s\d/;   // 도로명·지번 주소
+/* 2026-11-17 한글 이름이어도 주소가 아니면 세계에서도 함께 찾는다('파리'가 국내 가게 이름으로만 잡히던 것) */
+const nomi=async(q,n)=>{ const ko=/[가-힣]/.test(q); if(!ko||ADDRQ.test(q)) return nomi1(q,n,ko);
+  const [a,b]=await Promise.all([nomi1(q,n,true),nomi1(q,n,false)]), seen=new Set(a.map(x=>x.place_id)); return b.filter(x=>!seen.has(x.place_id)).concat(a); };
+const PLACEISH=x=>x.class==='place'||x.class==='boundary'||CITYISH.test(x.addresstype||'')||/^(suburb|quarter|neighbourhood|hamlet)$/.test(x.addresstype||'');
 const areaOf=x=>{ const a=x.address||{}, v=[a.province||a.state,a.city||a.county||a.town,a.borough||a.city_district||a.suburb].filter(Boolean); return v.filter((t,i)=>v.indexOf(t)===i).join(' '); };
 function askWhich(c,q,out){ return new Promise(res=>{
   out.innerHTML=`<span>‘${escH(q)}’이(가) 여러 곳에 있어요. 어디인가요?</span><span class="row" style="flex-wrap:wrap;gap:6px;margin-top:8px">${c.map((x,i)=>`<button type="button" class="chip" data-i="${i}">${escH(areaOf(x)||x.display_name.split(',').slice(1,4).join(' '))}</button>`).join('')}<button type="button" class="chip" data-i="-1">취소</button></span>`;
@@ -1360,12 +1367,15 @@ async function findPlace(q0,out){
     if(!j.length){ const m=q.match(/^(.*?[시군구])\s/); if(m) j=await nomi(m[1],1); }
     if(!j.length){ out.textContent='그런 곳을 못 찾았어요. 도시 이름이나 주소로 다시 써 주세요.'; return false; }
     if(area.length){ const hit=j.filter(x=>area.some(a=>(x.display_name||'').includes(a)||areaOf(x).includes(a))); if(hit.length) j=hit; }     // 적은 지역이 들어간 것만
+    if(!ADDRQ.test(q)){ const pl=j.filter(PLACEISH); if(pl.length) j=pl; }      // 동네·도시가 잡히면 같은 이름의 가게·건물은 뺀다
+    j.sort((a,b)=>(+b.importance||0)-(+a.importance||0));
     const by=new Map(); for(const x of j){ const k=areaOf(x)||x.display_name; if(!by.has(k)) by.set(k,x); }
     const c=[...by.values()]; let p=c[0], name=q;
-    if(c.length>1){ p=await askWhich(c.slice(0,6),q,out); if(!p){ out.textContent='고르지 않아서 창밖은 그대로예요.'; return false; } const ar=areaOf(p).split(' ').slice(-1)[0]; if(ar&&!q.includes(ar)) name=ar+' '+q; }
+    const clear=c.length>1&&!area.length&&(+c[0].importance||0)>=.5&&(+c[0].importance||0)>=1.4*(+c[1].importance||0);   // 이름난 곳(예: 프랑스 파리)이 뚜렷하면 묻지 않는다
+    if(c.length>1&&!clear){ p=await askWhich(c.slice(0,6),q,out); if(!p){ out.textContent='고르지 않아서 창밖은 그대로예요.'; return false; } const ar=areaOf(p).split(' ').slice(-1)[0]; if(ar&&!q.includes(ar)) name=ar+' '+q; }
     S.place={name,lat:+p.lat,lon:+p.lon,cc:(p.address&&p.address.country_code)||'',sv:0,wd:(p.extratags&&p.extratags.wikidata)||'',kind:p.addresstype||p.type||'',bb:(p.boundingbox||[]).map(Number),addr:p.address||{}}; LS.set('place6',S.place); city=null; S.visit=true; LS.set('visit',true);
     out.textContent=`${name}을(를) 찾았어요. 창에 걸 사진을 찾는 중…`;
-    await loadWeather(); if(S.radio) radioTune(); return true;
+    loadWeather().catch(()=>{}); if(S.radio) radioTune(); return true;
   }catch(e){ out.textContent='장소를 찾지 못했어요. 인터넷 연결을 확인해 주세요.'; return false; }
 }
 
@@ -1406,9 +1416,9 @@ function closePanel(){ panelLeave(); if(window.__undoDraft) window.__undoDraft()
   // 맨 위(또는 맨 아래)에서 손끝이 반대쪽으로 먼저 떨리면 브라우저가 그 손길 전체의 스크롤을 놓아 버린다. 그때는 손끝을 따라 직접 굴린다.
   let my=null, ms=0, edge=0, own=0, man=false;
   panel.addEventListener('touchstart',e=>{ my=null; man=false; if(panel.hidden||e.touches.length!==1||e.target.closest('input,textarea,select')) return; const max=panel.scrollHeight-panel.clientHeight; if(max<2) return;
-    edge=panel.scrollTop<=0?1:panel.scrollTop>=max-1?-1:0; if(!edge) return; my=e.touches[0].clientY; ms=own=panel.scrollTop; },{passive:true});
+    edge=panel.scrollTop<=0?1:panel.scrollTop>=max-1?-1:0; my=e.touches[0].clientY; ms=own=panel.scrollTop; },{passive:true});      // 2026-11-17 가운데에서도 지켜본다(잠들기 창이 안 내려가던 것)
   panel.addEventListener('touchmove',e=>{ if(my==null||drag) return; const d=e.touches[0].clientY-my;
-    if(!man){ if(Math.abs(panel.scrollTop-ms)>1){ my=null; return; } if(d*edge>=3) man=true; else if(d*edge<=-6){ my=null; return; } else return; }   // 제 방향으로 바로 가면 브라우저에 맡긴다
+    if(!man){ if(Math.abs(panel.scrollTop-ms)>1){ my=null; return; } if(edge&&d*edge>=3) man=true; else if(Math.abs(d)>=14) man=true; else return; }   // 손끝이 14px 넘게 움직였는데도 브라우저가 굴리지 않았으면 직접 굴린다(굴리고 있으면 위에서 손을 뗌)   // 제 방향으로 바로 가면 브라우저에 맡긴다
     if(Math.abs(panel.scrollTop-own)>2){ my=null; return; }                                   // 브라우저가 굴리고 있으면 손을 뗀다
     panel.scrollTop=ms-d; own=panel.scrollTop; },{passive:true});
   const mEnd=()=>{ my=null; man=false; }; panel.addEventListener('touchend',mEnd); panel.addEventListener('touchcancel',mEnd);
