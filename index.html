@@ -2247,7 +2247,7 @@ let FANW=null;   // 환풍기·팬: 녹음을 반복하지 않고 그 자리에�
 const FANT={fan:.35,dohm:.3};
 function fanTone(k){ return LS.get('fanTone_'+k,FANT[k]); }
 function fanNode(c,k){ if(!c.audioWorklet||typeof AudioWorkletNode==='undefined') return Promise.reject(new Error('no worklet'));
-  FANW=FANW||c.audioWorklet.addModule('sound/fan-worklet.js?v=20261118').catch(e=>{ FANW=null; throw e; });
+  FANW=FANW||c.audioWorklet.addModule('sound/fan-worklet.js?v=20261118b').catch(e=>{ FANW=null; throw e; });
   return FANW.then(()=>new AudioWorkletNode(c,'bora-fan',{numberOfInputs:0,numberOfOutputs:1,outputChannelCount:[2],processorOptions:{preset:k==='fan'?'bath_home':'dohm_home',tone:fanTone(k)}})); }
 let SLK=null;
 function sleepSound(kind){ const c=actx(); if(!c) return; if(!AU.on) setAudio(true); SLK=kind; if(kind&&kind!=='none'){ if(window.__slPanel) holdMusic(); else { if(S.playing) songStop(); if(S.radio) radioOff(); if(typeof PJ!=='undefined'&&PJ) projOff(); } } if(kind&&kind!=='none'&&S.snd) toggleRainSound(); if(kind!=='sym') symStop(); else { if(SN){ const o=SN; SN=null; o.g.gain.setTargetAtTime(0,c.currentTime,1.5); setTimeout(()=>o.nodes.forEach(x=>{ try{x.stop();}catch(_){} }),7000); } symStart(); return; }
