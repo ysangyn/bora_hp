@@ -295,7 +295,7 @@ body:has(#npBox.on) .hintline,body:has(.nowplaying.on) .hintline,body:has(#npR:n
 .cup i{position:absolute;inset:9px;border-radius:50%;background:radial-gradient(circle at 36% 30%,rgba(255,255,255,.5),transparent 26%),radial-gradient(circle at 50% 55%,var(--tc),color-mix(in srgb,var(--tc) 72%,#1a0f08) 92%);box-shadow:inset 0 3px 7px rgba(0,0,0,.35)}
 .cup b{position:absolute;left:38%;bottom:70%;width:22%;height:70%;border-radius:50%;background:radial-gradient(ellipse at 50% 80%,rgba(255,255,255,.34),transparent 68%);filter:blur(4px);opacity:0;animation:steam 4.6s ease-in infinite;pointer-events:none}.cup b+b{left:52%;animation-delay:2.1s}
 .tea-hd{display:flex;flex-direction:column;gap:3px;min-width:0}.tea-hd b{font-family:var(--f-serif);font-weight:300;font-size:27px;letter-spacing:.03em;line-height:1.25;word-break:keep-all}
-.tea-o{font-size:10.5px;letter-spacing:.2em;color:var(--faint)}.tea-k{font-size:11.5px;letter-spacing:.06em;color:var(--accent)}
+.tea-o{font-size:11.5px;letter-spacing:.2em;color:var(--faint)}.tea-k{font-size:11.5px;letter-spacing:.06em;color:var(--accent)}
 .tea-line{font-family:var(--f-serif)!important;font-size:16px!important;line-height:1.75!important;color:var(--ink)!important;letter-spacing:.02em}
 .tea-brew{display:flex;gap:26px;flex-wrap:wrap;padding:11px 0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);font-size:13.5px;color:var(--ink)}.tea-brew span{display:flex;flex-direction:column;gap:2px}.tea-brew small{font-size:10px;letter-spacing:.18em;color:var(--faint)}
 .tea dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:9px 16px;font-size:13px}.tea dt{color:var(--faint);white-space:nowrap;font-size:11.5px;letter-spacing:.08em;padding-top:2px}.tea dd{margin:0;color:var(--muted);word-break:keep-all;line-height:1.7}.tea dd.care{color:var(--accent)}
@@ -413,7 +413,7 @@ body.entered .hud{opacity:1;transform:none}
 .panel{overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}.panel>*{flex-shrink:0}
 .panel small{font-size:11.5px;color:var(--faint);line-height:1.7}
 .panel .st{display:flex;flex-direction:column;gap:2px;font-size:12.5px;color:var(--muted)}.panel .st b{font-family:var(--f-serif);font-weight:500;font-size:15px;color:var(--ink);letter-spacing:.04em}
-.panel input[type=range]{accent-color:var(--accent);width:100%;padding:0}
+.panel input[type=range]{accent-color:var(--accent);width:100%;padding:0;margin-left:0;margin-right:0;box-sizing:border-box}
 footer,.below{display:none}
 
 /* 입장 */
@@ -451,7 +451,7 @@ footer,.below{display:none}
 .skylight .hand{font-family:var(--f-serif);font-weight:300;font-size:15px;letter-spacing:.12em;color:var(--ink)}
 .skylight .back{min-height:44px;padding:10px 26px;border-radius:999px;border:1px solid var(--faint);font-size:12px;letter-spacing:.16em;margin-top:6px;transition:background .35s,color .35s}
 .skylight .back:hover{background:var(--ink);color:var(--on)}
-.skylight small{font-size:10.5px;color:var(--faint);letter-spacing:.08em}
+.skylight small{font-size:11.5px;color:var(--faint);letter-spacing:.08em}
 
 /* 필름 마감 */
 .grade{position:absolute;inset:0;z-index:7;pointer-events:none}
@@ -1420,7 +1420,7 @@ const P={
   mug:{t:'오늘의 자리',d:'오늘 기분에 맞춰 노래와 배경 소리를 골라드려요.',items:['비 오는 날','잠 안 오는 밤','그냥 멍하니','위로가 필요한 날']},
   guitar:{t:'비밀 서랍',d:'주인장만 열 수 있는 서랍이에요.',items:['데모 녹음 · 미완성 가사 · 혼자 보는 메모']}
 };
-let onLeave=null; function panelLeave(){ const f=onLeave; onLeave=null; if(f){ try{ f(); }catch(e){ console.warn(e); } } }
+let greetOff=false; let onLeave=null; function panelLeave(){ const f=onLeave; onLeave=null; if(f){ try{ f(); }catch(e){ console.warn(e); } } }
 function closePanel(){ panelLeave(); if(window.__undoDraft) window.__undoDraft(); panel.hidden=true; panel.style.transform=''; if(typeof closeZoom==='function') closeZoom(); }
 (()=>{ let y0=null,x0=0,dy=0,t0=0,drag=false;
   // 끌어내려 닫기는 맨 위 손잡이 줄(손잡이·제목·닫기)에서만. 내용 위에서는 언제나 스크롤이 먼저다.
@@ -1442,7 +1442,7 @@ function closePanel(){ panelLeave(); if(window.__undoDraft) window.__undoDraft()
     panel.scrollTop=ms-d; own=panel.scrollTop; },{passive:true});
   const mEnd=()=>{ my=null; man=false; }; panel.addEventListener('touchend',mEnd); panel.addEventListener('touchcancel',mEnd);
 })();
-function show(html){ panelLeave(); blip('paper'); panel.innerHTML='<i class="grab" aria-hidden="true"></i><button class="x" aria-label="닫기"><span>닫기</span></button>'+html; panel.style.transform=''; panel.hidden=false; panel.classList.remove('in'); void panel.offsetWidth; panel.classList.add('in'); panel.querySelector('.x').onclick=closePanel; }
+function show(html){ panelLeave(); greetOff=true; $('greet').classList.remove('show'); blip('paper'); panel.innerHTML='<i class="grab" aria-hidden="true"></i><button class="x" aria-label="닫기"><span>닫기</span></button>'+html; panel.style.transform=''; panel.hidden=false; panel.classList.remove('in'); void panel.offsetWidth; panel.classList.add('in'); panel.querySelector('.x').onclick=closePanel; }
 function openPanel(k){
   if(k==='books') return openBooks(); if(k==='mailbox') return openNote(); if(k==='drawer') return openDrawer(); if(k==='plant') return openPlant(); if(k==='focus') return openFocus(); if(k==='notes') return openSketch(); if(k==='guitar') return openSong();
   const p=P[k]; if(k==='records'){ show(`<h2>${p.t}</h2><p>어른아이의 노래들. 누르면 턴테이블에 올려요.</p><div class="rcbar"><span id="rcNow"></span>${MC}</div><ul>${TRACKS.map((t,i)=>`<li><button class="trk" data-i="${i}">${t.t}</button></li>`).join('')}</ul>`); document.querySelectorAll('.trk').forEach(b=>b.onclick=()=>{ songPlay(+b.dataset.i); }); wireMC('rc'); updRecords(); try{ moodUI(); }catch(e){} return; }
@@ -1807,7 +1807,7 @@ function drawSky(im){ const cv=$('skycv'); if(!cv||!im.naturalWidth) return; con
   const cx=(nw-s)/2+.262*s, cy=(nh-s)/2+.73*s, r=.232*s, px=Math.min(1200,Math.round(cv.clientWidth*(devicePixelRatio||1))||800);
   cv.width=cv.height=px; const g=cv.getContext('2d'); g.fillStyle='#05040B'; g.fillRect(0,0,px,px); g.drawImage(im,cx-r,cy-r,2*r,2*r,0,0,px,px); }
 function refreshSky(){ const img=$('skyimg'); img.onerror=()=>{ $('ring').classList.add('off'); $('skyoff').innerHTML='지금은 하늘 사진을 가져오지 못했어요.<br>잠시 뒤 다시 올려다봐 주세요.'; }; img.onload=()=>{ drawSky(img); if(hiNight()) $('ring').classList.remove('off'); }; img.src='https://software.cfht.hawaii.edu/webloop/nanaao.gif?t='+Date.now(); }
-function openSky(on){
+function openSky(on){ if(on){ greetOff=true; $('greet').classList.remove('show'); }
   $('skylight').classList.toggle('on',on);
   if(on){ const night=hiNight(), hi=new Intl.DateTimeFormat('ko-KR',{hour:'numeric',minute:'2-digit',timeZone:'Pacific/Honolulu'}).format(new Date());
     $('ring').classList.toggle('off',!night); $('skT').textContent=night?'지금 하와이 마우나케아의 밤하늘':'하와이는 지금 아침이에요';
@@ -2766,7 +2766,7 @@ function enter(withSound){
   setTimeout(()=>{ intro.hidden=true; },1700);
   setTimeout(lightsOn,reduce?0:1300);
   const g=$('greet'), h=$('hint'); h.textContent=fine?'물건 가까이 가면 이름이 보여요':'빛나는 점을 눌러 보세요';
-  setTimeout(()=>g.classList.add('show'),2600); setTimeout(()=>g.classList.remove('show'),8200);
+  setTimeout(()=>{ if(!greetOff) g.classList.add('show'); },2600); setTimeout(()=>g.classList.remove('show'),8200);
   setTimeout(()=>{ hintAll(); h.classList.add('show'); setTimeout(()=>h.classList.remove('show'),8000); },9200);
 }
 $('enterSnd').onclick=()=>enter(true); $('enterQuiet').onclick=()=>enter(false);

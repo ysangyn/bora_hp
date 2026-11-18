@@ -51,3 +51,6 @@
 .lb .tools button,.lb .tools a{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid rgba(239,232,244,.3);background:none;color:#EFE8F4;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;cursor:pointer}
 .lb .hint{font-size:12px;color:rgba(239,232,244,.55)}
 @media (prefers-reduced-motion:reduce){.lb .card,.pol{transition:none}}
+
+/* 누르기 영역 넓히기 */
+.ph-b h2 a{display:block;padding:8px 0;margin:-8px 0}

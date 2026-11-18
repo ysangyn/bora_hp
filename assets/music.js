@@ -20,6 +20,6 @@
   $$('[data-mshare]').forEach(b => b.addEventListener('click', async () => {
     const url = b.dataset.mshare, title = b.dataset.title || document.title;
     if (navigator.share) { try { await navigator.share({ title, url }); } catch (e) {} return; }
-    try { await navigator.clipboard.writeText(url); b.textContent = '링크를 복사했어요'; setTimeout(() => b.textContent = '나누기', 2000); } catch (e) { prompt('이 주소를 복사해 주세요', url); }
+    try { await navigator.clipboard.writeText(url); b.textContent = '링크를 복사했어요'; setTimeout(() => b.textContent = '나누기', 2000); } catch (e) { let i = b.parentNode.querySelector('.shareurl'); if (!i) { i = document.createElement('input'); i.className = 'shareurl'; i.readOnly = true; i.setAttribute('aria-label', '이 페이지 주소'); i.style.cssText = 'flex-basis:100%;width:100%;min-height:44px;padding:0 14px;border:1px solid var(--line);border-radius:12px;background:none;color:inherit;font:inherit;font-size:14px'; b.parentNode.appendChild(i); } i.value = url; i.focus(); i.select(); b.textContent = '아래 주소를 복사해 주세요'; setTimeout(() => b.textContent = '나누기', 4000); }
   }));
 })();

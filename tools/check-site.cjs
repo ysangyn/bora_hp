@@ -36,6 +36,9 @@ const SEV = { '겹침': 1, '가로 넘침': 1, '열기 실패': 1, '화면 밖':
 
 (async () => { const b = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] }); const R = {};
   for (const [tag, opt] of [['휴대폰', { ...devices['Galaxy S9+'] }], ['데스크톱', { viewport: { width: 1366, height: 820 } }]]) { const ctx = await b.newContext(opt);
+    // 로그인 문(gate.js) 안쪽을 보기 위해 주인 계정을 흉내 낸다. 읽기는 저장소 파일 그대로, 쓰기는 하지 않는다.
+    await ctx.route('**/assets/fbstore.js', r => r.fulfill({ contentType: 'text/javascript', body: `const U={uid:'check',email:'check@example.com'};export async function currentUser(){return U}export async function signIn(){return U}export async function signOut(){}export async function canWrite(){return true}export async function getText(p){const r=await fetch('/'+p);return r.ok?r.text():null}export async function getJSON(p,d){try{const r=await fetch('/'+p);return r.ok?await r.json():d}catch(e){return d}}export async function commit(){return {ok:true}}export async function waiting(){return []}export async function vaultKey(){return null}export async function vaultKeySet(){}export async function isAdmin(){return true}export async function rulesHaveAdmin(){return true}export async function isOwner(){return true}export function rulesFor(){return ''}export default {};` }));
+    await ctx.addInitScript(() => { try { localStorage.setItem('bora_gate', JSON.stringify({ u: 'check', t: Date.now() })); } catch (e) {} });
     const open = async (key, url) => { const p = await ctx.newPage(); const r = R[key] = { 오류: [], 없는파일: [], 화면: [] };
       p.on('pageerror', e => r.오류.push(e.message.slice(0, 160))); p.on('response', x => { const u = x.url(); if (u.startsWith(BASE) && x.status() >= 400) r.없는파일.push(x.status() + ' ' + u.slice(BASE.length)); });
       await p.goto(BASE + url); await p.waitForTimeout(2800); return [p, r]; };
