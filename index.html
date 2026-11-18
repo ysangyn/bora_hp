@@ -268,6 +268,21 @@ body:has(#npBox.on) .hintline,body:has(.nowplaying.on) .hintline,body:has(#npR:n
 .tlog{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.tlog button{width:16px;height:16px;border-radius:50%;box-shadow:0 0 0 1px rgba(255,255,255,.28)}.tlog span{margin-left:8px;font-size:12px;color:var(--muted)}
 #fcPill[hidden]{display:none}#fcPill{font-variant-numeric:tabular-nums;letter-spacing:.08em}#fcPill.brk{color:#bfe0b6}.fcbig{font:300 clamp(44px,13vw,72px)/1 var(--serif,serif);text-align:center;font-variant-numeric:tabular-nums;margin:14px 0 4px;color:var(--ink)}.fcst{text-align:center;display:block;margin-bottom:12px}.fcdots{display:flex;gap:8px;justify-content:center;margin:0 0 14px}.fcdots i{width:9px;height:9px;border-radius:50%;border:1px solid var(--accent);opacity:.7}.fcdots i.on{background:var(--accent);opacity:1}
 .panel .cred li{display:block;line-height:1.6;font-size:13.5px;padding:11px 0}.panel .cred li::before{content:none}.cred small{display:block;opacity:.7;margin-top:3px;font-size:12px}.lnk{background:none;border:0;padding:0;color:inherit;text-decoration:underline;font:inherit;cursor:pointer}
+.wnm{position:absolute;z-index:5;left:49.75%;top:54%;width:3.74%;aspect-ratio:60/44;transform:translate(-50%,-50%);padding:0;border:0;background:none;cursor:pointer;min-width:30px}
+.wnm>svg{display:block;width:100%;height:100%}.wnm>svg:first-child{filter:brightness(.8) saturate(.85)}.isday .wnm>svg:first-child{filter:brightness(1.3) saturate(.7)}
+.wnm .wisps{position:absolute;left:24%;bottom:62%;width:56%;overflow:visible;fill:none;stroke:#e8e2f6;stroke-width:1;stroke-linecap:round;pointer-events:none}
+.wnm .wisps path{opacity:0}.wnm.on .wisps path{animation:wnmW 3.6s ease-in-out infinite}.wnm.on .wisps path:nth-child(2){animation-delay:1.2s}.wnm.on .wisps path:nth-child(3){animation-delay:2.4s}
+@keyframes wnmW{0%{opacity:0;transform:translateY(4px)}40%{opacity:.5}100%{opacity:0;transform:translateY(-10px)}}
+.wnm:focus-visible{outline:1px solid var(--accent);outline-offset:4px;border-radius:6px}
+.beyond{position:fixed;z-index:12;right:max(16px,env(safe-area-inset-right,0px));bottom:110px;display:flex;flex-direction:column;align-items:flex-end;gap:8px}.beyond[hidden]{display:none}
+.beyond>small{font-size:11px;font-weight:300;letter-spacing:.32em;color:rgba(243,238,248,.62);text-shadow:0 1px 10px rgba(0,0,0,.85)}
+.beyond .bi{display:flex;gap:14px}
+.beyond button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:0;border:0;background:none;color:var(--ink);font:inherit;cursor:pointer}
+.beyond .ring{display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;border:1px solid rgba(205,185,242,.55);background:rgba(10,7,16,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:byB 4.2s ease-in-out infinite}
+.beyond .ring svg{width:24px;height:24px;fill:none;stroke:#F3EEF8;stroke-width:1.2;stroke-linecap:round}
+.beyond .nm{font-size:11.5px;font-weight:300;color:rgba(243,238,248,.86);text-shadow:0 1px 10px rgba(0,0,0,.85)}
+@keyframes byB{0%,100%{box-shadow:0 0 10px 1px rgba(205,185,242,.18)}50%{box-shadow:0 0 0 4px rgba(205,185,242,.10),0 0 16px 3px rgba(205,185,242,.30)}}
+@media (prefers-reduced-motion:reduce){.beyond .ring,.wnm.on .wisps path{animation:none}.wnm.on .wisps path{opacity:.35}}
 .snd.mixb{padding:6px 14px;border:1px solid var(--hair);border-radius:999px;letter-spacing:.14em;color:var(--ink);background:rgba(13,10,19,.35);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .mxbar{display:flex;height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.06);gap:2px}.mxbar i{display:block;min-width:6px;transition:flex .5s var(--ease)}.mxbar i.none{flex:1;background:transparent}
 .mxr{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1.6fr) 34px;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--hair)}#mxRows{display:flex;flex-direction:column}#mxRows .mxr:last-child{border-bottom:1px solid var(--hair)}
@@ -878,6 +893,7 @@ body.hasnote .hs[data-p="mailbox"]{display:block!important}
   <img class="room" id="roomimg" src="img/b_room_on.webp?v=20261114" alt="문을 열고 들여다본 작은 음악방. 책상과 창, 기타와 레코드장, 스탠드 옆 안락의자">
   <img class="room off" id="roomoff" src="img/b_room_off.webp?v=20261114" alt="">
   <img class="room day" id="roomday" alt="">
+  <button class="wnm" id="wnm" type="button" aria-label="책상 위 백색소음기 · 소리 섞기에서 켜고 끄기"><svg viewBox="0 0 60 44" aria-hidden="true"><defs><linearGradient id="wnB" x1="0" x2="1"><stop offset="0" stop-color="#7f7c9c"/><stop offset=".35" stop-color="#9895b4"/><stop offset=".7" stop-color="#6b6788"/><stop offset="1" stop-color="#3f3b57"/></linearGradient><linearGradient id="wnT" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#b9b6d3"/><stop offset="1" stop-color="#8a87a6"/></linearGradient></defs><ellipse cx="30" cy="41" rx="27" ry="3" fill="#05030a" opacity=".55"/><path d="M5 16L5 37A25 5 0 0 0 55 37L55 16Z" fill="url(#wnB)"/><path d="M5 16L5 24A25 5 0 0 0 55 24L55 16Z" fill="#5d5a78" opacity=".55"/><g stroke="#1a1626" stroke-width="1.6" stroke-linecap="round" opacity=".85"><path d="M10 19.5v4.5M15 20.3v4.7M20 20.8v4.8M25 21v5M30 21.1v5M35 21v5M40 20.8v4.8M45 20.3v4.7M50 19.5v4.5"/></g><ellipse cx="30" cy="16" rx="25" ry="5" fill="url(#wnT)"/><ellipse cx="30" cy="16" rx="9" ry="1.8" fill="#6a6786" opacity=".7"/><path d="M8 13.8A25 5 0 0 1 30 11" stroke="#d9d6f0" stroke-width=".8" fill="none" opacity=".6"/></svg><svg class="wisps" viewBox="0 0 34 26" aria-hidden="true"><path d="M8 22c-2-4 2-6 0-10"/><path d="M17 22c-2-5 3-7 0-12"/><path d="M26 22c-2-4 2-6 0-10"/></svg></button>
   <canvas class="room" id="roomgl" aria-hidden="true"></canvas>
   <div class="record pl" data-z=".95" aria-hidden="true"><i></i></div>
   <div class="steam pl" data-z=".95" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -921,6 +937,7 @@ body.hasnote .hs[data-p="mailbox"]{display:block!important}
   <button class="hs pl" data-z="0.75" style="left:28%;top:10.5%;--w:6%" data-a="proj"><span class="lb" id="lbProj">프로젝터</span></button>
   <canvas class="fx" id="fx" aria-hidden="true"></canvas>
  </div></div>
+ <div class="beyond" id="beyond" hidden><small>벽 너머</small><div class="bi" id="beyondI"></div></div>
  <div class="remote" id="remote" hidden>
    <button class="rmix" id="rmMix" type="button">소리 섞기</button>
    <button class="rtog" id="rmTog" aria-label="리모컨 열기"><i></i><i></i><i></i></button>
@@ -1471,7 +1488,7 @@ S.shuf=LS.get('shuf',false);
 function rmMode(){ return (typeof PJ!=='undefined'&&PJ)?'proj':S.radio?'radio':(S.playing||songEl.src&&!songEl.ended&&songEl.currentTime>0)?'song':null; }
 let rmHide=0, rmPausedSong=false;
 function rmShow(){ const r=$('remote'); clearTimeout(rmHide); if(r.classList.contains('open')) rmHide=setTimeout(()=>r.classList.remove('open'),7000); }
-const SNNAME={sym:'보라다방 심포니',pink:'핑크 노이즈',brown:'브라운 노이즈',wave:'숨 고르기 바람',fan:'화장실 환풍기',dohm:'팬 소리'};
+const SNNAME={sym:'보라다방 심포니',pink:'핑크 노이즈',brown:'브라운 노이즈',wave:'숨 고르기 바람',fan:'화장실 환풍기',dohm:'백색소음기'};
 function sleepKind(){ return (typeof SYM!=='undefined'&&SYM)?'sym':(typeof SN!=='undefined'&&SN)?SN.kind:null; }
 function rmUpdate(){ const m=rmMode(), r=$('remote'), sk=sleepKind(); const sl=$('rmSl'); sl.hidden=!sk; if(sk) $('rmSlT').textContent='잠드는 소리 · '+SNNAME[sk]+(m?(sk==='sym'?' (비·주전자만)':' (작게)'):'');
   if(!m&&sk){ if(r.hidden) r.hidden=false; r.dataset.m='sleep'; $('rmT').textContent='잠드는 소리 · '+SNNAME[sk]; r.classList.remove('paused'); return; }
@@ -2093,7 +2110,7 @@ function openFocus(re){ if(!re) blip('paper');
 setTimeout(()=>{ const pl=$('fcPill'); if(pl) pl.onclick=()=>openFocus(); fcUI(); },0); setInterval(fcTick,1000); document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ fcTick(); if(loadWeather.fail&&S.place) loadWeather(); } });   // 날씨를 못 가져온 채였으면 화면을 다시 열 때 한 번 더
 setInterval(almTick,1000); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) almTick(); });
 /* ---------- 소리 섞기: 방 안의 소리를 재료 삼아 나만의 자리를 만든다 ---------- */
-const MIXI=[['rain','빗소리','#8fb3d9','창가에 내리는 비'],['out','창밖','#9fc79a','창을 열면 들어오는 거리와 밤'],['boil','주전자','#e0b070','낮게 끓는 물'],['noise','숨 고르기','#c9b4ee','바람·노이즈·환풍기·팬'],['sym','심포니','#f2c88f','느리게 이어지는 통기타'],['tick','시계','#d8c9a8','2초에 한 번, 느린 괘종 소리']];
+const MIXI=[['rain','빗소리','#8fb3d9','창가에 내리는 비'],['out','창밖','#9fc79a','창을 열면 들어오는 거리와 밤'],['boil','주전자','#e0b070','낮게 끓는 물'],['noise','숨 고르기','#c9b4ee','바람·노이즈·환풍기·백색소음기'],['sym','심포니','#f2c88f','느리게 이어지는 통기타'],['tick','시계','#d8c9a8','2초에 한 번, 느린 괘종 소리']];
 const MIXP=[{n:'비 오는 창가',v:{rain:1.1,out:0,boil:0,noise:0,sym:0}},{n:'주전자 끓는 밤',v:{rain:.6,out:0,boil:1,noise:0,sym:0}},{n:'열어 둔 창',v:{rain:.5,out:1.1,boil:0,noise:0,sym:0}},{n:'바람과 기타',v:{rain:0,out:0,boil:.4,noise:.8,sym:.9}},{n:'고요',v:{rain:0,out:0,boil:0,noise:.7,sym:0}}];
 /* 시계: 2초에 한 번 낮고 둥근 '똑'. 잠들기 타이머가 돌면 저절로 잦아든다 */
 let TK=null;
@@ -2138,7 +2155,7 @@ function openMix(){ blip('paper');
   show(`<h2>소리 섞기</h2><p>방 안의 소리를 재료처럼 섞어 오늘 밤의 자리를 만들어요. 작게, 냉장고 소리쯤이 알맞아요.</p>
    <div class="row"><button class="ok" id="mxAuto">지금에 맞게 알아서</button>${signedIn()?'<button class="chip" id="mxSupp" type="button">소리 한 방울</button>':''}</div>
    <div class="mxbar" id="mxBar" aria-hidden="true"></div><small id="mxSum"></small>
-   <div id="mxRows">${MIXI.map(([k,n,c,d])=>`<label class="mxr"><span class="mxn"><i style="background:${c}"></i>${n}<small>${d}</small></span><input type="range" data-mx="${k}" min="0" max="1.5" step="0.05" aria-label="${n} 세기"><b data-mxv="${k}"></b></label>${k==='noise'?'<div class="chips" id="mxNz"><button class="chip" data-nz="wave">바람</button><button class="chip" data-nz="pink">핑크 노이즈</button><button class="chip" data-nz="brown">브라운 노이즈</button><button class="chip" data-nz="fan">환풍기</button><button class="chip" data-nz="dohm">팬</button><label id="mxFanT" hidden>깊게<input type="range" id="mxFan" min="0" max="1" step="0.05" aria-label="팬 소리 음색">밝게</label></div>':''}`).join('')}</div>
+   <div id="mxRows">${MIXI.map(([k,n,c,d])=>`<label class="mxr"><span class="mxn"><i style="background:${c}"></i>${n}<small>${d}</small></span><input type="range" data-mx="${k}" min="0" max="1.5" step="0.05" aria-label="${n} 세기"><b data-mxv="${k}"></b></label>${k==='noise'?'<div class="chips" id="mxNz"><button class="chip" data-nz="wave">바람</button><button class="chip" data-nz="pink">핑크 노이즈</button><button class="chip" data-nz="brown">브라운 노이즈</button><button class="chip" data-nz="fan">환풍기</button><button class="chip" data-nz="dohm">백색소음기</button><label id="mxFanT" hidden>깊게<input type="range" id="mxFan" min="0" max="1" step="0.05" aria-label="음색">밝게</label></div>':''}`).join('')}</div>
    <label class="mxr"><span class="mxn"><i style="background:#8a7fa8"></i>소리 빛깔<small>왼쪽은 어둡고 포근하게, 오른쪽은 밝고 또렷하게</small></span><input type="range" id="mxTone" min="0" max="1" step="0.02" aria-label="소리 빛깔"><b></b></label>
    <label class="sl">바로 섞어 보기</label><div class="chips">${MIXP.map((p,i)=>`<button class="chip" data-mp="${i}">${p.n}</button>`).join('')}<button class="chip" data-mp="-1">모두 끄기</button></div>
    <label class="sl">나만의 자리</label><div class="chips" id="mxSaved"></div>
@@ -2156,7 +2173,7 @@ function openMix(){ blip('paper');
   $('mxShare').onclick=async e=>{ e.stopPropagation(); const u=mixLink(); try{ await navigator.clipboard.writeText(u); roomSay('링크를 복사했어요 · 받는 사람의 방에 같은 소리가 담겨요'); }catch(_){ $('mxName').removeAttribute('maxlength'); $('mxName').value=u; $('mxName').select(); roomSay('링크를 이름 칸에 적어 두었어요 · 길게 눌러 복사해 주세요'); } };
   $('mxCred').onclick=e=>{ e.stopPropagation(); openCredits(); };
   $('mxSleep').onclick=()=>openSleep(); $('mxWays').onclick=e=>{ e.stopPropagation(); openWays(); }; mixUI(); }
-$('bMix').addEventListener('click',e=>{ e.stopPropagation(); openMix(); }); $('rmMix').addEventListener('click',e=>{ e.stopPropagation(); openMix(); });
+$('bMix').addEventListener('click',e=>{ e.stopPropagation(); openMix(); }); $('wnm').addEventListener('click',e=>{ e.stopPropagation(); mixTo('dohm'); }); $('rmMix').addEventListener('click',e=>{ e.stopPropagation(); openMix(); });
 /* ---------- 세계의 잠 청하는 법: 오늘 밤의 방법 하나, 양 세기, 낱말 띄우기 ---------- */
 // 효능을 말하지 않고 '이 나라에서는 이렇게 해요'로만 소개한다. go=이 방에서 이어지는 것
 const WAYS=[
@@ -2239,7 +2256,7 @@ function sleepSound(kind){ const c=actx(); if(!c) return; if(!AU.on) setAudio(tr
   const g=c.createGain(); g.gain.value=0; g.connect(AU.out); const nodes=[];
   if(kind==='fan'||kind==='dohm'){ const nb=kind==='fan'?.145:.13, h={w:null,stop(){ try{ this.w&&this.w.disconnect(); }catch(_){} }}; nodes.push(h); SN={g,nodes,kind,base:nb};
     fanNode(c,kind).then(w=>{ h.w=w; if(!SN||SN.g!==g) return h.stop(); SN.w=w; w.connect(g); g.gain.setTargetAtTime(nb*MX.noise,c.currentTime,2.5); })
-      .catch(()=>{ if(SN&&SN.g===g){ roomSay('이 기기에서는 환풍기·팬 소리를 낼 수 없어서 핑크 노이즈로 바꿨어요'); sleepSound('pink'); } });
+      .catch(()=>{ if(SN&&SN.g===g){ roomSay('이 기기에서는 환풍기·백색소음기 소리를 낼 수 없어서 핑크 노이즈로 바꿨어요'); sleepSound('pink'); } });
     upSleepSnd(); return; }
   const src=c.createBufferSource(); src.buffer=mkNoise(c,kind==='brown'?'brown':'pink',12); src.loop=true; nodes.push(src);
   const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=kind==='brown'?420:kind==='wave'?900:2400; lp.Q.value=.3;
@@ -2310,7 +2327,16 @@ function symTickTock(t,k,f){ if(window.__busy) return; const c=SYM.c, n=c.create
 function symBubble(t){ const c=SYM.c, o=c.createOscillator(), g=c.createGain(), f0=320+Math.random()*520; o.frequency.setValueAtTime(f0,t); o.frequency.exponentialRampToValueAtTime(f0*1.8,t+.04); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(window.__wopen?.012:.022,t+.004); g.gain.exponentialRampToValueAtTime(.0001,t+.06); o.connect(g).connect(SYM.bus); o.start(t); o.stop(t+.08); }   // 주전자 기포는 박자 사이에
 function symWind(t){ if(Math.random()>.45||(Date.now()-SYM.started)<40000) return; const c=SYM.c, n=c.createBufferSource(); n.buffer=mkNoise(c,'pink',5); const bp=c.createBiquadFilter(); bp.type='bandpass'; bp.Q.value=.8; bp.frequency.setValueAtTime(300,t); bp.frequency.linearRampToValueAtTime(800,t+2.5); bp.frequency.linearRampToValueAtTime(350,t+5);
   const g=c.createGain(); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.06,t+2.2); g.gain.linearRampToValueAtTime(0,t+5); n.connect(bp).connect(g).connect(SYM.out); n.start(t); n.stop(t+5.1); }   // 코드가 바뀔 때 바람이 한 번 스친다
-function upSleepSnd(){ document.querySelectorAll('[data-sn]').forEach(b=>b.setAttribute('aria-pressed',(SYM?'sym':SN?SN.kind:'none')===b.dataset.sn)); }
+function upSleepSnd(){ document.querySelectorAll('[data-sn]').forEach(b=>b.setAttribute('aria-pressed',(SYM?'sym':SN?SN.kind:'none')===b.dataset.sn)); upBeyond(); }
+// 방 안 물건(책상 위 백색소음기)은 켜지면 바람결이 오르고, 방 그림 밖의 소리는 켜진 동안만 '벽 너머'에 나타난다
+const BEYOND={fan:['화장실 환풍기','<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.2"/><path d="M7 8.2h10M7 10.8h10M7 13.4h10M7 16h10"/></svg>']};
+function upBeyond(){ const k=SN&&SN.kind, w=$('wnm'); if(w) w.classList.toggle('on',k==='dohm');
+  const b=$('beyond'), i=$('beyondI'); if(!b||!i) return; const on=Object.keys(BEYOND).filter(x=>x===k);
+  b.hidden=!on.length; placeBeyond(); i.innerHTML=on.map(x=>`<button type="button" data-by="${x}" aria-label="${BEYOND[x][0]} 소리 켜짐 · 소리 섞기 열기"><span class="ring">${BEYOND[x][1]}</span><span class="nm">${BEYOND[x][0]}</span></button>`).join('');
+  i.querySelectorAll('[data-by]').forEach(x=>x.onclick=()=>mixTo(x.dataset.by)); }
+function placeBeyond(){ const b=$('beyond'); if(!b||b.hidden) return; const rm=$('remote'), a=(rm&&!rm.hidden)?rm:$('bMix'); if(!a) return; const r=a.getBoundingClientRect(); if(!r.height) return; b.style.bottom=Math.max(96,Math.round(innerHeight-r.top+12))+'px'; }
+addEventListener('resize',placeBeyond); { const rm=$('remote'); if(rm) new MutationObserver(placeBeyond).observe(rm,{attributes:true,attributeFilter:['hidden','class']}); }
+function mixTo(k){ openMix(); setTimeout(()=>{ const r=$('mxNz'), c=r&&r.querySelector(`[data-nz="${k}"]`); if(!r) return; r.scrollIntoView({block:'center',behavior:'smooth'}); if(c){ c.animate([{boxShadow:'0 0 0 0 rgba(205,185,242,0)'},{boxShadow:'0 0 0 6px rgba(205,185,242,.35)'},{boxShadow:'0 0 0 0 rgba(205,185,242,0)'}],{duration:1400,iterations:2}); } },60); }
 function sleepStart(min){ SL={t0:Date.now(),dur:min*60000}; clearInterval(sleepStart.iv); sleepStart.iv=setInterval(sleepTick,1000); sleepTick(); closePanel(); }
 function sleepStop(restore){ clearInterval(sleepStart.iv); SL=null; window.SLP=0; if(restore){ slVol(1); $('sleepDim').style.opacity=0; } humSet(); const l=document.querySelector('[data-a="sleep"] .lb'); if(l) l.textContent='잠들기'; }
 function sleepEnd(){ sleepStop(false); if(SN) sleepSound('none'); symStop(); if(S.playing) songStop(); if(S.radio) radioOff(); if(typeof PJ!=='undefined'&&PJ) projOff(); if(KT) toggleKettle(); if(S.snd) toggleRainSound(); if(S.lamp) toggleLamp();
@@ -2326,7 +2352,7 @@ function openSleep(){ if(SL){ show(`<h2>잠들기</h2><p>${Math.max(1,Math.ceil(
   show(`<h2>잠들기</h2><p>안락의자에 기대면, 스탠드 불빛과 방 안의 소리가 함께 아주 천천히 줄어들다 꺼져요. 잠드는 소리를 고르는 동안엔 듣던 노래·라디오·영상이 잠깐 멈춰요. 심포니는 기타 반주가 있어서 고르면 노래·라디오는 꺼진 채로 두고, 노이즈·바람이나 ‘지금 소리 그대로’를 고르면 이 창을 닫을 때 듣던 것이 다시 이어져요.</p>
    <div class="way mini" id="slWay"><small>오늘 밤의 방법 하나 · ${escH(wayToday().land)}</small><b>${escH(wayToday().t)}</b></div>
    <label class="sl">잠드는 소리</label>
-   <div class="row"><button class="chip" data-sn="sym">보라다방 심포니</button><button class="chip" data-sn="pink">핑크 노이즈</button><button class="chip" data-sn="brown">브라운 노이즈</button><button class="chip" data-sn="wave">숨 고르기 바람</button><button class="chip" data-sn="fan">화장실 환풍기</button><button class="chip" data-sn="dohm">팬 소리</button><button class="chip" data-sn="none">지금 소리 그대로</button></div>
+   <div class="row"><button class="chip" data-sn="sym">보라다방 심포니</button><button class="chip" data-sn="pink">핑크 노이즈</button><button class="chip" data-sn="brown">브라운 노이즈</button><button class="chip" data-sn="wave">숨 고르기 바람</button><button class="chip" data-sn="fan">화장실 환풍기</button><button class="chip" data-sn="dohm">백색소음기</button><button class="chip" data-sn="none">지금 소리 그대로</button></div>
    <small>심포니는 끄는 시간을 정하지 않으면 계속 이어져요. 통기타가 아주 느리게 끝없이 새로 연주하고, 시계 초침·주전자 기포·바람·빗소리가 그 박자에 맞춰 들어와요. 같은 소절이 되풀이되지 않고, 시간이 갈수록 음이 성글어져요. 핑크 노이즈은 낮은 소리 쪽이 두꺼워 백색 소음보다 부드럽게 들려요. 브라운 노이즈은 더 낮고 묵직하고, 숨 고르기 바람은 10초에 한 번 불어왔다 잦아들어서 1분에 여섯 번, 느린 숨의 빠르기예요. 소리는 작게, 냉장고 소리쯤이 알맞아요.</small>
    <label class="sl">창문</label>
    <div class="row"><button class="chip" data-wo="0">닫아 두기 · 비가 유리를 두드리는 소리</button><button class="chip" data-wo="1">열어 두기 · 바깥 소리까지</button></div>
