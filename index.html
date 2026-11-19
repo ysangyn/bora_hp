@@ -1247,7 +1247,7 @@ let shownView=null;
 [stage,win,scene].forEach(el=>el.addEventListener('scroll',()=>{ el.scrollTop=0; el.scrollLeft=0; }));
 function applyWindow(){ if(window.__draft) return;
   const w=S.w, v=cityView();
-  const PV=S.visit?svOf(S.place):null, pin=PV&&PV.pin;
+  const PV=(S.visit||(!v&&nPin(S.place)))?svOf(S.place):null, pin=PV&&PV.pin;   // 사진이 있는 곳이면 '방문' 표시가 꺼져 있어도 그림 대신 사진(나만의 자리 되돌리기 등에서 꺼지던 것)
   const street=GSV && !pin && !!S.key && (S.visit || (w&&w.isDay&&!v)), night=!!(w&&w.isDay===false);
   win.classList.toggle('night',street&&night);
   if(pin){ sv.hidden=true; sv.removeAttribute('src'); win.classList.remove('street'); WG.ovl=0; WG.ngT=night?1:0; const src=pinSrc(pin);
