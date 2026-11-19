@@ -215,6 +215,7 @@ img.room.off{opacity:0;transition:opacity 1.2s}.lampoff img.room.off{opacity:1}
 .stage.isday.lampoff:not(.gl) .glow{opacity:0}
 
 /* 찻잔·시계·소리 섞기 패널 */
+.panel .nowsnd{align-items:center;gap:10px;flex-wrap:wrap}.panel .nowsnd>span{flex:1 1 12em;min-width:0;color:var(--ink,#efe6d8);opacity:.9;font-size:14px}
 /* 리모컨이 떠 있으면 '소리 섞기'는 리모컨 위로 올라가 한 묶음이 된다(겹치지 않게) */
 body:has(#remote:not([hidden])) #bMix{display:none}
 .remote .rmix{height:34px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(20,12,26,.42);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);color:#f1eaf5;font-size:11.5px;letter-spacing:.14em;margin-bottom:4px}
@@ -893,7 +894,7 @@ body.hasnote .hs[data-p="mailbox"]{display:block!important}
   <img class="room" id="roomimg" src="img/b_room_on.webp?v=20261114" alt="문을 열고 들여다본 작은 음악방. 책상과 창, 기타와 레코드장, 스탠드 옆 안락의자">
   <img class="room off" id="roomoff" src="img/b_room_off.webp?v=20261114" alt="">
   <img class="room day" id="roomday" alt="">
-  <button class="wnm" id="wnm" type="button" aria-label="책상 위 백색소음기 · 소리 섞기에서 켜고 끄기"><svg viewBox="0 0 60 44" aria-hidden="true"><defs><linearGradient id="wnB" x1="0" x2="1"><stop offset="0" stop-color="#7f7c9c"/><stop offset=".35" stop-color="#9895b4"/><stop offset=".7" stop-color="#6b6788"/><stop offset="1" stop-color="#3f3b57"/></linearGradient><linearGradient id="wnT" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#b9b6d3"/><stop offset="1" stop-color="#8a87a6"/></linearGradient></defs><ellipse cx="30" cy="41" rx="27" ry="3" fill="#05030a" opacity=".55"/><path d="M5 16L5 37A25 5 0 0 0 55 37L55 16Z" fill="url(#wnB)"/><path d="M5 16L5 24A25 5 0 0 0 55 24L55 16Z" fill="#5d5a78" opacity=".55"/><g stroke="#1a1626" stroke-width="1.6" stroke-linecap="round" opacity=".85"><path d="M10 19.5v4.5M15 20.3v4.7M20 20.8v4.8M25 21v5M30 21.1v5M35 21v5M40 20.8v4.8M45 20.3v4.7M50 19.5v4.5"/></g><ellipse cx="30" cy="16" rx="25" ry="5" fill="url(#wnT)"/><ellipse cx="30" cy="16" rx="9" ry="1.8" fill="#6a6786" opacity=".7"/><path d="M8 13.8A25 5 0 0 1 30 11" stroke="#d9d6f0" stroke-width=".8" fill="none" opacity=".6"/></svg><svg class="wisps" viewBox="0 0 34 26" aria-hidden="true"><path d="M8 22c-2-4 2-6 0-10"/><path d="M17 22c-2-5 3-7 0-12"/><path d="M26 22c-2-4 2-6 0-10"/></svg></button>
+  <button class="wnm" id="wnm" type="button" aria-label="백색소음기 켜고 끄기 · 길게 누르면 소리 섞기"><svg viewBox="0 0 60 44" aria-hidden="true"><defs><linearGradient id="wnB" x1="0" x2="1"><stop offset="0" stop-color="#7f7c9c"/><stop offset=".35" stop-color="#9895b4"/><stop offset=".7" stop-color="#6b6788"/><stop offset="1" stop-color="#3f3b57"/></linearGradient><linearGradient id="wnT" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#b9b6d3"/><stop offset="1" stop-color="#8a87a6"/></linearGradient></defs><ellipse cx="30" cy="41" rx="27" ry="3" fill="#05030a" opacity=".55"/><path d="M5 16L5 37A25 5 0 0 0 55 37L55 16Z" fill="url(#wnB)"/><path d="M5 16L5 24A25 5 0 0 0 55 24L55 16Z" fill="#5d5a78" opacity=".55"/><g stroke="#1a1626" stroke-width="1.6" stroke-linecap="round" opacity=".85"><path d="M10 19.5v4.5M15 20.3v4.7M20 20.8v4.8M25 21v5M30 21.1v5M35 21v5M40 20.8v4.8M45 20.3v4.7M50 19.5v4.5"/></g><ellipse cx="30" cy="16" rx="25" ry="5" fill="url(#wnT)"/><ellipse cx="30" cy="16" rx="9" ry="1.8" fill="#6a6786" opacity=".7"/><path d="M8 13.8A25 5 0 0 1 30 11" stroke="#d9d6f0" stroke-width=".8" fill="none" opacity=".6"/></svg><svg class="wisps" viewBox="0 0 34 26" aria-hidden="true"><path d="M8 22c-2-4 2-6 0-10"/><path d="M17 22c-2-5 3-7 0-12"/><path d="M26 22c-2-4 2-6 0-10"/></svg></button>
   <canvas class="room" id="roomgl" aria-hidden="true"></canvas>
   <div class="record pl" data-z=".95" aria-hidden="true"><i></i></div>
   <div class="steam pl" data-z=".95" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -2094,20 +2095,20 @@ function openFocus(re){ if(!re) blip('paper');
      <small>방 안의 소리는 그대로 흘러요. 집중이 끝나면 종이 세 번, 쉬는 시간이 끝나면 두 번 울려요. 화면이 꺼지면 종이 늦게 울릴 수 있어요.</small>`);
     $('fcPause').onclick=e=>{ e.stopPropagation(); if(FC.pause!=null){ FC.at=Date.now()+FC.pause; FC.pause=null; } else FC.pause=Math.max(0,FC.at-Date.now()); fcSave(); openFocus(true); };
     $('fcSkip').onclick=e=>{ e.stopPropagation(); fcNext(); if(FC) openFocus(true); else closePanel(); }; $('fcEnd').onclick=()=>{ fcStop('집중 모드를 마쳤어요'); closePanel(); }; $('fcMix').onclick=e=>{ e.stopPropagation(); openMix(); }; fcUI(); return; }
-  const st=LS.get('focusSet',{p:0,n:4,s:'keep'}), was={snd:!!S.snd,sl:sleepKind()||'none',tick:!!TK};      // '지금 소리 그대로'로 되돌릴 때 쓸 처음 상태
+  const st=Object.assign(LS.get('focusSet',{p:0,n:4}),{s:'keep'}), was={snd:!!S.snd,sl:sleepKind()||'none',tick:!!TK};      // '지금 소리 그대로'로 되돌릴 때 쓸 처음 상태
   const hear=s=>{ if(s==='rain'){ if(sleepKind()) sleepSound('none'); tickSet(false); rainLv(0); if(!S.snd) toggleRainSound(); }
     else if(s==='brown'){ if(S.snd) toggleRainSound(); tickSet(false); sleepSound('brown'); }
     else if(s==='none'){ if(S.snd) toggleRainSound(); if(sleepKind()) sleepSound('none'); tickSet(false); }
     else if(s==='tick'){ if(S.snd) toggleRainSound(); if(sleepKind()) sleepSound('none'); tickSet(true); }
     else { if(S.snd!==was.snd) toggleRainSound(); if((sleepKind()||'none')!==was.sl) sleepSound(was.sl); tickSet(was.tick); } };
-  show(`<h2>집중 모드</h2><p>공부하거나 일할 때, 시간을 나눠 집중하고 쉬어요. 방의 소리는 곁에 낮게 깔아 둘게요.</p>
+  show(`<h2>집중 모드</h2><p>공부하거나 일할 때, 시간을 나눠 집중하고 쉬어요. 소리는 지금 흐르는 그대로 곁에 둘게요.</p>
    <label class="sl">집중과 쉼</label><div class="chips" id="fcP">${FCP.map(([f,b],i)=>`<button class="chip" data-fp="${i}">${f}분 집중 · ${b}분 쉼</button>`).join('')}</div>
    <label class="sl">몇 번 할까요</label><div class="chips" id="fcN">${[1,2,3,4,6].map(n=>`<button class="chip" data-fn="${n}">${n}번</button>`).join('')}</div>
-   <label class="sl">곁에 둘 소리</label><div class="chips" id="fcS"><button class="chip" data-fs="keep">지금 소리 그대로</button><button class="chip" data-fs="rain">부슬비</button><button class="chip" data-fs="brown">브라운 노이즈</button><button class="chip" data-fs="tick">시계 소리</button><button class="chip" data-fs="none">조용히</button></div><small>눌러 보면 바로 들려요. 마음에 드는 소리에서 시작하기를 누르세요.</small>
+   ${nowSoundUI()}
    <div class="row"><button class="ok" id="fcGo">시작하기</button></div><small id="fcSum"></small>`);
   const up=()=>{ document.querySelectorAll('[data-fp]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.fp===st.p)); document.querySelectorAll('[data-fn]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.fn===st.n)); document.querySelectorAll('[data-fs]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.fs===st.s));
     const [f,b]=FCP[st.p], tot=f*st.n+b*(st.n-1); $('fcSum').textContent=`모두 ${tot>=60?Math.floor(tot/60)+'시간 '+(tot%60?tot%60+'분':''):tot+'분'}쯤 걸려요. 노래와 라디오는 틀어 둔 그대로예요.`; LS.set('focusSet',st); };
-  document.querySelectorAll('[data-fp]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); st.p=+b.dataset.fp; up(); }); document.querySelectorAll('[data-fn]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); st.n=+b.dataset.fn; up(); }); document.querySelectorAll('[data-fs]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); st.s=b.dataset.fs; if(!AU.on) setAudio(true); hear(st.s); up(); });   // 눌러 보면 바로 들린다
+  document.querySelectorAll('[data-fp]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); st.p=+b.dataset.fp; up(); }); document.querySelectorAll('[data-fn]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); st.n=+b.dataset.fn; up(); }); wireNowSound();
   $('fcGo').onclick=e=>{ e.stopPropagation(); const [f,b]=FCP[st.p]; hear(st.s); fcStart(f,b,st.n); openFocus(true); }; up(); }
 setTimeout(()=>{ const pl=$('fcPill'); if(pl) pl.onclick=()=>openFocus(); fcUI(); },0); setInterval(fcTick,1000); document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ fcTick(); if(loadWeather.fail&&S.place) loadWeather(); } });   // 날씨를 못 가져온 채였으면 화면을 다시 열 때 한 번 더
 setInterval(almTick,1000); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) almTick(); });
@@ -2132,6 +2133,11 @@ function mixSet(k,v,quiet){ const c=actx(); if(!c) return; if(!AU.on) setAudio(t
   else if(k==='tick'){ tickSet(on); }
   ambUpdate(); if(!quiet) mixUI(); }
 function mixApply(v){ if(v.l!=null) rainLv(v.l); if(v.e!=null){ toneSet(v.e); const t=$('mxTone'); if(t) t.value=v.e; } MIXI.forEach(([k])=>mixSet(k,v[k]||0,true)); setTimeout(mixUI,150); }
+const NZN={wave:'바람',pink:'핑크 노이즈',brown:'브라운 노이즈',fan:'화장실 환풍기',dohm:'백색소음기'};
+function mixLine(){ const now=mixNow(), on=MIXI.filter(([k])=>now[k]>0).map(([k,n])=>k==='noise'&&SN?(NZN[SN.kind]||n):n); return on.length?on.join(' · '):''; }
+// 잠들기·집중에서는 소리를 고르지 않는다. 지금 섞인 소리를 보여 주고, 바꾸기는 소리 섞기 한 곳에서.
+function nowSoundUI(){ const l=mixLine(); return `<label class="sl">지금 흐르는 소리</label><div class="row nowsnd"><span>${l?escH(l):'아직 아무 소리도 없어요'}</span><button class="chip" data-gomix type="button">${l?'소리 섞기에서 바꾸기':'소리 섞기에서 고르기'}</button></div>`; }
+function wireNowSound(){ document.querySelectorAll('[data-gomix]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); openMix(); }); }
 function mixUI(){ const box=$('mxRows'); if(!box) return; const now=mixNow(), tot=MIXI.reduce((a,[k])=>a+now[k],0);
   $('mxBar').innerHTML=tot>0?MIXI.filter(([k])=>now[k]>0).map(([k,n,c])=>`<i style="flex:${now[k].toFixed(2)};background:${c}" title="${n}"></i>`).join(''):'<i class="none"></i>';
   $('mxSum').textContent=tot>0?MIXI.filter(([k])=>now[k]>0).map(([k,n])=>`${n} ${Math.round(now[k]/tot*100)}`).join(' · '):'아직 아무 소리도 넣지 않았어요';
@@ -2155,7 +2161,7 @@ function openCredits(){ blip('paper');
   $('crBack').onclick=e=>{ e.stopPropagation(); openMix(); }; }
 function openMix(){ blip('paper');
   show(`<h2>소리 섞기</h2><p>방 안의 소리를 재료처럼 섞어 오늘 밤의 자리를 만들어요. 작게, 냉장고 소리쯤이 알맞아요.</p>
-   <div class="row"><button class="ok" id="mxAuto">지금에 맞게 알아서</button>${signedIn()?'<button class="chip" id="mxSupp" type="button">소리 한 방울</button>':''}</div>
+   <div class="row"><button class="ok" id="mxAuto">지금에 맞게 알아서</button></div>
    <div class="mxbar" id="mxBar" aria-hidden="true"></div><small id="mxSum"></small>
    <div id="mxRows">${MIXI.map(([k,n,c,d])=>`<label class="mxr"><span class="mxn"><i style="background:${c}"></i>${n}<small>${d}</small></span><input type="range" data-mx="${k}" min="0" max="1.5" step="0.05" aria-label="${n} 세기"><b data-mxv="${k}"></b></label>${k==='noise'?'<div class="chips" id="mxNz"><button class="chip" data-nz="wave">바람</button><button class="chip" data-nz="pink">핑크 노이즈</button><button class="chip" data-nz="brown">브라운 노이즈</button><button class="chip" data-nz="fan">환풍기</button><button class="chip" data-nz="dohm">백색소음기</button><label id="mxFanT" hidden>깊게<input type="range" id="mxFan" min="0" max="1" step="0.05" aria-label="음색">밝게</label></div>':''}`).join('')}</div>
    <label class="mxr"><span class="mxn"><i style="background:#8a7fa8"></i>소리 빛깔<small>왼쪽은 어둡고 포근하게, 오른쪽은 밝고 또렷하게</small></span><input type="range" id="mxTone" min="0" max="1" step="0.02" aria-label="소리 빛깔"><b></b></label>
@@ -2171,11 +2177,16 @@ function openMix(){ blip('paper');
   document.querySelectorAll('[data-nz]').forEach(b=>b.onclick=()=>{ LS.set('mixNoise',b.dataset.nz); sleepSound(b.dataset.nz); setTimeout(()=>{ if(SN) SN.g.gain.setTargetAtTime(SN.base*MX.noise,AU.ctx.currentTime,.4); mixUI(); },80); });
   document.querySelectorAll('[data-mp]').forEach(b=>b.onclick=()=>{ const i=+b.dataset.mp; mixApply(i<0?{}:MIXP[i].v); });
   $('mxSave').onclick=()=>{ const n=$('mxName').value.trim()||'나의 자리', a=LS.get('mixSaved',[]).filter(p=>p.n!==n); a.unshift({n,v:mixNow()}); LS.set('mixSaved',a.slice(0,6)); $('mxName').value=''; mixUI(); roomSay(`‘${n}’ 자리를 간직했어요`); };
-  $('mxAuto').onclick=e=>{ e.stopPropagation(); mixAuto(); }; if($('mxSupp')) $('mxSupp').onclick=e=>{ e.stopPropagation(); openSupp(); }; $('mxTone').value=LS.get('tone',.7); $('mxTone').oninput=e=>{ if(!AU.on) setAudio(true); toneSet(+e.target.value); };
+  $('mxAuto').onclick=e=>{ e.stopPropagation(); mixAuto(); }; $('mxTone').value=LS.get('tone',.7); $('mxTone').oninput=e=>{ if(!AU.on) setAudio(true); toneSet(+e.target.value); };
   $('mxShare').onclick=async e=>{ e.stopPropagation(); const u=mixLink(); try{ await navigator.clipboard.writeText(u); roomSay('링크를 복사했어요 · 받는 사람의 방에 같은 소리가 담겨요'); }catch(_){ $('mxName').removeAttribute('maxlength'); $('mxName').value=u; $('mxName').select(); roomSay('링크를 이름 칸에 적어 두었어요 · 길게 눌러 복사해 주세요'); } };
   $('mxCred').onclick=e=>{ e.stopPropagation(); openCredits(); };
   $('mxSleep').onclick=()=>openSleep(); $('mxWays').onclick=e=>{ e.stopPropagation(); openWays(); }; mixUI(); }
-$('bMix').addEventListener('click',e=>{ e.stopPropagation(); openMix(); }); $('wnm').addEventListener('click',e=>{ e.stopPropagation(); mixTo('dohm'); }); $('rmMix').addEventListener('click',e=>{ e.stopPropagation(); openMix(); });
+$('bMix').addEventListener('click',e=>{ e.stopPropagation(); openMix(); }); { const w=$('wnm'); let lt=0, long=false, eatClick=0;
+  // 휴대폰에서는 소리 섞기 창이 아래에서 올라와 백색소음기를 덮는다 → 손을 떼면 '바깥 클릭'이 되어 방금 연 창이 닫히던 것. 길게 누른 직후의 클릭 한 번은 삼킨다
+  addEventListener('click',e=>{ if(eatClick&&performance.now()<eatClick){ eatClick=0; long=false; e.stopPropagation(); e.preventDefault(); } },true);
+  w.addEventListener('pointerdown',()=>{ long=false; clearTimeout(lt); lt=setTimeout(()=>{ long=true; eatClick=performance.now()+900; mixTo('dohm'); },550); }); ['pointerup','pointerleave','pointercancel'].forEach(t=>w.addEventListener(t,()=>clearTimeout(lt)));
+  w.addEventListener('contextmenu',e=>e.preventDefault());
+  w.addEventListener('click',e=>{ e.stopPropagation(); if(long){ long=false; return; } wnmToggle(); }); } $('rmMix').addEventListener('click',e=>{ e.stopPropagation(); openMix(); });
 /* ---------- 세계의 잠 청하는 법: 오늘 밤의 방법 하나, 양 세기, 낱말 띄우기 ---------- */
 // 효능을 말하지 않고 '이 나라에서는 이렇게 해요'로만 소개한다. go=이 방에서 이어지는 것
 const WAYS=[
@@ -2338,6 +2349,11 @@ function upBeyond(){ const k=SN&&SN.kind, w=$('wnm'); if(w) w.classList.toggle('
   i.querySelectorAll('[data-by]').forEach(x=>x.onclick=()=>mixTo(x.dataset.by)); }
 function placeBeyond(){ const b=$('beyond'); if(!b||b.hidden) return; const rm=$('remote'), a=(rm&&!rm.hidden)?rm:$('bMix'); if(!a) return; const r=a.getBoundingClientRect(); if(!r.height) return; b.style.bottom=Math.max(96,Math.round(innerHeight-r.top+12))+'px'; }
 addEventListener('resize',placeBeyond); { const rm=$('remote'); if(rm) new MutationObserver(placeBeyond).observe(rm,{attributes:true,attributeFilter:['hidden','class']}); }
+// 백색소음기 단추: 켜고 끄는 스위치. 다른 숨 고르기 소리가 켜져 있으면 백색소음기로 바꾼다. 소리 고르기·세기는 소리 섞기에서.
+function wnmToggle(){ if(!AU.on) setAudio(true); LS.set('mixNoise','dohm');
+  if(SN&&SN.kind==='dohm'){ mixSet('noise',0); roomSay('백색소음기를 껐어요'); }
+  else { if(SN) sleepSound('dohm'); else mixSet('noise',MX.noise>.05?MX.noise:.7,true); setTimeout(()=>{ if(SN&&AU.ctx) SN.g.gain.setTargetAtTime(SN.base*MX.noise,AU.ctx.currentTime,.4); },80); roomSay('백색소음기를 켰어요 · 길게 누르면 소리 섞기'); }
+  ambUpdate(); upBeyond(); }
 function mixTo(k){ openMix(); setTimeout(()=>{ const r=$('mxNz'), c=r&&r.querySelector(`[data-nz="${k}"]`); if(!r) return; r.scrollIntoView({block:'center',behavior:'smooth'}); if(c){ c.animate([{boxShadow:'0 0 0 0 rgba(205,185,242,0)'},{boxShadow:'0 0 0 6px rgba(205,185,242,.35)'},{boxShadow:'0 0 0 0 rgba(205,185,242,0)'}],{duration:1400,iterations:2}); } },60); }
 function sleepStart(min){ SL={t0:Date.now(),dur:min*60000}; clearInterval(sleepStart.iv); sleepStart.iv=setInterval(sleepTick,1000); sleepTick(); closePanel(); }
 function sleepStop(restore){ clearInterval(sleepStart.iv); SL=null; window.SLP=0; if(restore){ slVol(1); $('sleepDim').style.opacity=0; } humSet(); const l=document.querySelector('[data-a="sleep"] .lb'); if(l) l.textContent='잠들기'; }
@@ -2351,19 +2367,14 @@ function wireDim(){ document.querySelectorAll('.dmr').forEach(el=>el.oninput=()=
     document.querySelectorAll(`.dmr[data-k="${el.dataset.k}"]`).forEach(x=>{ if(x!==el) x.value=el.value; }); document.querySelectorAll(`.dmv[data-k="${el.dataset.k}"]`).forEach(x=>x.textContent=Math.round(DIM[el.dataset.k]*100)+'%');
     if(el.dataset.k==='lamp'&&!S.lamp&&DIM.lamp>.35) toggleLamp(); }); }
 function openSleep(){ if(SL){ show(`<h2>잠들기</h2><p>${Math.max(1,Math.ceil((SL.dur-(Date.now()-SL.t0))/60000))}분 뒤에 불빛과 소리가 다 꺼져요.</p><div class="row"><button class="ok" id="slX">그만두기</button></div>`); $('slX').onclick=()=>{ sleepStop(true); closePanel(); }; return; }
-  show(`<h2>잠들기</h2><p>안락의자에 기대면, 스탠드 불빛과 방 안의 소리가 함께 아주 천천히 줄어들다 꺼져요. 잠드는 소리를 고르는 동안엔 듣던 노래·라디오·영상이 잠깐 멈춰요. 심포니는 기타 반주가 있어서 고르면 노래·라디오는 꺼진 채로 두고, 노이즈·바람이나 ‘지금 소리 그대로’를 고르면 이 창을 닫을 때 듣던 것이 다시 이어져요.</p>
+  show(`<h2>잠들기</h2><p>안락의자에 기대면, 스탠드 불빛과 지금 흐르는 소리가 함께 아주 천천히 줄어들다 꺼져요.</p>
    <div class="way mini" id="slWay"><small>오늘 밤의 방법 하나 · ${escH(wayToday().land)}</small><b>${escH(wayToday().t)}</b></div>
-   <label class="sl">잠드는 소리</label>
-   <div class="row"><button class="chip" data-sn="sym">보라다방 심포니</button><button class="chip" data-sn="pink">핑크 노이즈</button><button class="chip" data-sn="brown">브라운 노이즈</button><button class="chip" data-sn="wave">숨 고르기 바람</button><button class="chip" data-sn="fan">화장실 환풍기</button><button class="chip" data-sn="dohm">백색소음기</button><button class="chip" data-sn="none">지금 소리 그대로</button></div>
-   <small>심포니는 끄는 시간을 정하지 않으면 계속 이어져요. 통기타가 아주 느리게 끝없이 새로 연주하고, 시계 초침·주전자 기포·바람·빗소리가 그 박자에 맞춰 들어와요. 같은 소절이 되풀이되지 않고, 시간이 갈수록 음이 성글어져요. 핑크 노이즈은 낮은 소리 쪽이 두꺼워 백색 소음보다 부드럽게 들려요. 브라운 노이즈은 더 낮고 묵직하고, 숨 고르기 바람은 10초에 한 번 불어왔다 잦아들어서 1분에 여섯 번, 느린 숨의 빠르기예요. 소리는 작게, 냉장고 소리쯤이 알맞아요.</small>
-   <label class="sl">창문</label>
-   <div class="row"><button class="chip" data-wo="0">닫아 두기 · 비가 유리를 두드리는 소리</button><button class="chip" data-wo="1">열어 두기 · 바깥 소리까지</button></div>
+   ${nowSoundUI()}
    ${dimUI()}
    <label class="sl">얼마 뒤에 꺼질까요</label>
    <div class="row"><button class="chip" data-m="15">15분</button><button class="chip" data-m="30">30분</button><button class="chip" data-m="60">1시간</button><button class="chip" data-m="0">끄지 않고 계속</button></div>`);
   $('slWay').onclick=e=>{ e.stopPropagation(); openWays(); };
-  window.__slPanel=true; SLK=SYM?'sym':null; onLeave=()=>{ window.__slPanel=false; if(SLK==='sym'||SYM) HOLD=null; else resumeMusic(); };
-  document.querySelectorAll('[data-sn]').forEach(b=>b.onclick=()=>sleepSound(b.dataset.sn)); upSleepSnd(); document.querySelectorAll('[data-wo]').forEach(b=>b.onclick=()=>{ if((b.dataset.wo==='1')!==AMB.open) toggleWindow(); }); upWin();
+  wireNowSound();
   wireDim(); document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{ if(!AU.on) setAudio(true); if(+b.dataset.m) sleepStart(+b.dataset.m); else { sleepStop(true); closePanel(); } }); }
 (()=>{ const mb=document.querySelector('[data-p="mug"]'); if(mb){ mb.removeAttribute('data-p'); mb.dataset.a='kettle'; const l=mb.querySelector('.lb'); if(l) l.textContent='차 한 잔'; }
   const ab=document.querySelector('[data-p="phone"]'); if(ab){ ab.removeAttribute('data-p'); ab.dataset.a='sleep'; const l=ab.querySelector('.lb'); if(l) l.textContent='잠들기'; }
