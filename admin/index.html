@@ -148,6 +148,15 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--lamp)!im
 .savebar{left:50%;right:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);transform:translateX(-50%);width:min(560px,calc(100% - 28px));border:1px solid color-mix(in srgb,var(--ink) 12%,transparent);border-radius:999px;padding:8px 8px 8px 22px;box-shadow:0 20px 50px -20px rgba(0,0,0,.7)}
 .busy{-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .toast{border-radius:999px!important}
+/* 올리기 막대가 떠 있을 때: 알림은 막대 위로, 마지막 칸이 막대에 가리지 않게 */
+body:has(#saveBar:not([hidden])) .toast{bottom:calc(env(safe-area-inset-bottom,0px) + 96px)}
+.savebar .row{flex-wrap:nowrap;flex:none}
+.savebar #saveT{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:520px){.savebar{border-radius:20px;padding:8px 8px 8px 16px}.savebar #saveT{font-size:12.5px}.savebar .btn.sm{padding:0 12px}}
+body:has(#saveBar:not([hidden])) #app{padding-bottom:120px}
+/* 위에 붙는 탭 줄: 뒤로 지나가는 글이 비치지 않게 */
+.tabs{background:linear-gradient(var(--bg) 78%,transparent)!important}
+.tabs::before{background:color-mix(in srgb,var(--surf) 94%,transparent)!important}
 @media (prefers-reduced-motion:reduce){.hcard,.btn,.tabs button{transition:none}}
 /* 밝은 화면(기본): 깨끗한 흰 종이에 은은한 불빛 */
 :root[data-theme=paper]{--bg:#f7f5f2;--surf:#ffffff;--ink:#1f1a24;--mut:#6f6878;--line:rgba(31,26,36,.1);--lamp:#b5741f;--acc:#6a4fa3}

@@ -1532,9 +1532,11 @@ function openPlant(){ blip('paper'); const mine=!SN||SN.kind!=='wave';
   $('brGo').onclick=()=>run(true); $('brQ').onclick=()=>run(false);
   onLeave=()=>{ clearInterval(iv); const was=window.__slPanel; window.__slPanel=false; if(was&&mine&&SN&&SN.kind==='wave'){ sleepSound('none'); resumeMusic(); } else if(was){ HOLD=null; } }; }
 function ripSound(){ const c=actx(); if(!c||!AU.on) return; const t=c.currentTime; [0,.09,.2].forEach((d,i)=>{ const s=c.createBufferSource(); s.buffer=noise(.35,false); const f=c.createBiquadFilter(); f.type='bandpass'; f.Q.value=.7; f.frequency.setValueAtTime(2600-i*500,t+d); f.frequency.exponentialRampToValueAtTime(900,t+d+.3); const g=c.createGain(); g.gain.setValueAtTime(.0001,t+d); g.gain.exponentialRampToValueAtTime(.08,t+d+.02); g.gain.exponentialRampToValueAtTime(.0001,t+d+.3); s.connect(f).connect(g).connect(AU.out); s.start(t+d); s.stop(t+d+.36); }); }
+// 맡긴 다음 날 아침 6시가 지나면 돌려줄 때(새벽 6시 전에 맡겼으면 그날 6시)
+function worryDue(k){ if(!k||!k.at) return false; const d=new Date(k.at); if(d.getHours()>=6) d.setDate(d.getDate()+1); d.setHours(6,0,0,0); return Date.now()>=d.getTime(); }
 function openDrawer(){
   const kept=LS.get('worry',null);
-  if(kept){ show(`<h2>걱정 맡기기</h2><p>서랍에 넣어둔 한 줄이 있어요. 내일 아침에 꺼내드릴게요.</p><button class="ok" id="wOut">지금 꺼내기</button>`);
+  if(kept){ const due=worryDue(kept); show(due?`<h2>걱정 맡기기</h2><p>아침이 지났어요. 어젯밤 서랍에 맡긴 한 줄을 돌려드릴게요.</p><button class="ok" id="wOut">꺼내 보기</button>`:`<h2>걱정 맡기기</h2><p>서랍에 넣어둔 한 줄이 있어요. 내일 아침에 꺼내드릴게요.</p><button class="ok" id="wOut">지금 꺼내기</button>`);
     $('wOut').onclick=()=>{ LS.del('worry'); penFont(); const tx=kept.v.replace(/</g,'&lt;');
       show(`<h2>어제의 걱정</h2><div class="wnote" id="wNote"><span class="wh a"><b>${tx}</b></span><span class="wh b"><b>${tx}</b></span></div><p id="wAsk">오늘은 어때요? 다 읽었으면 찢어 버려도 돼요.</p><div class="row" id="wBtns"><button class="ok" id="wRip">찢어 버리기</button><button class="chip" id="wKeep">하루 더 맡겨 두기</button></div>`);
       $('wRip').onclick=()=>{ ripSound(); $('wNote').classList.add('rip'); $('wBtns').hidden=true; setTimeout(()=>{ const n=$('wNote'); if(n) n.remove(); const a=$('wAsk'); if(a) a.textContent='사라졌어요. 오늘 밤은 조금 가볍게.'; },1500); };
@@ -2768,6 +2770,7 @@ function enter(withSound){
   const g=$('greet'), h=$('hint'); h.textContent=fine?'물건 가까이 가면 이름이 보여요':'빛나는 점을 눌러 보세요';
   setTimeout(()=>{ if(!greetOff) g.classList.add('show'); },2600); setTimeout(()=>g.classList.remove('show'),8200);
   setTimeout(()=>{ hintAll(); h.classList.add('show'); setTimeout(()=>h.classList.remove('show'),8000); },9200);
+  setTimeout(()=>{ try{ if(worryDue(LS.get('worry',null))){ roomSay('서랍에 어젯밤 맡긴 걱정이 있어요. 책상 서랍을 눌러 보세요'); const w=document.querySelector('.hs[data-p=drawer] .lb'); if(w) w.textContent='맡긴 걱정 돌려받기'; } }catch(e){} },10500);
 }
 $('enterSnd').onclick=()=>enter(true); $('enterQuiet').onclick=()=>enter(false);
 $('bSnd').onclick=()=>{ const on=!AU.on; setAudio(on); if(on&&!S.snd) toggleRainSound(); };
