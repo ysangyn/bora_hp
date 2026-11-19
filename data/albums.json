@@ -6,11 +6,11 @@
   "t": "B TL B TL",
   "date": "2006-11-27",
   "cover": "",
-  "intro": "",
-  "story": "",
+  "intro": "세 사람이 밴드로 시작하며 낸 첫 정규 앨범. 파스텔뮤직에서 2006년 11월에 나왔어요.",
+  "story": "비틀비틀 걷는 걸음처럼, 잘 서 있지 못하는 날들의 노래를 모았어요. 이 가운데 「Make Up」, 「Sad Thing」, 「Star」는 이듬해 드라마 「커피프린스 1호점」(2007)에 실렸어요.",
   "links": {},
   "credits": "파스텔뮤직",
-  "hide": true,
+  "hide": false,
   "draft": true,
   "tracks": [
    {
@@ -29,7 +29,7 @@
     "lyr": "",
     "story": "",
     "mv": "",
-    "credit": ""
+    "credit": "드라마 「커피프린스 1호점」 삽입곡"
    },
    {
     "id": "b03",
@@ -47,7 +47,7 @@
     "lyr": "",
     "story": "",
     "mv": "",
-    "credit": ""
+    "credit": "드라마 「커피프린스 1호점」 삽입곡"
    },
    {
     "id": "b05",
@@ -65,7 +65,7 @@
     "lyr": "",
     "story": "",
     "mv": "",
-    "credit": ""
+    "credit": "드라마 「커피프린스 1호점」 삽입곡"
    },
    {
     "id": "b07",
@@ -112,7 +112,8 @@
     "mv": "",
     "credit": ""
    }
-  ]
+  ],
+  "sample": true
  },
  {
   "id": "dandelion",
@@ -121,11 +122,11 @@
   "t": "Dandelion",
   "date": "2009-05-27",
   "cover": "",
-  "intro": "",
-  "story": "",
+  "intro": "혼자가 되어 처음 낸 두 번째 정규 앨범. 2009년 5월에 나왔어요.",
+  "story": "첫 앨범 뒤 밴드의 두 사람이 떠나고, 이름은 그대로 둔 채 혼자 노래를 이어 갔어요. 「Annabel Lee」가 앨범의 문을 열어요.",
   "links": {},
   "credits": "",
-  "hide": true,
+  "hide": false,
   "draft": true,
   "tracks": [
    {
@@ -227,7 +228,8 @@
     "mv": "",
     "credit": ""
    }
-  ]
+  ],
+  "sample": true
  },
  {
   "id": "todak",
@@ -236,13 +238,13 @@
   "t": "토닥토닥",
   "date": "2020-02-03",
   "cover": "",
-  "intro": "",
-  "story": "",
+  "intro": "2020년 2월에 나온 열 곡짜리 음반.",
+  "story": "「띵똥」부터 「토닥토닥 (Remastered)」까지, 작은 것들에게 건네는 노래 열 곡이 담겼어요.",
   "links": {
    "melon": "https://www.melon.com/album/detail.htm?albumId=10381824"
   },
   "credits": "프로듀스·작사·작곡·편곡 어른아이 (「내 보석은 너」·「토닥토닥」 기타 편곡 박성진)\n프로그래밍·신시사이저 어른아이\n믹스 고현정, 정기운 · 마스터링 황병준\n커버 디자인 배유정 · 사진·디자인 어른아이\n발매 NHN벅스 · 기획 애프터눈레코드",
-  "hide": true,
+  "hide": false,
   "draft": true,
   "tracks": [
    {
@@ -335,6 +337,7 @@
     "mv": "",
     "credit": "기타 편곡 박성진"
    }
-  ]
+  ],
+  "sample": true
  }
 ]

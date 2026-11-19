@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-  <url><loc>https://bora-hp.web.app/photos/</loc></url>
-
+  <url><loc>https://bora-hp.web.app/photos/</loc><lastmod>2026-11-13</lastmod></url>
+  <url><loc>https://bora-hp.web.app/photos/2026-11-13/</loc><lastmod>2026-11-13</lastmod><image:image><image:loc>https://bora-hp.web.app/img/brooklyn_d.webp</image:loc></image:image><image:image><image:loc>https://bora-hp.web.app/img/brooklyn_n.webp</image:loc></image:image></url>
+  <url><loc>https://bora-hp.web.app/photos/2026-11-11/</loc><lastmod>2026-11-11</lastmod><image:image><image:loc>https://bora-hp.web.app/img/paris_d.webp</image:loc></image:image><image:image><image:loc>https://bora-hp.web.app/img/paris_n.webp</image:loc></image:image></url>
+  <url><loc>https://bora-hp.web.app/photos/2026-11-08/</loc><lastmod>2026-11-08</lastmod><image:image><image:loc>https://bora-hp.web.app/img/kyoto_d.webp</image:loc></image:image><image:image><image:loc>https://bora-hp.web.app/img/kyoto_n.webp</image:loc></image:image></url>
+  <url><loc>https://bora-hp.web.app/photos/2026-11-05/</loc><lastmod>2026-11-05</lastmod><image:image><image:loc>https://bora-hp.web.app/img/busan_d.webp</image:loc></image:image><image:image><image:loc>https://bora-hp.web.app/img/busan_n.webp</image:loc></image:image></url>
+  <url><loc>https://bora-hp.web.app/photos/2026-11-02/</loc><lastmod>2026-11-02</lastmod><image:image><image:loc>https://bora-hp.web.app/img/jeju_d.webp</image:loc></image:image><image:image><image:loc>https://bora-hp.web.app/img/jeju_n.webp</image:loc></image:image></url>
 </urlset>

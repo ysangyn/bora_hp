@@ -1,1 +1,132 @@
-[]
+[
+ {
+  "id": "s-ph-jeju",
+  "slug": "2026-11-02",
+  "title": "창밖의 제주",
+  "cat": "day",
+  "date": "2026-11-02",
+  "place": "제주",
+  "caption": "다방 창밖으로 본 제주의 낮과 밤 (예시 그림)",
+  "items": [
+   {
+    "src": "img/jeju_d.webp",
+    "w": 1800,
+    "h": 1200,
+    "alt": "제주 낮 풍경 그림",
+    "memo": "낮"
+   },
+   {
+    "src": "img/jeju_n.webp",
+    "w": 1800,
+    "h": 1200,
+    "alt": "제주 밤 풍경 그림",
+    "memo": "밤"
+   }
+  ],
+  "sample": true
+ },
+ {
+  "id": "s-ph-busan",
+  "slug": "2026-11-05",
+  "title": "창밖의 부산",
+  "cat": "day",
+  "date": "2026-11-05",
+  "place": "부산",
+  "caption": "다방 창밖으로 본 부산의 낮과 밤 (예시 그림)",
+  "items": [
+   {
+    "src": "img/busan_d.webp",
+    "w": 1800,
+    "h": 1200,
+    "alt": "부산 낮 풍경 그림",
+    "memo": "낮"
+   },
+   {
+    "src": "img/busan_n.webp",
+    "w": 1800,
+    "h": 1200,
+    "alt": "부산 밤 풍경 그림",
+    "memo": "밤"
+   }
+  ],
+  "sample": true
+ },
+ {
+  "id": "s-ph-kyoto",
+  "slug": "2026-11-08",
+  "title": "창밖의 교토",
+  "cat": "day",
+  "date": "2026-11-08",
+  "place": "교토",
+  "caption": "다방 창밖으로 본 교토의 낮과 밤 (예시 그림)",
+  "items": [
+   {
+    "src": "img/kyoto_d.webp",
+    "w": 1800,
+    "h": 1200,
+    "alt": "교토 낮 풍경 그림",
+    "memo": "낮"
+   },
+   {
+    "src": "img/kyoto_n.webp",
+    "w": 1800,
+    "h": 1200,
+    "alt": "교토 밤 풍경 그림",
+    "memo": "밤"
+   }
+  ],
+  "sample": true
+ },
+ {
+  "id": "s-ph-paris",
+  "slug": "2026-11-11",
+  "title": "창밖의 파리",
+  "cat": "day",
+  "date": "2026-11-11",
+  "place": "파리",
+  "caption": "다방 창밖으로 본 파리의 낮과 밤 (예시 그림)",
+  "items": [
+   {
+    "src": "img/paris_d.webp",
+    "w": 1800,
+    "h": 1200,
+    "alt": "파리 낮 풍경 그림",
+    "memo": "낮"
+   },
+   {
+    "src": "img/paris_n.webp",
+    "w": 1800,
+    "h": 1200,
+    "alt": "파리 밤 풍경 그림",
+    "memo": "밤"
+   }
+  ],
+  "sample": true
+ },
+ {
+  "id": "s-ph-brooklyn",
+  "slug": "2026-11-13",
+  "title": "창밖의 브루클린",
+  "cat": "day",
+  "date": "2026-11-13",
+  "place": "브루클린",
+  "caption": "다방 창밖으로 본 브루클린의 낮과 밤 (예시 그림)",
+  "items": [
+   {
+    "src": "img/brooklyn_d.webp",
+    "w": 1800,
+    "h": 1200,
+    "alt": "브루클린 낮 풍경 그림",
+    "memo": "낮"
+   },
+   {
+    "src": "img/brooklyn_n.webp",
+    "w": 1800,
+    "h": 1200,
+    "alt": "브루클린 밤 풍경 그림",
+    "memo": "밤"
+   }
+  ],
+  "sample": true
+ }
+]
