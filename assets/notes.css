@@ -128,3 +128,6 @@ button{font:inherit;color:inherit}
 /* 누르기 영역 넓히기(보이는 모양은 그대로) */
 .kicker a,.foot a{display:inline-block;padding:13px 2px;margin:-13px 0}
 .bar .logo{padding:14px 0;margin:-14px 0}
+
+/* 바닥글 링크(보라다방·RSS) 누르는 자리 넓히기 */
+.foot a{display:inline-block;padding:12px 6px;margin:-12px -6px}

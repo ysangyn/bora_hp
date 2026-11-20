@@ -381,6 +381,8 @@ body.entered .hud{opacity:1;transform:none}
 .hud .right{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
 .nowplaying{font-family:var(--f-serif);font-size:13px;letter-spacing:.07em;max-height:0;opacity:0;overflow:hidden;transition:opacity .8s,max-height .8s;text-shadow:0 1px 12px rgba(0,0,0,.85);pointer-events:none;text-align:right}
 .playing .nowplaying:not(.radio),.onair .nowplaying.radio{opacity:1;max-height:2em}
+/* 소리 켬·끔, 소리 섞기: 모양은 그대로 두고 누르는 자리만 44px 높이로 넓힘 */
+#bSnd,#bMix,#rmMix{position:relative}#bSnd::before,#bMix::before,#rmMix::before{content:'';position:absolute;left:-6px;right:-6px;top:50%;height:44px;transform:translateY(-50%)}
 .snd{white-space:nowrap;display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.22em;color:var(--muted);padding:8px 0 0;text-shadow:0 1px 12px rgba(0,0,0,.85);transition:color .3s}
 .snd:hover,.snd[aria-pressed="true"]{color:var(--ink)}
 .eq{display:flex;align-items:flex-end;gap:2px;height:12px}
