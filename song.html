@@ -626,7 +626,7 @@ function humPlan(song){ if(song._hp) return song._hp; const lyr=song.secs.map((s
   const harm=[]; song.notes.forEach(n=>{ if(n.inst||n.echo||n.again||!top.has(n.sec)||n.type==='outro') return; if(!(n.end||n.len>=1.5)) return; const b=song.bars[Math.max(0,Math.min(song.bars.length-1,Math.floor(n.abs/8)))], tones=(b.ch2&&((n.abs%8)+8)%8>=4?b.ch2:b.ch).tones; let m=0;
     for(let d=3;d<=5;d++) if(tones.includes((n.m+d)%12)){ m=n.m+d; break; } if(!m||m>72) return; harm.push(Object.assign({},n,{m,anchor:false,em:false,quiet:true,wordEnd:true,harm:true})); });
   return (song._hp={isHum,harm}); }
-const HUM_REV=.5, HUM_RICH=0;
+const HUM_REV=.5, HUM_RICH=0, HUM_ART=.16;   // HUM_ART: 글자마다 '음' 하고 다시 짚는 세기(0=이어 부르기)
 function humTrack(song,sro,from,to,R,PRE,NS){ let V=BUF.bora.map(prepVoice).sort((p,q)=>p.m-q.m); if(!V.length) return null; { const k=window.__humRich??HUM_RICH; if(k>0&&V.length>k) V=V.slice(0,k); }
   const rel=s=>song.time(s)-song.time(from)+PRE, N=(NS||song.notes).filter(n=>!n.inst&&n.abs>=from&&n.abs<to).map(n=>Object.assign({},n)); if(!N.length) return null;
   // 허밍은 글자를 발음하지 못하니, 빠르게 지나가는 글자마다 음을 바꾸면 꺾는 소리(멜리스마)처럼 들린다.
@@ -641,7 +641,7 @@ function humTrack(song,sro,from,to,R,PRE,NS){ let V=BUF.bora.map(prepVoice).sort
   groups.forEach(g=>{ const ns=g.notes, lag=.006+R()*.018, ts=ns.map(n=>rel(n.abs)+lag), te=ns.map(n=>rel(n.abs+n.len)+lag), end=te[te.length-1];
     const L=ns.map(n=>(n.m<60?Math.pow(10,-(60-n.m)*.6/20):1)*(n.quiet?.7:1)*(n.type==='chorus'||n.type==='post'?1:n.type==='outro'?.6:n.type==='bridge'?.82:.84)*(n.em?1.15:n.anchor?1:.9)*(.95+R()*.1));
     let off, rel2; if(g.phraseEnd){ off=end; rel2=.32; } else if(g.contigNext){ off=end-Math.min(.1,(end-ts[ts.length-1])*.25); rel2=.07; } else { off=end-.02; rel2=.14; }
-    const sc=(g.phrase?9:2)+R()*4, att=g.phrase?.09:.05, start=ts[0]-.05, stop=off+rel2;
+    const ART=window.__humArt??HUM_ART, sc=(g.phrase?9:2)+R()*4+(ART>.2?ART*30:0), att=g.phrase?.09:.05, start=ts[0]-.05, stop=off+rel2;
     if(g.phrase&&ts[0]>.9) breaths.push(ts[0]);
     const near=m=>{ let best=0; V.forEach((v,i)=>{ if(Math.abs(v.m-m)<Math.abs(V[best].m-m)) best=i; }); return best; };
     // 한 숨에 부르는 음들은 녹음 한 개로 이어 부른다(음마다 녹음이 바뀌면 소리 색이 번갈아 바뀌어 '발음'이 달라진다)
@@ -651,12 +651,13 @@ function humTrack(song,sro,from,to,R,PRE,NS){ let V=BUF.bora.map(prepVoice).sort
     const centsAt=t=>{ const j=noteAt(t); let c=100*ns[j].m;
       if(j===0){ const x=smooth((t-start)/(att+.1)); c-=sc*(1-x); }
       else { const x=smooth((t-(ts[j]-.02))/.05); if(x<1){ const d=100*(ns[j].m-ns[j-1].m); c=100*ns[j-1].m+d*x+(d>0?3:-2)*Math.sin(Math.PI*x); } }
+      if(j>0&&ART>.2) c-=ART*45*Math.exp(-Math.pow((t-(ts[j]-.01))/.04,2));
       const dj=te[j]-ts[j], dt=t-ts[j]; if(dj>.8&&dt>.35){ const dep=Math.min(1,(dt-.35)/.4)*(5+(ns[j].end?3:0)+Math.min(2,(dj-.8)*2)); c+=(window.__humVib??1)*dep*Math.sin(2*Math.PI*vib*t); }
       // 느린 흔들림은 녹음 속 실제 흔들림(아래 jr)만 쓴다
       if(g.phraseEnd&&t>off-.1) c-=7*smooth((t-(off-.1))/.38);
       return c; };
     const ampAt=t=>{ const j=noteAt(t); let a=L[j];
-      if(j>0){ const x=smooth((t-(ts[j]-.04))/.08); a=L[j-1]+(L[j]-L[j-1])*x; a*=1-.16*Math.exp(-Math.pow((t-ts[j])/.05,2)); }
+      if(j>0){ const x=smooth((t-(ts[j]-.04))/.08); a=L[j-1]+(L[j]-L[j-1])*x; a*=1-ART*Math.exp(-Math.pow((t-(ts[j]-.012))/.045,2)); }
       const dj=te[j]-ts[j], dt=t-ts[j]; if(dj>.6) a*=1+.07*Math.sin(Math.PI*Math.min(1,dt/dj));
       if(g.phraseEnd&&t>ts[ts.length-1]+.2) a*=1-.28*smooth((t-ts[ts.length-1]-.2)/Math.max(.1,off-ts[ts.length-1]-.2));
       a*=smooth((t-start)/(att+.05)); if(t>off) a*=1-smooth((t-off)/rel2); return a; };
