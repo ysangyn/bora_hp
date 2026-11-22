@@ -93,7 +93,7 @@ body[data-lv="0"] #lyr::after{content:"이 글에서 나온 멜로디예요. 따
 [hidden]{display:none!important}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-<link rel="stylesheet" href="assets/song-room.css?v=1">
+<link rel="stylesheet" href="assets/song-room.css?v=2">
 </head>
 <body>
 <main>
@@ -109,12 +109,11 @@ body[data-lv="0"] #lyr::after{content:"이 글에서 나온 멜로디예요. 따
   <div id="lyr"></div>
   <canvas id="roll"></canvas>
   <div class="row">
-    <button class="main" id="play">처음부터 듣기</button><button id="stop" hidden>멈추기</button><button class="hi" id="newSong">다른 노래로</button><button id="prevSong" hidden>이전 노래로</button><button id="keep">간직하기</button>
+    <button class="main" id="play">처음부터 듣기</button><button id="stop" hidden>멈추기</button><button class="hi" id="newSong">다른 멜로디로</button><button id="prevSong" hidden>이전 멜로디로</button><button id="keep">간직하기</button>
   </div>
   <div id="info"></div>
   <p class="warnbox" id="sndHelp" hidden>소리가 막혀 있어요. 아이폰이면 옆의 무음 스위치를 끄고 소리를 키워 주세요. 카카오톡이나 파일 미리보기 안에서 열었다면 사파리나 크롬으로 다시 열어 주세요.</p>
-  <div class="row"><button class="sm" id="deeper"></button></div>
-</section>
+  </section>
 
 <div class="lv1 stack">
   <section class="card">
@@ -136,26 +135,26 @@ body[data-lv="0"] #lyr::after{content:"이 글에서 나온 멜로디예요. 따
 
 <div class="lv2 stack">
   <section class="card">
-    <label class="t">곡의 틀</label>
+    <label class="t">곡 구성</label>
     <div class="row" id="tpl"></div>
     <p class="note" id="tplNote"></p>
     <div class="form" id="form"></div>
-    <div class="row"><button class="sm" id="editForm">뼈대 고치기</button></div>
+    <div class="row"><button class="sm" id="editForm">순서·구성 바꾸기</button></div>
     <div id="formEdit" hidden><div class="row" id="ftool"></div><div class="row" id="adds"></div></div>
   </section>
   <section class="card">
-    <label class="t">세부</label>
+    <label class="t">세밀한 조절</label>
     <div class="grid">
       <span class="gl">곡 느낌</span><div class="row" id="style"></div>
       <span class="gl" id="gselL" style="display:none">통기타</span><div class="row" id="gsel" style="display:none"></div>
       <span class="gl">박자 느낌</span><div class="row" id="swing"></div>
-      <span class="gl">변화</span><div class="row" id="temp"></div>
+      <span class="gl">코드 변화</span><div class="row" id="temp"></div>
       <span class="gl">키 · 빠르기</span><div class="row">
         <span class="step"><button id="kd" aria-label="키 낮추기">−</button><span id="kv"></span><button id="ku" aria-label="키 올리기">+</button></span>
         <span class="step"><button id="td" aria-label="느리게">−</button><span id="tv"></span><button id="tu" aria-label="빠르게">+</button></span>
       </div>
       <span class="gl">제목</span><input id="title" class="tx" maxlength="30" placeholder="아직 없어도 괜찮아요">
-      <span class="gl">공부</span><div class="row"><button class="chip" id="oWhy">작곡 설명 보기</button></div>
+      <span class="gl">설명</span><div class="row"><button class="chip" id="oWhy">작곡 설명 보기</button></div>
     </div>
   </section>
   <section class="card" id="whyCard" hidden>
@@ -180,6 +179,7 @@ body[data-lv="0"] #lyr::after{content:"이 글에서 나온 멜로디예요. 따
   </section>
 </div>
 </main>
+<nav id="dock" hidden aria-label="듣기와 보기 단계"><button id="dPlay" class="main">듣기</button><div class="seg" role="group" aria-label="얼마나 손볼지"><button data-lv="0">듣기만</button><button data-lv="1">가사·느낌</button><button data-lv="2">구성·코드</button></div></nav>
 
 <script>
 (function(){
@@ -199,7 +199,7 @@ const STYLES=[
 const MOODS=[{id:'auto',name:'알아서'},{id:'calm',name:'잔잔하게',bpm:76,v:'arp',c:'strumS'},{id:'sad',name:'쓸쓸하게',bpm:66,v:'slow',c:'strumS'},{id:'light',name:'가볍게',bpm:96,v:'travis',c:'strum'}];
 const LEX={sad:['비','밤','새벽','혼자','보고','그리','눈물','울','잠','외로','떠나','안녕','겨울','감기','아프','멀어','잊','그때','없'],light:['좋아','웃','봄','햇살','설레','춤','맑','고마','예쁘','달콤','신나','반짝','소풍']};
 function guessMood(t){ let s=0; LEX.sad.forEach(w=>{ if(t.includes(w)) s--; }); LEX.light.forEach(w=>{ if(t.includes(w)) s++; }); return s<=-1?'sad':s>=1?'light':'calm'; }
-const SECNAME={intro:'전주',verse:'벌스',pre:'프리코러스',chorus:'후렴',bridge:'브릿지',inter:'간주',outro:'후주',post:'후렴 뒤 한 줄'};
+const SECNAME={intro:'전주',verse:'절',pre:'프리코러스',chorus:'후렴',bridge:'브릿지',inter:'간주',outro:'후주',post:'후렴 뒤 한 줄'};
 const SOLFA=['도','도#','레','레#','미','파','파#','솔','솔#','라','라#','시'];
 const FUNC={0:'집(으뜸)',2:'집을 떠나는 부드러운 걸음',4:'집과 닮은 쓸쓸한 자리',5:'멀리 나가는 자리',7:'돌아가고 싶은 긴장',9:'쓸쓸한 집(단조의 으뜸)',11:'불안한 자리'};
 function hash(str){ let h=2166136261; for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
@@ -827,7 +827,7 @@ const PARTDEF={s:{name:'소절',role:'verse',tune:'s',n:2,max:4,close:true,hint:
  b:{name:'B',role:'bridge',tune:'b',n:2,max:4,hint:'한 번만 나오는 다른 멜로디. 잠깐 다른 곳에 다녀옵니다.'},a3:{name:'A 셋째',role:'verse',tune:'a',n:2,max:4,close:true,hint:'처음 멜로디로 돌아와 맺습니다.'},
  r:{name:'되풀이 줄',role:'chorus',tune:'r',n:1,max:2,hint:'절마다 맨 끝에 똑같이 돌아오는 한 줄. 이 줄이 후렴 노릇을 합니다.'},
  t1:{name:'첫째 단',role:'verse',tune:'t1',n:4,max:8,noRepeat:true,hint:'되풀이 없이 흘러가는 곡. 시를 그대로 옮겨도 좋아요.'},t2:{name:'둘째 단',role:'bridge',tune:'t2',n:4,max:8,noRepeat:true,hint:'새 멜로디로 이어집니다.'},t3:{name:'셋째 단',role:'chorus',tune:'t3',n:4,max:8,noRepeat:true,close:true,hint:'가장 높이 올라갔다 맺습니다.'}};
-const TPL=[{id:'vc',name:'벌스–후렴',note:'이야기(벌스)와 하고 싶은 말(후렴)을 번갈아. 가장 흔한 틀이에요.',form:['intro','v1','c','v2','c','outro']},
+const TPL=[{id:'vc',name:'절–후렴',note:'이야기(절)와 하고 싶은 말(후렴)을 번갈아. 가장 흔한 틀이에요.',form:['intro','v1','c','v2','c','outro']},
  {id:'cf',name:'후렴 먼저',note:'하고 싶은 말을 첫 줄부터 꺼냅니다.',form:['c','v1','c','v2','c','outro']},
  {id:'ref',name:'절 + 끝줄 되풀이',note:'후렴 없이, 절마다 마지막 한 줄만 같은 말로 돌아옵니다. 조용한 통기타 곡에 잘 맞아요.',form:['intro','v1','r','v2','r','v3','r','outro']},
  {id:'aaba',name:'AABA',note:'같은 멜로디 두 번, 다른 멜로디 한 번, 다시 처음 멜로디. 짧고 단정한 곡.',form:['intro','a1','a2','b','a3','outro']},
@@ -856,7 +856,7 @@ if((state.lead==='hum'||state.lead==='mix')&&!SAMP.b) state.lead='thin';
 const PKEYS=['title','tpl','form','pristine','style','mood','key','tempo','seeds','parts','song','hist','gtr','chordOv','lseed','temp','genre','lv','made','feel','lead','keyAuto','swing','ginst','acc'];
 const persist=()=>{ try{ const s={}; PKEYS.forEach(k=>s[k]=state[k]); localStorage.setItem('bora_gtr6',JSON.stringify(s)); }catch(_){} };
 let song=null, deb=0; window.__song=()=>song;
-const pname=k=>{ const D=PARTDEF[k]; if(D.name) return D.name; const n=k.slice(1); return (state.tpl==='str'||state.tpl==='ref')?n+'절':'벌스 '+n; };
+const pname=k=>{ const D=PARTDEF[k]; if(D.name) return D.name; const n=k.slice(1); return n+'절'; };
 const nSyl=t=>t.split(/\s+/).map(sylsOf).reduce((a,w)=>a+w.length,0);
 const filled=k=>state.parts[k].lines.some(l=>l.trim());
 const visible=()=>[...new Set(state.form.map(it=>it.id).filter(id=>PARTDEF[id]))];
@@ -877,7 +877,7 @@ const fineOpen={};
 function renderParts(){ const box=$('parts'); box.innerHTML='';
   visible().forEach(k=>{ const P=PARTDEF[k], st=state.parts[k], el=document.createElement('section'); el.className='card part'+(fineOpen[k]?' fine':''); el.id='p-'+k;
     el.innerHTML=`<div class="ph"><b>${pname(k)}</b><span>${P.hint}</span></div><div class="rows"></div>
-      <div class="row tools"><button class="sm hi" data-a="play">이 부분 듣기</button><button class="sm" data-a="roll">멜로디 다시 짓기</button><button class="sm" data-a="add">+ 줄</button><button class="sm" data-a="del">− 줄</button><button class="sm" data-a="fine">다듬기</button>
+      <div class="row tools"><button class="sm hi" data-a="play">이 부분 듣기</button><button class="sm" data-a="roll">멜로디 다시 짓기</button><button class="sm" data-a="add">줄 더하기</button><button class="sm" data-a="del">줄 빼기</button><button class="sm" data-a="fine">줄마다 다듬기</button>
       <label class="sel">박자 <select id="fr-${k}">${[['auto','알아서'],['talk','말하듯'],['sync','당겨서'],['long','느긋하게'],['dense','촘촘하게']].map(p=>`<option value="${p[0]}">${p[1]}</option>`).join('')}</select></label>
       <label class="sel">멜로디 <select id="fm-${k}">${[['auto','알아서'],['calm','잔잔하게'],['wide','굴곡 있게'],['up','올라가게'],['down','내려오게']].map(p=>`<option value="${p[0]}">${p[1]}</option>`).join('')}</select></label>
       <label class="sel">기타 <select id="pat-${k}">${PATS.map(p=>`<option value="${p[0]}">${p[1]}</option>`).join('')}</select></label></div>`;
@@ -922,7 +922,7 @@ function checks(){ const out=[], vis=visible(), L=k=>state.parts[k].lines.filter
 function prepare(){ cpOpen=null; stop(); persist(); $('gsel').hidden=$('gselL').hidden=state.genre==='rock'; song=compose(plan(),state); $('sheet').innerHTML=''; $('why').innerHTML=''; $('sheetTxt').hidden=true;
   renderForm();
   if(!song){ $('info').textContent='가사를 한 줄만 적어도 바로 곡이 됩니다.'; $('tv').textContent='–'; $('lyr').innerHTML=''; checks(); draw(-1); return; }
-  $('tv').textContent=song.bpm+' 박'; $('kv').textContent=(song.key?`카포 ${song.key}`:'카포 없음')+(state.keyAuto?' · 알아서':'');
+  $('tv').textContent='빠르기 '+song.bpm; $('kv').textContent=(song.key?`카포 ${song.key}`:'카포 없음')+(state.keyAuto?' · 알아서':'');
   const LY=$('lyr'); LY.innerHTML=''; song.secs.forEach((sec,si)=>{ if(!sec.lines.length) return; if(LY.children.length){ const gp=document.createElement('div'); gp.className='gap'; LY.appendChild(gp); } sec.lines.forEach(L=>{ if(!L.phrases.length) return; const d=document.createElement('div'); d.textContent=L.text; if([...LY.children].some(x=>x.textContent===L.text)) d.className='rep'; d.dataset.a=L.phrases[0].base-2; const lp=L.phrases[L.phrases.length-1]; d.dataset.b=lp.base+16; LY.appendChild(d); }); });
   song.secs.forEach(sec=>{ const d=document.createElement('div'); d.className='sec'; d.innerHTML=`<h3>${sec.name}</h3>`; let ln=null;
     for(let b=sec.startBar;b<sec.startBar+sec.nBars;b++){ if((b-sec.startBar)%4===0){ ln=document.createElement('div'); ln.className='ln'; d.appendChild(ln); } const cell=document.createElement('div'); cell.className='bar'; cell.dataset.b=b; const B=song.bars[b]; cell.innerHTML=B.ok&&!B.fin?`<button class="cb${B.ov?' ov':''}" title="코드 바꾸기">${B.name}${B.name2?' · '+B.name2:''}</button>`:`<b>${B.name}</b>`; ln.appendChild(cell); const cbn=cell.querySelector('.cb'); if(cbn) cbn.onclick=()=>chordPanel(b,ln); }
@@ -930,7 +930,7 @@ function prepare(){ cpOpen=null; stop(); persist(); $('gsel').hidden=$('gselL').
   song.notes.forEach((n,i)=>{ if(n.echo) return; const cell=$('sheet').querySelector(`[data-b="${Math.floor(n.abs/8)}"]`); if(!cell) return; const s=document.createElement('span'); s.textContent=n.ch+(n.p||''); s.dataset.i=i; s.className=(n.wordEnd?'sp ':'')+(n.em?'em':''); cell.appendChild(s); });
   song.log.forEach((l,i)=>{ const d=document.createElement('div'); d.dataset.i=i; d.innerHTML=`<b>${l.t}</b>${l.x}`; $('why').appendChild(d); });
   const mm=Math.floor(song.dur/60), ss=Math.round(song.dur%60);
-  $('info').textContent=`${song.mood.name} · ${song.bpm}박 · ${mm?mm+'분 ':''}${ss}초`; $('prevSong').hidden=!state.hist.length;
+  $('info').textContent=`${song.mood.name} · 빠르기 ${song.bpm} · ${mm?mm+'분 ':''}${ss}초`; $('prevSong').hidden=!state.hist.length;
   checks(); draw(-1); }
 let cpOpen=null;
 function chordPanel(bi,ln){ const old=document.getElementById('cpanel'); if(old) old.remove(); if(cpOpen===bi){ cpOpen=null; return; } cpOpen=bi; const B=song.bars[bi], pv=song.bars[bi-1], nx=song.bars[bi+1], f=FAM[BASE(B.name)];
@@ -943,14 +943,14 @@ function draw(slot){ const cv=$('roll'), k=Math.min(2,devicePixelRatio||1), W=cv
   const lo=song.lo-2, hi=song.hi+2, tot=song.total; song.secs.forEach(s=>{ const x=s.startBar*8/tot*W; if(s.type==='chorus'){ g.fillStyle='rgba(183,154,230,.10)'; g.fillRect(x,0,s.nBars*8/tot*W,H); } g.fillStyle='rgba(240,233,246,.14)'; g.fillRect(x,0,k,H); });
   song.notes.forEach(n=>{ const x=n.abs/tot*W, w=Math.max(2*k,n.len/tot*W-k), y=H-6*k-(n.m-lo)/(hi-lo)*(H-12*k); g.fillStyle=slot>=n.abs&&slot<n.abs+n.len?'#f2c88f':slot>=n.abs?'rgba(240,233,246,.85)':n.inst?'rgba(242,200,143,.45)':n.echo?'rgba(183,154,230,.35)':'rgba(183,154,230,.7)'; g.fillRect(x,y-2*k,w,4*k); });
   if(slot>=0){ g.fillStyle='#f2c88f'; g.fillRect(slot/tot*W,0,k,H); } }
-function stop(){ try{ keepEl&&keepEl.pause(); }catch(_){} if(!live) return; cancelAnimationFrame(live.raf); live.nodes.forEach(s=>{ try{ s.stop(); }catch(e){} }); try{ live.master.disconnect(); }catch(e){} live=null; $('stop').hidden=true; $('play').textContent='처음부터 듣기';
+function stop(){ try{ keepEl&&keepEl.pause(); }catch(_){} if(!live) return; cancelAnimationFrame(live.raf); live.nodes.forEach(s=>{ try{ s.stop(); }catch(e){} }); try{ live.master.disconnect(); }catch(e){} live=null; $('stop').hidden=true; $('play').textContent='처음부터 듣기'; $('dPlay').textContent='듣기';
   document.querySelectorAll('.bar.now,.bar span.now,.bar span.on,#why .now,#lyr .now,#lyr .done').forEach(e=>e.classList.remove('now','on','done')); draw(-1); }
 function playPart(k){ if(!song) return; const s=song.secs.find(x=>x.part===k)||(k==='r'&&song.secs.find(x=>x.lines.length)); if(s) playRange(s.startBar*8,(s.startBar+s.nBars)*8); }
 async function playRange(from,to){ if(!song) prepare(); if(!song) return; stop(); const c=getAC(); audioCheck(); $('play').textContent='소리 준비 중…'; await loadSamples(c); await loadGset(c,song.ginst); if(song.genre==='rock') await loadGset(c,'gb'); if(song.band) await loadBand(c); const whole=from==null; if(whole){ from=0; to=song.total+16; }
   const t0=c.currentTime+.3, h=schedule(c,song,t0,{hum:state.lead==='hum'||state.lead==='mix',mix:state.lead==='mix',leadGtr:state.lead==='gtr'||state.lead==='thin'||state.lead==='mix',leadThin:state.lead==='thin'||state.lead==='mix',from,to}), my=song, base=song.time(from), len=whole?song.dur:song.time(to)-base+2.2;
   const lys=[...$('lyr').children].filter(e=>e.dataset.a), spans=[...document.querySelectorAll('.bar span')], cells=[...document.querySelectorAll('.bar')], whys=[...$('why').children]; let li=-1;
   const slotAt=sec=>{ let a=0,b=song.total+16; for(let i=0;i<22;i++){ const m=(a+b)/2; if(song.time(m)<sec) a=m; else b=m; } return a; };
-  $('play').textContent='연주 중'; $('stop').hidden=false;
+  $('play').textContent='연주 중'; $('stop').hidden=false; $('dPlay').textContent='멈추기';
   const tick=()=>{ if(!live||song!==my) return; const sec=c.currentTime-t0, slot=slotAt(sec+base), bar=Math.floor(slot/8);
     cells.forEach(e=>e.classList.toggle('now',+e.dataset.b===bar)); spans.forEach(s=>{ const n=song.notes[+s.dataset.i]; s.classList.toggle('now',slot>=n.abs&&slot<n.abs+n.len); s.classList.toggle('on',slot>=n.abs+n.len&&n.abs>=from); });
     let cur=-1; song.log.forEach((l,i)=>{ if(l.slot<=slot+.5) cur=i; }); if(cur!==li&&cur>=0){ li=cur; $('nowwhy').innerHTML=`<b>${song.log[cur].t}</b>${song.log[cur].x}`; whys.forEach((w,i)=>w.classList.toggle('now',i===cur)); }
@@ -983,16 +983,16 @@ const restruct=()=>{ renderParts(); prepare(); };
 chips($('genre'),[{id:'aa',name:'어른아이',note:'어른아이 곡의 코드 버릇'},{id:'folk',name:'통기타 포크',note:'기타 한 대'},{id:'pop',name:'어쿠스틱 팝',note:'통기타 + 베이스 + 드럼'},{id:'rock',name:'모던 락',note:'일렉 기타 + 베이스 + 드럼'}],'genre',()=>{ state.tempo=0; prepare(); });
 chips($('tpl'),TPL,'tpl',restruct); chips($('style'),[{id:'auto',name:'알아서'}].concat(AA.map(a=>({id:a.id,name:a.name+'처럼'}))),'style',()=>{ state.chordOv={}; prepare(); });
 chips($('ginst'),[{id:'auto',name:'알아서'},{id:'gm',name:'통기타',note:'마틴'},{id:'gb',name:'할로바디 기타'},{id:'g',name:'부드러운 통기타'}],'ginst');
-const leadChips=()=>chips($('lead'),(SAMP.b||BUF.bora.length?[{id:'mix',name:'기타 먼저, 허밍은 뒤에'},{id:'hum',name:'허밍'}]:[]).concat([{id:'thin',name:'듬성듬성'},{id:'gtr',name:'글자마다'},{id:'off',name:'반주만'}]),'lead',()=>{}); leadChips();
+const leadChips=()=>chips($('lead'),(SAMP.b||BUF.bora.length?[{id:'mix',name:'기타 먼저, 허밍은 뒤에'},{id:'hum',name:'허밍'}]:[]).concat([{id:'thin',name:'기타로 듬성듬성'},{id:'gtr',name:'기타로 글자마다'},{id:'off',name:'반주만'}]),'lead',()=>{}); leadChips();
 chips($('acc'),[{id:'sparse',name:'여백 있게'},{id:'arp',name:'아르페지오'}],'acc');
 chips($('space'),[{id:'near',name:'가깝게'},{id:'wide',name:'넓게'},{id:'far',name:'아주 넓게'}],'space',()=>{});
-chips($('swing'),[{id:'auto',name:'알아서'},{id:'off',name:'반듯하게'},{id:'on',name:'흔들리게'}],'swing'); chips($('mood'),MOODS,'mood'); chips($('gsel'),[{id:'auto',name:'알아서'},{id:'arp',name:'아르페지오'},{id:'strum',name:'스트로크'},{id:'mix',name:'벌스는 아르페지오, 후렴은 스트로크'}],'gtr');
+chips($('swing'),[{id:'auto',name:'알아서'},{id:'off',name:'반듯하게'},{id:'on',name:'흔들리게'}],'swing'); chips($('mood'),MOODS,'mood'); chips($('gsel'),[{id:'auto',name:'알아서'},{id:'arp',name:'아르페지오'},{id:'strum',name:'스트로크'},{id:'mix',name:'절은 아르페지오, 후렴은 스트로크'}],'gtr');
 chips($('temp'),[{id:0,name:'익숙하게'},{id:1,name:'보통'},{id:2,name:'과감하게'}],'temp');
 const newNo=()=>1+Math.floor(Math.random()*99998);
 $('newSong').onclick=()=>{ state.hist.push(state.song); if(state.hist.length>20) state.hist.shift(); state.song=newNo(); state.chordOv={}; prepare(); play(); };
 $('prevSong').onclick=()=>{ if(state.hist.length){ state.song=state.hist.pop(); prepare(); play(); } };
 toggle('oWhy','why',()=>{ $('whyCard').hidden=!state.why; });
-$('editForm').onclick=()=>{ const e=$('formEdit'); e.hidden=!e.hidden; $('editForm').textContent=e.hidden?'뼈대 고치기':'뼈대 고치기 닫기'; state.sel=-1; renderForm(); };
+$('editForm').onclick=()=>{ const e=$('formEdit'); e.hidden=!e.hidden; $('editForm').textContent=e.hidden?'순서·구성 바꾸기':'순서·구성 닫기'; state.sel=-1; renderForm(); };
 [['v','+ 절'],['c','+ 후렴'],['pre','+ 프리코러스'],['br','+ 브릿지'],['post','+ 후렴 뒤 한 줄'],['intro','+ 전주'],['inter','+ 간주'],['outro','+ 후주']].forEach(([id,txt])=>{ const b=document.createElement('button'); b.className='sm'; b.textContent=txt; b.onclick=()=>addPiece(id); $('adds').appendChild(b); });
 $('title').value=state.title; $('title').oninput=()=>{ state.title=$('title').value; persist(); };
 const setKey=d=>{ state.key=Math.max(0,Math.min(7,(song?song.key:state.key)+d)); state.keyAuto=false; prepare(); }; $('kd').onclick=()=>setKey(-1); $('ku').onclick=()=>setKey(1);
@@ -1020,9 +1020,9 @@ function makeFromFeel(){ const lines=autoLines($('feel').value); if(!lines.lengt
   else if(n<=8){ const h=Math.ceil(n/2); state.tpl='thru'; put('t1',L.slice(0,h)); put('t3',L.slice(h)); state.form=[{id:'intro',v:'short'},{id:'t1',v:'quiet'},{id:'t3',v:''},{id:'outro',v:''}]; }
   else { const a=Math.ceil(n/3), b2=Math.ceil((n-a)/2); state.tpl='thru'; put('t1',L.slice(0,a)); put('t2',L.slice(a,a+b2)); put('t3',L.slice(a+b2)); state.form=[{id:'intro',v:'short'},{id:'t1',v:'quiet'},{id:'t2',v:''},{id:'t3',v:''},{id:'outro',v:''}]; }
   chips($('tpl'),TPL,'tpl',restruct); restruct(); showLv(); return true; }
-const LVTXT=['조금 더 만져 보기','깊이 들어가기','간단히 보기'];
-function showLv(){ document.body.dataset.lv=state.lv; $('player').hidden=!state.made; $('deeper').textContent=LVTXT[state.lv]; draw(-1); }
-$('deeper').onclick=()=>{ state.lv=(state.lv+1)%3; persist(); showLv(); if(state.lv) document.querySelector(state.lv===1?'.lv1':'.lv2').scrollIntoView({behavior:'smooth',block:'start'}); };
+function showLv(){ document.body.dataset.lv=state.lv; $('player').hidden=!state.made; $('dock').hidden=!state.made; document.body.classList.toggle('made',!!state.made); document.querySelectorAll('#dock .seg button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.lv===state.lv))); draw(-1); }
+document.querySelectorAll('#dock .seg button').forEach(b=>{ b.onclick=()=>{ const lv=+b.dataset.lv, same=lv===state.lv; state.lv=lv; persist(); showLv(); const t=lv===0?$('player'):document.querySelector(lv===1?'.lv1':'.lv2'); if(t&&(!same||lv)) t.scrollIntoView({behavior:'smooth',block:'start'}); }; });
+$('dPlay').onclick=()=>{ if(live) stop(); else play(); };
 $('make').onclick=()=>{ if(makeFromFeel()) play(); };
 $('feel').value=state.feel||'';
 /* 간직한 노래 */
