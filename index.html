@@ -1327,16 +1327,17 @@ async function wikiPins(wd,name){ if(!wd) return []; try{
   return out; }catch(e){ return []; } }
 function pinSrc(pin){ return pin.src||('img/pin/'+pin.f); }
 // Mapillary(무료 공개 거리 사진, CC BY-SA): 그곳 둘레에서 사람들이 찍은 거리 사진을 몇 장 고른다(결제 없이)
+// 2026-11-23: 다섯 장에 한 장만 고르던 탓에 사진이 1~4장인 곳은 한 장만 남고 더 넓게 찾지도 않았다 → 장수에 맞춰 고르고, 세 장이 될 때까지 넓혀 간다(3km 남짓까지)
 const MLY='MLY|28940021905666587|6f123c26e51ffb21e04cccff938c19c6';
 async function mlyPins(pl){ mlyPins.fail=0; mlyPins.why=''; try{ const cs=(pl.spots&&pl.spots.length?pl.spots:[{lat:pl.lat,lon:pl.lon,n:pl.name}]).slice(0,4), seen=new Set();
   const per=await Promise.all(cs.map(async c=>{ const out=[], cl=Math.max(.3,Math.cos(c.lat*Math.PI/180));
     const ask=d=>{ const bb=[c.lon-d/cl,c.lat-d,c.lon+d/cl,c.lat+d].map(v=>v.toFixed(6)).join(','); const go=ms=>tfetch(`https://graph.mapillary.com/images?access_token=${encodeURIComponent(MLY)}&fields=id,thumb_2048_url,is_pano,captured_at,creator&bbox=${bb}&limit=40`,null,ms).then(r=>r.ok?r.json():Promise.reject(r.status));
       return go(7000).catch(()=>go(10000)).catch(e=>{ mlyPins.fail=(mlyPins.fail||0)+1; mlyPins.why=String(e&&e.name||e); return {data:[]}; }); };   // 한 번 실패하면 한 번 더(휴대폰 망이 느릴 때)
-    const res=await Promise.all([ask(.0012),ask(.004),ask(.012)]);   // 가까운 곳 → 동네 → 1km 남짓까지(주소 둘레에 거리 사진이 없을 때)      // 2026-11-17 두 범위를 차례로(최대 24초) 기다리던 것을 동시에(최대 7초)
+    const res=await Promise.all([ask(.0012),ask(.004),ask(.012),ask(.03)]);   // 2026-11-23 도시 이름(예: 고양)으로 찾으면 가운데 점 둘레가 비어 있을 때가 많아 3km 남짓까지   // 가까운 곳 → 동네 → 1km 남짓까지(주소 둘레에 거리 사진이 없을 때)      // 2026-11-17 두 범위를 차례로(최대 24초) 기다리던 것을 동시에(최대 7초)
     for(const j of res){
       const ims=(j.data||[]).filter(x=>!x.is_pano&&x.thumb_2048_url).sort((a,b)=>(b.captured_at||0)-(a.captured_at||0));
-      let k=0; for(const x of ims){ if(seen.has(x.id)) continue; if(k++%5) continue; seen.add(x.id); out.push({n:c.n||pl.name,src:x.thumb_2048_url,a:((x.creator&&x.creator.username)||'Mapillary')+' · Mapillary',l:'CC BY-SA 4.0',u:'https://www.mapillary.com/app/?pKey='+x.id}); if(out.length>=3) break; }
-      if(ims.length>=3) break; }
+      const step=Math.max(1,Math.floor(ims.length/4)); let k=0; for(const x of ims){ if(seen.has(x.id)) continue; if(k++%step) continue; seen.add(x.id); out.push({n:c.n||pl.name,src:x.thumb_2048_url,a:((x.creator&&x.creator.username)||'Mapillary')+' · Mapillary',l:'CC BY-SA 4.0',u:'https://www.mapillary.com/app/?pKey='+x.id}); if(out.length>=3) break; }
+      if(out.length>=3) break; }
     return out; }).map(p=>p.catch(()=>[])));
   const out=[]; for(let i=0;out.length<6&&i<3;i++) per.forEach(a=>{ if(a[i]&&out.length<6) out.push(a[i]); });      // 곳마다 고르게 한 장씩
   return out; }catch(e){ return []; } }
