@@ -193,6 +193,9 @@ img.room.off{opacity:0;transition:opacity 1.2s}.lampoff img.room.off{opacity:1}
 .window canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .window iframe{position:absolute;border:0;left:-12%;top:-12%;width:124%;height:124%}
 .window.street canvas{position:absolute;inset:0;z-index:2;pointer-events:none}
+.window .kv{position:absolute;left:-6%;top:-6%;width:112%;height:112%;pointer-events:none;background:#0B0A12}
+.svprev .kvp{position:absolute;inset:0;pointer-events:none}
+.gsvl{display:inline-block;align-self:flex-start;font-size:12.5px;color:inherit;opacity:.8;text-underline-offset:3px;padding:10px 0;min-height:44px;box-sizing:border-box}
 .flake{position:absolute;top:-6%;width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.85);animation:snow linear infinite}
 @keyframes snow{from{top:-6%;transform:translateX(0)}to{top:104%;transform:translateX(14px)}}
 
@@ -895,6 +898,7 @@ body.hasnote .hs[data-p="mailbox"]{display:block!important}
  <div class="scene" id="scene"><div class="cam" id="cam">
   <div class="window pl" id="win" data-z="1">
     <canvas id="wgl" aria-hidden="true"></canvas>
+    <div id="kv" class="kv" hidden aria-hidden="true"></div>
     <iframe id="sv" title="창밖 거리" hidden loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
     <div class="layer" id="rain" aria-hidden="true"></div>
   </div>
@@ -1255,19 +1259,23 @@ let shownView=null;
 // 큰 지도 화면이 포커스를 받으면 브라우저가 방 전체를 스크롤해 버리므로 막는다
 [stage,win,scene].forEach(el=>el.addEventListener('scroll',()=>{ el.scrollTop=0; el.scrollLeft=0; }));
 function applyWindow(){ if(window.__draft) return;
-  const w=S.w, v=cityView();
+  kvFront(S.place);
+  const kvEl=$('kv'); const w=S.w, v=cityView();
   const PV=(S.visit||(!v&&nPin(S.place)))?svOf(S.place):null, pin=PV&&PV.pin;   // 사진이 있는 곳이면 '방문' 표시가 꺼져 있어도 그림 대신 사진(나만의 자리 되돌리기 등에서 꺼지던 것)
   const street=GSV && !pin && !!S.key && (S.visit || (w&&w.isDay&&!v)), night=!!(w&&w.isDay===false);
   win.classList.toggle('night',street&&night);
-  if(pin){ sv.hidden=true; sv.removeAttribute('src'); win.classList.remove('street'); WG.ovl=0; WG.ngT=night?1:0; const src=pinSrc(pin);
+  if(pin&&pin.kv){ sv.hidden=true; sv.removeAttribute('src'); kvEl.hidden=false; win.classList.add('street'); WG.ovl=1; WG.ngT=night?1:0;
+    if(shownView!=='kv'){ shownView='kv'; const k=document.createElement('canvas'); k.width=k.height=4; setViewSource(k,1.5,1,[.5,.5]); }
+    const pl=S.place; kvShow(kvEl,pin).then(ok=>{ if(!ok&&S.place===pl&&pl.kvPin){ pl.kvPin=null; pl.pins=(pl.pins||[]).filter(x=>!x.kv); pl.sv=0; LS.set('place6',pl); shownView=null; applyWindow(); } }); }
+  else if(pin){ kvEl.hidden=true; sv.hidden=true; sv.removeAttribute('src'); win.classList.remove('street'); WG.ovl=0; WG.ngT=night?1:0; const src=pinSrc(pin);
     if(shownView!==src){ shownView=src; const im=new Image(); im.crossOrigin='anonymous'; im.onload=()=>{ if(shownView===src) setViewSource(im,im.naturalWidth/im.naturalHeight,1.08,[.5,.5]); }; im.src=src; } }
-  else if(street){ const V=svOf(S.place), J=(S.visit&&S.place.adj)||{h:0,p:0,f:90}; const src=`https://www.google.com/maps/embed/v1/streetview?key=${encodeURIComponent(S.key)}&${V.pano?'pano='+V.pano:`location=${V.lat.toFixed(6)},${V.lon.toFixed(6)}`}&heading=${(V.h+J.h+360)%360}&pitch=${18+J.p}&fov=${J.f}`; if(sv.getAttribute('src')!==src) sv.src=src; sv.hidden=false; win.classList.add('street');
+  else if(street){ kvEl.hidden=true; const V=svOf(S.place), J=(S.visit&&S.place.adj)||{h:0,p:0,f:90}; const src=`https://www.google.com/maps/embed/v1/streetview?key=${encodeURIComponent(S.key)}&${V.pano?'pano='+V.pano:`location=${V.lat.toFixed(6)},${V.lon.toFixed(6)}`}&heading=${(V.h+J.h+360)%360}&pitch=${18+J.p}&fov=${J.f}`; if(sv.getAttribute('src')!==src) sv.src=src; sv.hidden=false; win.classList.add('street');
     WG.ovl=1; WG.ngT=night?1:0; if(shownView!=='street'){ shownView='street'; const k=document.createElement('canvas'); k.width=k.height=4; setViewSource(k,1.5,1,[.5,.5]); } }
-  else { sv.hidden=true; sv.removeAttribute('src'); win.classList.remove('street'); WG.ovl=0; WG.ngT=0;
+  else { kvEl.hidden=true; sv.hidden=true; sv.removeAttribute('src'); win.classList.remove('street'); WG.ovl=0; WG.ngT=0;
     if(v){ const dy=!!(w&&w.isDay)&&!!v.dsrc, src=dy?v.dsrc:v.src, msk=dy?v.dmask:v.mask, cc=dy&&v.dc?v.dc:v.c, au=dy?[0,.4]:v.au;
       if(shownView!==src){ shownView=src; const im=new Image(), mk=new Image(); let n=msk?2:1; const go=()=>{ if(--n===0&&shownView===src) setViewSource(im,v.ia,v.s,cc,msk?mk:null,au); }; im.onload=go; mk.onload=go; im.src=src; if(msk) mk.src=msk; } }
     else { shownView=null; city=null; drawWindow(); setViewSource(wc,1.5,1.06,[.5,.5]); } WG.ngT=(v&&v.own&&v.src===v.dsrc&&night)?1:0; }
-  setRain(); drawPrecip(); try{ const {lat,lon}=S.place; $('mCo').textContent=`${Math.abs(lat).toFixed(2)}°${lat>=0?'N':'S'}  ${Math.abs(lon).toFixed(2)}°${lon>=0?'E':'W'}`+(win.classList.contains('street')?'  ·  거리 사진 Google':pin?`  ·  사진 ${pin.a} · ${pin.l}`:''); }catch(_){}
+  setRain(); drawPrecip(); try{ const {lat,lon}=S.place; $('mCo').textContent=`${Math.abs(lat).toFixed(2)}°${lat>=0?'N':'S'}  ${Math.abs(lon).toFixed(2)}°${lon>=0?'E':'W'}`+(pin&&pin.kv?'  ·  카카오맵 로드뷰':win.classList.contains('street')?'  ·  거리 사진 Google':pin?`  ·  사진 ${pin.a} · ${pin.l}`:''); }catch(_){}
 }
 window.__setWin=(p,d,k)=>{ S.rainMan=false; S.place=p; S.w=k?{kind:k,cloud:.8,isDay:d,tz:null,temp:k==='snow'?-2:12}:{kind:'rain',cloud:.8,isDay:d,tz:null,guess:true}; applyWindow(); $('mPlace').textContent=p.name; };
 const WCODE={0:'맑음',1:'대체로 맑음',2:'구름 조금',3:'흐림',45:'안개',48:'안개',51:'이슬비',53:'이슬비',55:'이슬비',56:'어는 비',57:'어는 비',61:'비',63:'비',65:'강한 비',66:'어는 비',67:'어는 비',71:'눈',73:'눈',75:'많은 눈',77:'싸락눈',80:'소나기',81:'소나기',82:'강한 소나기',85:'눈',86:'눈',95:'뇌우',96:'뇌우',99:'뇌우'};
@@ -1325,8 +1333,24 @@ async function wikiPins(wd,name){ if(!wd) return []; try{
     const bad=/sign|map|logo|plan|diagram|interior|museum|ticket|menu|poster|표지|지도|안내/i;
     take(Object.values((q.query||{}).pages||{}).filter(p=>!bad.test(p.title)).sort((a,b)=>(a.index||0)-(b.index||0)).slice(0,8)); out.splice(3); }
   return out; }catch(e){ return []; } }
-function pinSrc(pin){ return pin.src||('img/pin/'+pin.f); }
+function pinSrc(pin){ return pin.kv?'':(pin.src||('img/pin/'+pin.f)); }
 // Mapillary(무료 공개 거리 사진, CC BY-SA): 그곳 둘레에서 사람들이 찍은 거리 사진을 몇 장 고른다(결제 없이)
+// 카카오맵 로드뷰(한국 안, 결제 없이 무료 쿼터 안에서): 주소 둘레의 가장 가까운 로드뷰를 첫 장으로 건다. 해외·로드뷰 없는 곳은 Mapillary 사진만.
+const KKEY='3fa4657079c863251f5d20d044c88f65';
+const inKR=p=>!!p&&(p.cc==='kr'||(p.lat>33&&p.lat<38.7&&p.lon>124.5&&p.lon<131.9));
+function kvLoad(){ if(kvLoad.p) return kvLoad.p; kvLoad.p=new Promise((ok,no)=>{ if(window.kakao&&kakao.maps&&kakao.maps.Roadview) return ok(kakao.maps);
+    const t=setTimeout(()=>no('timeout'),9000), sc=document.createElement('script'); sc.src='https://dapi.kakao.com/v2/maps/sdk.js?appkey='+KKEY+'&autoload=false';
+    sc.onload=()=>{ try{ kakao.maps.load(()=>{ clearTimeout(t); ok(kakao.maps); }); }catch(e){ clearTimeout(t); no(e); } }; sc.onerror=()=>{ clearTimeout(t); no('load'); }; document.head.appendChild(sc); });
+  kvLoad.p.catch(()=>{ kvLoad.p=null; kvLoad.why='카카오 지도를 불러오지 못함'; }); return kvLoad.p; }
+async function kvNear(lat,lon){ const M=await kvLoad(), rc=new M.RoadviewClient(), at=new M.LatLng(lat,lon);
+  for(const r of [80,300,1000]){ const id=await new Promise(ok=>{ try{ rc.getNearestPanoId(at,r,ok); }catch(_){ ok(null); } }); if(id) return id; } return null; }
+const KVV=new WeakMap();
+async function kvShow(el,pin){ try{ const M=await kvLoad(); let rv=KVV.get(el); if(!rv){ rv=new M.Roadview(el); KVV.set(el,rv); }
+    if(el.dataset.pano!==String(pin.kv)){ el.dataset.pano=String(pin.kv); rv.setPanoId(pin.kv,new M.LatLng(pin.lat,pin.lon)); } else rv.relayout&&rv.relayout(); return true;
+  }catch(e){ return false; } }
+async function kvPin(pl){ if(!inKR(pl)) return null; try{ const id=await kvNear(pl.lat,pl.lon); kvPin.why=id?'':'둘레 1km 안에 로드뷰 없음'; return id?{kv:id,lat:pl.lat,lon:pl.lon,n:pl.name,src:'kv:'+id,a:'카카오맵 로드뷰',l:'',u:'https://map.kakao.com/link/roadview/'+pl.lat+','+pl.lon}:null; }catch(e){ kvPin.why=kvLoad.why||'카카오 지도 응답 없음'; return null; } }
+function kvFront(pl){ if(pl&&pl.kvPin&&(!pl.pins||pl.pins[0]!==pl.kvPin)) pl.pins=[pl.kvPin].concat((pl.pins||[]).filter(x=>!x.kv)); }   // 로드뷰는 늘 첫 장
+const gsvUrl=pl=>'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint='+(+pl.lat).toFixed(6)+','+(+pl.lon).toFixed(6);
 // 2026-11-23: 다섯 장에 한 장만 고르던 탓에 사진이 1~4장인 곳은 한 장만 남고 더 넓게 찾지도 않았다 → 장수에 맞춰 고르고, 세 장이 될 때까지 넓혀 간다(3km 남짓까지)
 const MLY='MLY|28940021905666587|6f123c26e51ffb21e04cccff938c19c6';
 async function mlyPins(pl){ mlyPins.fail=0; mlyPins.why=''; try{ const cs=(pl.spots&&pl.spots.length?pl.spots:[{lat:pl.lat,lon:pl.lon,n:pl.name}]).slice(0,4), seen=new Set();
@@ -1670,10 +1694,11 @@ function openPlace(){
    <div class="row"><input id="pIn" placeholder="예: 대림동, 일중로 30" autocomplete="off" aria-label="동네나 주소"><button class="ok" id="pGo">보기</button></div>
 
    <small id="pOut">지금 창밖: ${S.place.name}${S.visit?' (거리)':''}</small>
+   <a class="gsvl" id="gsvL" target="_blank" rel="noopener" ${S.visit?'':'hidden'} href="${gsvUrl(S.place)}">구글 거리뷰에서 이 자리 보기 ↗</a>
    <small>적은 주소는 이 휴대폰(브라우저)에만 남아요.</small>`);
   let pend=null, padj=null, svBusy=false;
   const svSrc=(V,J)=>`https://www.google.com/maps/embed/v1/streetview?key=${encodeURIComponent(S.key)}&${V.pano?'pano='+V.pano:`location=${V.lat.toFixed(6)},${V.lon.toFixed(6)}`}&heading=${(V.h+J.h+360)%360}&pitch=${18+J.p}&fov=${J.f}`;
-  const svBar=()=>{ const po=$('pOut'); if(window.__draft&&po&&po.textContent.includes('지금 창밖')) po.textContent=po.textContent.replace('지금 창밖','미리보기'); let b=$('svPick'); const mob=innerWidth<760;
+  const svBar=()=>{ kvFront(S.place); const po=$('pOut'), gl=$('gsvL'); if(gl){ gl.hidden=!S.visit; gl.href=gsvUrl(S.place); } if(window.__draft&&po&&po.textContent.includes('지금 창밖')) po.textContent=po.textContent.replace('지금 창밖','미리보기'); let b=$('svPick'); const mob=innerWidth<760;
     if(svBusy||!S.visit||svCount(S.place)<2&&!nPin(S.place)){ ['svPick','svPrev','svOk','svAdj'].forEach(id=>{ const x=$(id); if(x) x.remove(); }); return; }
     const N=svCount(S.place); if(pend==null) pend=(S.place.sv||0)%N;
     if(!b){ b=document.createElement('div'); b.id='svPick'; b.className='svpick'; b.innerHTML='<button class="mc sv" id="svP" aria-label="이전 사진">‹</button><span id="svT"></span><button class="mc sv" id="svN" aria-label="다음 사진">›</button>'; $('pOut').before(b);
@@ -1687,10 +1712,10 @@ function openPlace(){
         if(k==='r') padj={h:0,p:0,f:90}; else if(k==='h') padj.h=(padj.h+d+360)%360; else if(k==='p') padj.p=Math.max(-40,Math.min(50,padj.p+d)); else padj.f=Math.max(20,Math.min(100,padj.f+d));
         if(innerWidth>=760){ S.place.adj={...padj}; LS.set('place6',S.place); applyWindow(); } svBar(); }); }
     aj.hidden=!!V.pin; queueMicrotask(()=>{ const q=$('svPrev'); if(q&&q.nextElementSibling!==aj) q.after(aj); });
-    $('svT').innerHTML=V.pin?`<b>대표 사진</b> · ${V.name} · ${cur+1} / ${N}`:`${V.name?`<b>${V.name}</b> · `:'이 거리의 다른 사진 '}${cur+1} / ${N}`;
-    if(mob){ let pv=$('svPrev'); if(!pv){ pv=document.createElement('div'); pv.id='svPrev'; pv.className='svprev'; pv.innerHTML='<iframe title="미리보기" loading="lazy"></iframe><img alt="" hidden>'; b.before(pv); }
-      const f=pv.querySelector('iframe'), pi=pv.querySelector('img'); f.hidden=!!V.pin; pi.hidden=!V.pin;
-      if(V.pin){ pi.src=pinSrc(V.pin); } else { const src=svSrc(V,padj); if(f.getAttribute('src')!==src) f.src=src; }
+    $('svT').innerHTML=V.pin?`<b>${V.pin.kv?'로드뷰':V.pin.near||V.pin.a&&/Mapillary/.test(V.pin.a)?'거리 사진':'대표 사진'}</b> · ${V.name} · ${cur+1} / ${N}`:`${V.name?`<b>${V.name}</b> · `:'이 거리의 다른 사진 '}${cur+1} / ${N}`;
+    if(mob){ let pv=$('svPrev'); if(!pv){ pv=document.createElement('div'); pv.id='svPrev'; pv.className='svprev'; pv.innerHTML='<iframe title="미리보기" loading="lazy"></iframe><img alt="" hidden><div class="kvp" hidden></div>'; b.before(pv); }
+      const f=pv.querySelector('iframe'), pi=pv.querySelector('img'), kp=pv.querySelector('.kvp'); f.hidden=!!V.pin; pi.hidden=!V.pin||!!V.pin.kv; kp.hidden=!(V.pin&&V.pin.kv);
+      if(V.pin&&V.pin.kv){ kvShow(kp,V.pin); } else if(V.pin){ pi.src=pinSrc(V.pin); } else { const src=svSrc(V,padj); if(f.getAttribute('src')!==src) f.src=src; }
       let ok=$('svOk'); if(!ok){ ok=document.createElement('button'); ok.id='svOk'; ok.className='ok svok'; ok.textContent='이 창으로 정하기'; b.after(ok); ok.onclick=e=>{ e.stopPropagation(); window.__draft=false; window.__undoDraft=null; loadWeather(); S.place.sv=pend; S.place.adj={...padj}; LS.set('place6',S.place); applyWindow(); closePanel(); }; }
       const J=S.place.adj||{h:0,p:0,f:90}; ok.textContent=!window.__draft&&pend===(S.place.sv||0)%N&&J.h===padj.h&&J.p===padj.p&&J.f===padj.f?'지금 창과 같아요':'이 창으로 정하기'; }
   };
@@ -1699,7 +1724,7 @@ function openPlace(){
     window.__undoDraft=()=>{ window.__undoDraft=null; if(!window.__draft) return; window.__draft=false; S.place=snap.p; S.visit=snap.v; S.w=snap.w; LS.set('place6',S.place); LS.set('visit',S.visit); ids.forEach((i,k)=>{ if($(i)) $(i).textContent=tx[k]; }); applyWindow(); if(S.radio) radioTune(); }; };
   const go=async q=>{ if(q) draftOn(); svBusy=true; svBar(); try{ await go0(q); } finally { svBusy=false; svBar(); } };
   const early=()=>{ if(svBusy&&nPin(S.place)>=1){ svBusy=false; pend=null; svBar(); } };   // 사진이 두 장 모이면 나머지를 기다리지 않고 바로 넘겨 볼 수 있게
-  const go0=async q=>{ if(q&&await findPlace(q,$('pOut'))){ padj={h:0,p:0,f:90}; let pins=await pinsFor(q); if(!pins.length){ const ad=S.place.addr||{}; for(const k of ['city_district','borough','suburb','city','county','town','municipality','province','state']){ const v=ad[k]; if(!v) continue; const r2=await pinsFor(v); if(r2.length){ pins=r2.map(x=>({...x,near:v})); break; } } } const city=CITYISH.test(S.place.kind||'')||S.place.kind===''; if(!pins.length&&!city) pins=await wikiPins(S.place.wd,S.place.name); if(!city){ S.place.spots=[{n:S.place.name,lat:S.place.lat,lon:S.place.lon}]; S.place.sv=0; LS.set('place6',S.place); applyWindow(); } if(pins.length){ S.place.pins=pins; S.place.sv=0; LS.set('place6',S.place); applyWindow(); } pend=null; svBar(); early(); if(CITYISH.test(S.place.kind||'')||S.place.kind===''){ $('pOut').textContent='그곳의 이름난 곳들과 사진을 찾는 중…'; const pl0=S.place, have=new Set((pl0.pins||[]).map(x=>x.src)), add=a=>{ if(S.place!==pl0) return; const n0=nPin(pl0), nw=(a||[]).filter(x=>x&&!have.has(x.src)&&(have.add(x.src),true)); if(!nw.length) return;
+  const go0=async q=>{ if(q&&await findPlace(q,$('pOut'))){ padj={h:0,p:0,f:90}; { const pl=S.place; kvPin(pl).then(kp=>{ if(!kp||S.place!==pl) return; pl.kvPin=kp; kvFront(pl); pl.sv=0; pend=0; LS.set('place6',pl); applyWindow(); svBar(); early(); const o=$('pOut'); if(o&&!svBusy) o.textContent=`창밖을 ${pl.name}(으)로 바꿨어요 · 로드뷰`+(nPin(pl)>1?` + 사진 ${nPin(pl)-1}장`:''); }); } let pins=await pinsFor(q); if(!pins.length){ const ad=S.place.addr||{}; for(const k of ['city_district','borough','suburb','city','county','town','municipality','province','state']){ const v=ad[k]; if(!v) continue; const r2=await pinsFor(v); if(r2.length){ pins=r2.map(x=>({...x,near:v})); break; } } } const city=CITYISH.test(S.place.kind||'')||S.place.kind===''; if(!pins.length&&!city) pins=await wikiPins(S.place.wd,S.place.name); if(!city){ S.place.spots=[{n:S.place.name,lat:S.place.lat,lon:S.place.lon}]; S.place.sv=0; LS.set('place6',S.place); applyWindow(); } if(pins.length){ S.place.pins=pins; S.place.sv=0; LS.set('place6',S.place); applyWindow(); } pend=null; svBar(); early(); if(CITYISH.test(S.place.kind||'')||S.place.kind===''){ $('pOut').textContent='그곳의 이름난 곳들과 사진을 찾는 중…'; const pl0=S.place, have=new Set((pl0.pins||[]).map(x=>x.src)), add=a=>{ if(S.place!==pl0) return; const n0=nPin(pl0), nw=(a||[]).filter(x=>x&&!have.has(x.src)&&(have.add(x.src),true)); if(!nw.length) return;
         pl0.pins=(pl0.pins||[]).concat(nw); LS.set('place6',pl0); if(!n0){ pl0.sv=0; applyWindow(); } if(svBusy) early(); else svBar(); };        // 오는 대로 붙인다(보고 있는 사진은 그대로)
       const cwP=wikiPins(pl0.wd,pl0.name).then(add), [cur,more]=await Promise.all([curatedSpots(q,pl0),findSpots(pl0)]), seen=new Set(cur.map(x=>x.n)), sp=cur.concat(more.filter(x=>!seen.has(x.n))).slice(0,16);
       if(S.place!==pl0) return; if(sp.length){ S.place.spots=sp; LS.set('place6',S.place); }
@@ -1708,7 +1733,7 @@ function openPlace(){
     { const pl=S.place, o=$('pOut'), t0=o.textContent; o.textContent=t0+' · 거리 사진 찾는 중…'; const mp=await mlyPins(pl); if(S.place===pl&&mp.length){ const had=new Set((pl.pins||[]).map(x=>x.src)), old=pl.pins||[], onlyNear=old.length&&old.every(x=>x.near), nw=mp.filter(x=>!had.has(x.src));
         if(onlyNear||!old.length){ pl.pins=nw.concat(old); pl.sv=0; pend=0; applyWindow(); } else pl.pins=old.concat(nw);      // 주소에서는 그 거리의 사진이 먼저, 그 지역 대표 사진은 뒤로
         LS.set('place6',pl); svBar(); early(); } const P=pl.pins||[], nr=P.length&&P.every(x=>x.near)?P[0].near:'';
-      o.textContent = mp.length||P.length>1&&!nr ? `창밖을 ${pl.name}(으)로 바꿨어요 · 사진 ${P.length}장` : nr ? (mlyPins.fail?`거리 사진 서비스가 지금 응답하지 않아서, 잠시 ${nr}의 풍경을 걸었어요. 조금 뒤 다시 '보기'를 눌러 주세요.`:`${pl.name} 둘레 1km 안에 공개된 거리 사진이 없어서, ${nr}의 풍경을 창에 걸었어요.`) : P.length||(pl.spots&&pl.spots.length>1) ? `창밖을 ${pl.name}(으)로 바꿨어요.` : `${pl.name}의 사진을 찾지 못해서 창밖 풍경은 그대로예요. 시간과 날씨만 그곳을 따라가요.`; }
+      o.textContent = pl.kvPin ? `창밖을 ${pl.name}(으)로 바꿨어요 · 로드뷰`+(P.length>1?` + 사진 ${P.length-1}장`:'') : mp.length||P.length>1&&!nr ? `창밖을 ${pl.name}(으)로 바꿨어요 · 사진 ${P.length}장` : nr ? (mlyPins.fail?`거리 사진 서비스가 지금 응답하지 않아서, 잠시 ${nr}의 풍경을 걸었어요. 조금 뒤 다시 '보기'를 눌러 주세요.`:`${pl.name} 둘레 1km 안에 공개된 거리 사진이 없어서, ${nr}의 풍경을 창에 걸었어요.`) : P.length||(pl.spots&&pl.spots.length>1) ? `창밖을 ${pl.name}(으)로 바꿨어요.` : `${pl.name}의 사진을 찾지 못해서 창밖 풍경은 그대로예요. 시간과 날씨만 그곳을 따라가요.`+(inKR(pl)&&kvPin.why?` (로드뷰: ${kvPin.why})`:'')+(mlyPins.fail?' (거리 사진 서비스 응답 없음)':''); }
     if(false&&S.key&&S.place.spots){ const pl=S.place, o=$('pOut'), t0=o.textContent; o.textContent=t0+' · 사진이 잘 보이는 자리 고르는 중…'; const vs=await resolveViews(pl); if(S.place===pl){ if(vs){ pl.views=vs; pl.sv=0; pend=0; padj={h:0,p:0,f:90}; LS.set('place6',pl); applyWindow(); } o.textContent=t0+(vs?` · 사진 ${vs.length}장`:` · 자리 확인 안 됨 (${window.__svErr||'?'})`); svBar(); } } } };
   svBar();
   $('pGo').onclick=()=>go($('pIn').value.trim());
