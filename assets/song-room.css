@@ -62,3 +62,6 @@ body.made{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 #dock .seg button{border:0;min-height:38px;padding:6px 12px;font-size:13px;letter-spacing:0;color:var(--dim);white-space:nowrap}
 #dock .seg button[aria-pressed=true]{background:var(--acc);color:var(--on);font-weight:600}
 @media(max-width:380px){#dock{gap:6px}#dock #dPlay{padding:8px 12px;min-width:68px}#dock .seg button{padding:6px 9px;font-size:12.5px}}
+
+/* 멈추기는 아래 붙박이 줄에만 (같은 단추가 두 군데 있던 것 정리) */
+body.made #stop{display:none!important}

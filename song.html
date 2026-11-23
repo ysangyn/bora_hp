@@ -18,12 +18,12 @@ button:focus-visible,.chip:focus-visible{outline:2px solid var(--acc);outline-of
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 button{font:inherit;color:var(--fg);background:transparent;border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;min-height:40px}
 button.main{background:var(--acc);border-color:var(--acc);color:#1b1326;font-weight:600;padding:10px 22px;min-height:46px}
-button.sm{padding:4px 11px;min-height:32px;font-size:13px;color:var(--dim)}
+button.sm{padding:6px 13px;min-height:40px;font-size:13px;color:var(--dim)}
 button:disabled{opacity:.45}
 .chip[aria-pressed=true]{border-color:var(--acc);background:rgba(183,154,230,.16)}
 .chip small{color:var(--dim);margin-left:6px;font-size:12px}
 .step{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:2px 4px}
-.step button{border:0;min-height:34px;padding:0 12px}
+.step button{border:0;min-height:40px;min-width:40px;padding:0 12px}
 .step span{min-width:76px;text-align:center;font-variant-numeric:tabular-nums}
 .grid{display:grid;grid-template-columns:max-content 1fr;gap:10px 14px;align-items:center}
 @media(max-width:560px){.grid{grid-template-columns:1fr}}
@@ -71,7 +71,7 @@ button.hi{color:var(--fg);border-color:var(--acc)}
 #checks li{padding-left:18px;position:relative;color:var(--dim)} #checks li::before{content:"·";position:absolute;left:4px;color:var(--warm);font-weight:700}
 #checks li.w{color:#f0b9a4} #checks li.ok{color:var(--ok)} #checks li.ok::before{content:"✓";left:0;color:var(--ok)}
 .bar span.em{text-decoration:underline;text-decoration-color:var(--warm);text-underline-offset:4px}
-.re{min-height:34px;min-width:34px;padding:0;border-radius:50%;color:var(--dim);flex:0 0 auto}
+.re{min-height:40px;min-width:40px;padding:0;border-radius:50%;color:var(--dim);flex:0 0 auto}
 .cb{min-height:0;padding:1px 7px;margin:0 0 2px -7px;border-radius:6px;border:1px dashed transparent;font:500 13px/1.3 ui-monospace,Menlo,monospace;color:var(--acc);display:block}
 .cb:hover{border-color:var(--line)} .cb.ov{color:var(--warm);border-color:var(--warm);border-style:solid}
 #cpanel{background:var(--card2);border:1px solid var(--acc);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px;margin:2px 0 6px}
@@ -93,7 +93,7 @@ body[data-lv="0"] #lyr::after{content:"이 글에서 나온 멜로디예요. 따
 [hidden]{display:none!important}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-<link rel="stylesheet" href="assets/song-room.css?v=2">
+<link rel="stylesheet" href="assets/song-room.css?v=3">
 </head>
 <body>
 <main>
@@ -172,7 +172,7 @@ body[data-lv="0"] #lyr::after{content:"이 글에서 나온 멜로디예요. 따
     <label class="t">가져가기</label>
     <div class="row">
       <button id="xSheet">코드 악보 보기</button><button id="xMidi">미디 저장</button><button id="xWav">소리 파일 저장</button>
-      <label><button id="xVoice" type="button">다른 허밍 넣기</button><input type="file" id="vf" accept=".zip,application/zip"></label>
+      <label><button id="xVoice" type="button">허밍 목소리 파일 넣기</button><input type="file" id="vf" accept=".zip,application/zip"></label>
     </div>
     <pre id="sheetTxt" hidden></pre>
     <p class="note" id="vinfo"></p>
@@ -943,14 +943,15 @@ function draw(slot){ const cv=$('roll'), k=Math.min(2,devicePixelRatio||1), W=cv
   const lo=song.lo-2, hi=song.hi+2, tot=song.total; song.secs.forEach(s=>{ const x=s.startBar*8/tot*W; if(s.type==='chorus'){ g.fillStyle='rgba(183,154,230,.10)'; g.fillRect(x,0,s.nBars*8/tot*W,H); } g.fillStyle='rgba(240,233,246,.14)'; g.fillRect(x,0,k,H); });
   song.notes.forEach(n=>{ const x=n.abs/tot*W, w=Math.max(2*k,n.len/tot*W-k), y=H-6*k-(n.m-lo)/(hi-lo)*(H-12*k); g.fillStyle=slot>=n.abs&&slot<n.abs+n.len?'#f2c88f':slot>=n.abs?'rgba(240,233,246,.85)':n.inst?'rgba(242,200,143,.45)':n.echo?'rgba(183,154,230,.35)':'rgba(183,154,230,.7)'; g.fillRect(x,y-2*k,w,4*k); });
   if(slot>=0){ g.fillStyle='#f2c88f'; g.fillRect(slot/tot*W,0,k,H); } }
-function stop(){ try{ keepEl&&keepEl.pause(); }catch(_){} if(!live) return; cancelAnimationFrame(live.raf); live.nodes.forEach(s=>{ try{ s.stop(); }catch(e){} }); try{ live.master.disconnect(); }catch(e){} live=null; $('stop').hidden=true; $('play').textContent='처음부터 듣기'; $('dPlay').textContent='듣기';
+function stop(){ try{ keepEl&&keepEl.pause(); }catch(_){} if(!live){ if(typeof playTok==='number'&&$('dPlay').textContent==='준비 중…'){ playTok++; $('play').textContent='처음부터 듣기'; $('dPlay').textContent='듣기'; } return; } cancelAnimationFrame(live.raf); live.nodes.forEach(s=>{ try{ s.stop(); }catch(e){} }); try{ live.master.disconnect(); }catch(e){} live=null; $('stop').hidden=true; $('play').textContent='처음부터 듣기'; $('dPlay').textContent='듣기';
   document.querySelectorAll('.bar.now,.bar span.now,.bar span.on,#why .now,#lyr .now,#lyr .done').forEach(e=>e.classList.remove('now','on','done')); draw(-1); }
 function playPart(k){ if(!song) return; const s=song.secs.find(x=>x.part===k)||(k==='r'&&song.secs.find(x=>x.lines.length)); if(s) playRange(s.startBar*8,(s.startBar+s.nBars)*8); }
-async function playRange(from,to){ if(!song) prepare(); if(!song) return; stop(); const c=getAC(); audioCheck(); $('play').textContent='소리 준비 중…'; await loadSamples(c); await loadGset(c,song.ginst); if(song.genre==='rock') await loadGset(c,'gb'); if(song.band) await loadBand(c); const whole=from==null; if(whole){ from=0; to=song.total+16; }
+let playTok=0;
+async function playRange(from,to){ if(!song) prepare(); if(!song) return; stop(); const tok=++playTok, c=getAC(); audioCheck(); $('play').textContent='소리 준비 중…'; $('dPlay').textContent='준비 중…'; await loadSamples(c); await loadGset(c,song.ginst); if(song.genre==='rock') await loadGset(c,'gb'); if(song.band) await loadBand(c); if(tok!==playTok) return; const whole=from==null; if(whole){ from=0; to=song.total+16; }
   const t0=c.currentTime+.3, h=schedule(c,song,t0,{hum:state.lead==='hum'||state.lead==='mix',mix:state.lead==='mix',leadGtr:state.lead==='gtr'||state.lead==='thin'||state.lead==='mix',leadThin:state.lead==='thin'||state.lead==='mix',from,to}), my=song, base=song.time(from), len=whole?song.dur:song.time(to)-base+2.2;
   const lys=[...$('lyr').children].filter(e=>e.dataset.a), spans=[...document.querySelectorAll('.bar span')], cells=[...document.querySelectorAll('.bar')], whys=[...$('why').children]; let li=-1;
   const slotAt=sec=>{ let a=0,b=song.total+16; for(let i=0;i<22;i++){ const m=(a+b)/2; if(song.time(m)<sec) a=m; else b=m; } return a; };
-  $('play').textContent='연주 중'; $('stop').hidden=false; $('dPlay').textContent='멈추기';
+  $('play').textContent='처음부터 다시'; $('stop').hidden=false; $('dPlay').textContent='멈추기';
   const tick=()=>{ if(!live||song!==my) return; const sec=c.currentTime-t0, slot=slotAt(sec+base), bar=Math.floor(slot/8);
     cells.forEach(e=>e.classList.toggle('now',+e.dataset.b===bar)); spans.forEach(s=>{ const n=song.notes[+s.dataset.i]; s.classList.toggle('now',slot>=n.abs&&slot<n.abs+n.len); s.classList.toggle('on',slot>=n.abs+n.len&&n.abs>=from); });
     let cur=-1; song.log.forEach((l,i)=>{ if(l.slot<=slot+.5) cur=i; }); if(cur!==li&&cur>=0){ li=cur; $('nowwhy').innerHTML=`<b>${song.log[cur].t}</b>${song.log[cur].x}`; whys.forEach((w,i)=>w.classList.toggle('now',i===cur)); }
@@ -1022,7 +1023,7 @@ function makeFromFeel(){ const lines=autoLines($('feel').value); if(!lines.lengt
   chips($('tpl'),TPL,'tpl',restruct); restruct(); showLv(); return true; }
 function showLv(){ document.body.dataset.lv=state.lv; $('player').hidden=!state.made; $('dock').hidden=!state.made; document.body.classList.toggle('made',!!state.made); document.querySelectorAll('#dock .seg button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.lv===state.lv))); draw(-1); }
 document.querySelectorAll('#dock .seg button').forEach(b=>{ b.onclick=()=>{ const lv=+b.dataset.lv, same=lv===state.lv; state.lv=lv; persist(); showLv(); const t=lv===0?$('player'):document.querySelector(lv===1?'.lv1':'.lv2'); if(t&&(!same||lv)) t.scrollIntoView({behavior:'smooth',block:'start'}); }; });
-$('dPlay').onclick=()=>{ if(live) stop(); else play(); };
+$('dPlay').onclick=()=>{ if(live||$('dPlay').textContent==='준비 중…') stop(); else play(); };
 $('make').onclick=()=>{ if(makeFromFeel()) play(); };
 $('feel').value=state.feel||'';
 /* 간직한 노래 */
