@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><script src="/assets/gate.js"></script><meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>귀 기울여 듣기 · 보라다방</title>
+<title>들어 보고 답하기 · 보라다방</title>
 <style>
 :root{color-scheme:dark}
 html,body{margin:0;height:100%;background:#1a141c;color:#e9dfd3;font:15px/1.7 "Noto Serif KR","Nanum Myeongjo",serif}
@@ -36,7 +36,7 @@ try {
     url: async p => { if (!urls.has(p)) urls.set(p, v.bytes(p).then(b => URL.createObjectURL(new Blob([b], { type: 'audio/mpeg' })))); return urls.get(p); },
   };
   const html = await step('화면 꺼내기', v.text('listen.html'), 40000), f = document.createElement('iframe');
-  f.id = 'f'; f.title = '귀 기울여 듣기'; f.allow = 'autoplay'; f.srcdoc = html; document.body.prepend(f);
+  f.id = 'f'; f.title = '들어 보고 답하기'; f.allow = 'autoplay'; f.srcdoc = html; document.body.prepend(f);
   f.addEventListener('load', () => { $('msg').hidden = true; }, { once: true }); setTimeout(() => { $('msg').hidden = true; }, 2500);
 } catch (e) {
   if (e.k === 1) say('초대받은 계정으로 들어와야 열려요.');
